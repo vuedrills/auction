@@ -11,7 +11,6 @@ import (
 	"github.com/airmass/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 // ProductHandler handles product-related endpoints
@@ -78,7 +77,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	`,
 		storeID, req.Title, nilIfEmpty(req.Description), req.Price,
 		nilIfZeroFloat(req.CompareAtPrice), pricingType, categoryID,
-		condition, pq.Array(req.Images), stockQty,
+		condition, req.Images, stockQty,
 	).Scan(
 		&product.ID, &product.StoreID, &product.Title, &product.Description,
 		&product.Price, &product.CompareAtPrice, &product.PricingType,
@@ -324,7 +323,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	}
 	if len(req.Images) > 0 {
 		updates = append(updates, "images = $"+strconv.Itoa(argNum))
-		args = append(args, pq.Array(req.Images))
+		args = append(args, req.Images)
 		argNum++
 	}
 	if req.StockQuantity != nil {

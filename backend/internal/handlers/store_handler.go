@@ -12,7 +12,6 @@ import (
 	"github.com/airmass/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 // StoreHandler handles store-related endpoints
@@ -123,7 +122,7 @@ func (h *StoreHandler) CreateStore(c *gin.Context) {
 		userID, req.StoreName, slug, nilIfEmpty(req.Tagline), nilIfEmpty(req.About),
 		nilIfEmpty(req.LogoURL), nilIfEmpty(req.CoverURL), categoryID,
 		nilIfEmpty(req.WhatsApp), nilIfEmpty(req.Phone),
-		pq.Array(deliveryOptions), nilIfZero(req.DeliveryRadiusKm),
+		deliveryOptions, nilIfZero(req.DeliveryRadiusKm),
 		townID, suburbID,
 	).Scan(
 		&store.ID, &store.UserID, &store.StoreName, &store.Slug,
@@ -215,7 +214,7 @@ func (h *StoreHandler) UpdateMyStore(c *gin.Context) {
 	}
 	if len(req.DeliveryOptions) > 0 {
 		updates = append(updates, "delivery_options = $"+strconv.Itoa(argNum))
-		args = append(args, pq.Array(req.DeliveryOptions))
+		args = append(args, req.DeliveryOptions)
 		argNum++
 	}
 	if req.DeliveryRadiusKm != nil {

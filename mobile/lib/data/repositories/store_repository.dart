@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equatable/equatable.dart';
+
 import '../../core/network/dio_client.dart';
 import '../data.dart';
 import '../models/store.dart';
@@ -352,7 +354,7 @@ class PaginatedResponse<T> {
   });
 }
 
-class StoreProductsParams {
+class StoreProductsParams extends Equatable {
   final String slug;
   final int page;
   final int limit;
@@ -360,7 +362,7 @@ class StoreProductsParams {
   final String? pricingType;
   final String? sort;
 
-  StoreProductsParams({
+  const StoreProductsParams({
     required this.slug,
     this.page = 1,
     this.limit = 20,
@@ -368,4 +370,7 @@ class StoreProductsParams {
     this.pricingType,
     this.sort,
   });
+
+  @override
+  List<Object?> get props => [slug, page, limit, categoryId, pricingType, sort];
 }
