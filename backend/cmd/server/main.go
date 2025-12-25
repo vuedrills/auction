@@ -52,6 +52,9 @@ func main() {
 	auctionWorker := worker.NewAuctionWorker(db, hub)
 	go auctionWorker.Start(ctx)
 
+	badgeWorker := worker.NewBadgeWorker(db)
+	go badgeWorker.Start(ctx)
+
 	// Setup router
 	r := router.SetupRouter(db, jwtService, hub)
 
