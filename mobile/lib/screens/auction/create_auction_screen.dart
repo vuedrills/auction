@@ -85,17 +85,27 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
       final storageService = ref.read(supabaseStorageProvider);
       _uploadedImageUrls.clear();
       
+      int successCount = 0;
       for (final image in _localImages) {
         final url = await storageService.uploadFile(image, 'auctions');
         if (url != null) {
           _uploadedImageUrls.add(url);
+          successCount++;
         }
+      }
+      
+      if (successCount == 0 && _localImages.isNotEmpty) {
+        throw Exception('Could not upload any images. Please check your internet connection or storage configuration.');
+      }
+      
+      if (successCount < _localImages.length) {
+        throw Exception('Only $successCount of ${_localImages.length} images were uploaded. Please try again.');
       }
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_uploadedImageUrls.length} photos uploaded'),
+            content: Text('$successCount photos uploaded'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -103,9 +113,10 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Upload Error: $e'), backgroundColor: AppColors.error),
         );
       }
+      rethrow; // Re-throw to prevent publishing
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }

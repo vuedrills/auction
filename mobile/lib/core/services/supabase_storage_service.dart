@@ -90,6 +90,7 @@ class SupabaseStorageService {
         options: Options(
           headers: {
             'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
+            'apikey': SupabaseConfig.anonKey,
             'Content-Type': contentType,
             'x-upsert': 'true',
           },
@@ -100,9 +101,14 @@ class SupabaseStorageService {
         return SupabaseConfig.getPublicUrl(path);
       }
       
+      print('Upload failed with status: ${response.statusCode}, body: ${response.data}');
       return null;
     } catch (e) {
-      print('Error uploading file: $e');
+      if (e is DioException) {
+        print('DioError uploading file: ${e.message}, response: ${e.response?.data}');
+      } else {
+        print('Error uploading file: $e');
+      }
       return null;
     }
   }
