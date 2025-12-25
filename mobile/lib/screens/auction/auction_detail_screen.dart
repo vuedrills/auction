@@ -326,14 +326,14 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.borderLight),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.local_shipping, size: 14, color: AppColors.success),
+                    Icon(Icons.local_shipping, size: 14, color: AppColors.textSecondaryLight),
                     const SizedBox(width: 4),
-                    Text('Shipping Available', style: AppTypography.bodySmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w500)),
+                    Text('Shipping', style: AppTypography.bodySmall.copyWith(color: AppColors.textPrimaryLight)),
                   ]),
                 ),
             ],
@@ -378,15 +378,9 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                 Text(seller.homeTown?.name ?? '', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
               ]),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextButton(
-                onPressed: () => context.push('/user/${seller.id}'),
-                child: Text('View Profile', style: AppTypography.labelMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
-              ),
+            TextButton(
+              onPressed: () => context.push('/user/${seller.id}'),
+              child: Text('View Profile', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
             ),
           ],
         ),
@@ -431,10 +425,10 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isHighest ? AppColors.success.withValues(alpha: 0.05) : AppColors.surfaceLight,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isHighest ? AppColors.success : AppColors.borderLight,
+                  color: isHighest ? AppColors.primary : AppColors.borderLight,
                   width: isHighest ? 1.5 : 1,
                 ),
               ),
@@ -444,7 +438,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                   Expanded(
                     child: Row(children: [
                       if (isHighest) ...[
-                        Icon(Icons.emoji_events, size: 16, color: AppColors.success),
+                        Icon(Icons.emoji_events, size: 16, color: AppColors.primary),
                         const SizedBox(width: 6),
                       ],
                       Text(bid.bidder?.fullName ?? 'Anonymous', style: AppTypography.bodyMedium.copyWith(
@@ -455,7 +449,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.success,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text('You', style: AppTypography.labelSmall.copyWith(color: Colors.white)),
@@ -464,7 +458,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                     ]),
                   ),
                   Text('\$${bid.amount.toStringAsFixed(2)}', style: AppTypography.bodyMedium.copyWith(
-                    color: isHighest ? AppColors.success : AppColors.textPrimaryLight,
+                    color: AppColors.textPrimaryLight,
                     fontWeight: isHighest ? FontWeight.w700 : FontWeight.w400,
                   )),
                 ],

@@ -247,10 +247,24 @@ class _NotificationsTab extends ConsumerWidget {
       return;
     }
     
-    // For auction won/sold without chat_id, navigate to chat list
+    // For auction won/sold, try to find the chat by auction ID
     if (notification.type == NotificationType.auctionWon || 
         notification.type == NotificationType.auctionSold) {
-      context.push('/chats');
+      // Try to find the chat for this auction from the loaded chats
+      final chatsAsync = ref.read(chatsProvider);
+      chatsAsync.whenData((chats) {
+        final matchingChat = chats.where((c) => c.auctionId == notification.auctionId).firstOrNull;
+        if (matchingChat != null) {
+          context.push('/chats/${matchingChat.id}');
+        } else {
+          // No matching chat found, go to chat list
+          context.push('/chats');
+        }
+      });
+      // If chats aren't loaded yet, just go to chat list
+      if (!chatsAsync.hasValue) {
+        context.push('/chats');
+      }
       return;
     }
     
