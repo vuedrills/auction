@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Place Bid Bottom Sheet - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<div class="fixed inset-0 bg-black/40 z-[60] backdrop-blur-[2px]"></div>
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 transition-colors">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center flex-1 mx-2">
+<h2 class="text-[#181112] dark:text-white text-lg font-bold leading-tight tracking-tight flex items-center gap-1">
+                Surry Hills
+                <span class="material-symbols-outlined text-primary text-base fill-1" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</h2>
+<span class="text-[#89616a] dark:text-gray-400 text-xs font-medium tracking-wide uppercase">in Sydney Central</span>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+<div class="flex gap-3 px-4 pb-3 overflow-x-auto hide-scrollbar">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-[#181112] dark:bg-white px-4 transition-transform active:scale-95">
+<span class="text-white dark:text-[#181112] text-sm font-bold">All</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 transition-transform active:scale-95">
+<span class="text-[#181112] dark:text-gray-300 text-sm font-medium">Furniture</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 transition-transform active:scale-95">
+<span class="text-[#181112] dark:text-gray-300 text-sm font-medium">Electronics</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 px-4 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-primary text-base">timer</span>
+<span class="text-primary text-sm font-bold">Ending Soon</span>
+</button>
+</div>
+</header>
+<main class="flex-1 p-4 pb-24 space-y-5">
+<article class="group relative flex flex-col rounded-xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-transparent dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] bg-gray-200 dark:bg-gray-800 overflow-hidden">
+<div class="absolute top-3 left-3 z-10 flex items-center gap-1 bg-primary text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm">
+<span class="block size-1.5 rounded-full bg-white animate-pulse"></span>
+                Live Now
+            </div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Close up of a shiny vintage chrome espresso machine on a wooden counter" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+<div class="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10">
+<span class="material-symbols-outlined text-base text-primary">hourglass_bottom</span>
+<span class="text-sm font-bold font-mono tracking-wide">04m 22s</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<div class="flex justify-between items-start gap-2">
+<div>
+<div class="flex items-center gap-1.5 text-xs font-medium text-[#89616a] dark:text-gray-400 mb-1">
+<span class="material-symbols-outlined text-sm">kitchen</span>
+                        Kitchen Appliances
+                    </div>
+<h3 class="text-lg font-bold text-[#181112] dark:text-white leading-tight">Vintage Espresso Machine</h3>
+</div>
+</div>
+<div class="flex items-end justify-between border-t border-gray-100 dark:border-white/10 pt-3 mt-1">
+<div class="flex flex-col">
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Current Bid</span>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-primary">$120</span>
+<span class="text-xs text-gray-400 font-medium line-through decoration-gray-400">$250 Buy Now</span>
+</div>
+</div>
+<button class="flex items-center gap-2 bg-[#181112] dark:bg-white text-white dark:text-[#181112] px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                    Bid Now
+                </button>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col rounded-xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-transparent dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
+<div class="relative w-full aspect-[16/9] bg-gray-200 dark:bg-gray-800 overflow-hidden">
+<div class="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded">
+                14 Bids
+            </div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Set of 4 mid-century modern wooden dining chairs arranged around a table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCw7UMiWr1UqIIJKSE-yHaqYpCdjs-YBa85U8ckiMLDTGWsX8-hgS43qfLZhSuye2yqGJ7PQ8bk3zcHvOZKjRdsLdrBAcHAGO3FBeVcVYqZV2hOiIwWB8Ce87FX7A74iSTAFjqDUWgGUWq61k4S4-eZ7rK7T0JvAHSJtz_kWjDXuqg5WB-Kf2Loc2SdJF2lIYd4HOlP7rBvGk2RV5czraJNfOnza3ANOcMJKTR6KoAA-u1DZkVqFnian5MztNPSd9DcepFswpgUftCI");'>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-1.5 text-xs font-medium text-[#89616a] dark:text-gray-400 mb-1">
+<span class="material-symbols-outlined text-sm">chair</span>
+                        Furniture
+                    </div>
+<h3 class="text-lg font-bold text-[#181112] dark:text-white leading-tight">Set of 4 Dining Chairs</h3>
+</div>
+<div class="flex items-center gap-1 text-[#181112] dark:text-gray-300 bg-gray-100 dark:bg-white/10 px-2 py-1 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                    1h 10m
+                </div>
+</div>
+<div class="flex items-end justify-between border-t border-gray-100 dark:border-white/10 pt-3 mt-1">
+<div class="flex flex-col">
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Current Bid</span>
+<span class="text-xl font-bold text-[#181112] dark:text-white">$45</span>
+</div>
+<button class="flex items-center gap-2 bg-primary/10 dark:bg-primary/20 text-primary px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary/20 transition-colors active:scale-95">
+                    View Details
+                </button>
+</div>
+</div>
+</article>
+</main>
+<div class="fixed inset-x-0 bottom-0 z-[70] flex flex-col items-center justify-end">
+<div class="w-full bg-white dark:bg-[#25151a] rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] border-t border-gray-100 dark:border-white/5 p-6 pb-8 transform transition-transform duration-300 ease-out translate-y-0 relative">
+<div class="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full"></div>
+<div class="flex items-center justify-between mb-6 pt-2">
+<div>
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Placing bid on</p>
+<h3 class="text-lg font-bold text-[#181112] dark:text-white">Vintage Espresso Machine</h3>
+</div>
+<button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-black/20 rounded-xl mb-6 border border-gray-100 dark:border-white/5">
+<div class="flex flex-col gap-0.5">
+<span class="text-xs font-semibold uppercase tracking-wide text-primary flex items-center gap-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                    High Bidder
+                </span>
+<span class="text-sm font-medium text-gray-600 dark:text-gray-300">Sarah M. (Neighbor)</span>
+</div>
+<div class="text-right">
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium block">Current Highest</span>
+<span class="text-2xl font-bold text-[#181112] dark:text-white">$120</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-gray-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:scale-95 group">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400 group-hover:text-primary mb-0.5">Quick Bid</span>
+<span class="text-lg font-bold text-[#181112] dark:text-white group-hover:text-primary">+$5</span>
+</button>
+<button class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 border-primary bg-primary/5 dark:bg-primary/10 transition-all active:scale-95 relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg">Popular</div>
+<span class="text-xs font-bold text-primary mb-0.5">Quick Bid</span>
+<span class="text-lg font-bold text-primary">+$10</span>
+</button>
+<button class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-gray-200 dark:border-white/10 hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:scale-95 group">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400 group-hover:text-primary mb-0.5">Quick Bid</span>
+<span class="text-lg font-bold text-[#181112] dark:text-white group-hover:text-primary">+$20</span>
+</button>
+</div>
+<div class="relative flex items-center gap-3">
+<div class="h-px bg-gray-200 dark:bg-white/10 flex-1"></div>
+<span class="text-xs font-medium text-gray-400 uppercase">Or custom amount</span>
+<div class="h-px bg-gray-200 dark:bg-white/10 flex-1"></div>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="text-gray-400 font-bold text-xl">$</span>
+</div>
+<input class="block w-full pl-8 pr-12 py-4 bg-white dark:bg-black/20 border-2 border-gray-200 dark:border-white/10 rounded-xl text-xl font-bold text-[#181112] dark:text-white focus:border-primary focus:ring-0 placeholder-gray-300 dark:placeholder-gray-600 transition-colors" placeholder="135" type="number" value="130"/>
+<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+<span class="text-xs font-bold text-gray-400">USD</span>
+</div>
+</div>
+<div class="flex items-start gap-2 px-1">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">info</span>
+<p class="text-xs text-gray-500 dark:text-gray-400 leading-snug">
+                    By placing this bid, you agree to the auction terms. This action cannot be undone once confirmed.
+                </p>
+</div>
+<button class="w-full bg-primary hover:bg-[#d63a5b] text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span>Place Bid for $130</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+
+</body></html>

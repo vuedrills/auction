@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Category Full</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b68",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b22",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+        /* Custom scrollbar for clean look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181113] dark:text-white antialiased transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-xl">
+<!-- Top Navigation -->
+<div class="flex items-center p-4 justify-between sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[#181113] dark:text-white">
+<span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] text-center">Limit Reached</h2>
+<div class="size-10"></div> <!-- Spacer for balance -->
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 flex flex-col items-center px-6 pt-2 pb-8">
+<!-- Location Chip -->
+<div class="mb-8 animate-fade-in-down">
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 pl-3 pr-4 shadow-sm">
+<span class="material-symbols-outlined text-primary" style="font-size: 18px;">location_on</span>
+<p class="text-sm font-bold leading-normal text-gray-800 dark:text-gray-200">Harare</p>
+</div>
+</div>
+<!-- Illustration & Hero Text -->
+<div class="flex flex-col items-center gap-6 w-full mb-8">
+<div class="bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-2xl w-full shadow-sm" data-alt="Abstract illustration of a full box or busy marketplace with geometric shapes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCTNjs6EtxRwttXDfMj8q2aCeWSStAZPrXzzbdyqFLE4540c6XDgW4o7Tjnw1ulD_ULsGbLOZz_xnNA4_YT0t6zPK7BHoXzvCHijQEcuA0t4hq8s-VCd-Dju27EPLJikavHs7F_vC9XcQmHVcDslhuIz6I-SecGZC1IslnCkUjmvxHU-dQ1wAtlKBXsTSm9ZLYtKr3MXjQvpesv4hXi95R3kp1nrp4uW-lX2gsKbC1c1Vuk5X4rthx9V45ZGUlUd1WpOy-NzvQab_1h");'>
+</div>
+<div class="flex flex-col items-center gap-3 text-center">
+<h1 class="text-2xl font-extrabold leading-tight tracking-tight max-w-[300px]">
+                        Whoa! It's busy in Harare.
+                    </h1>
+<p class="text-gray-600 dark:text-gray-300 text-base font-medium leading-relaxed">
+                        The <span class="text-primary font-bold">Electronics</span> category has hit its cap of 50 active auctions. We limit items to ensure every auction gets fair visibility.
+                    </p>
+</div>
+</div>
+<!-- Waitlist Card -->
+<div class="w-full mb-6">
+<div class="relative overflow-hidden rounded-2xl bg-surface-dark text-white shadow-lg">
+<!-- Background Image with Overlay -->
+<div class="absolute inset-0 z-0 bg-cover bg-center" data-alt="Abstract dark gradient background representing speed or flow" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAimfYNOGXIshoqaVJvRQUxAW-5af6CRMA67m4_TfnlwtYBBVs7wdbu_z4TZc1st6iXM8pubmFkL099EXjLR7CREvhTBtX6RboGMu8FJ-WJn-LLwyIbUW3iHBVcXuePsradSX-afSNPylqNnAp7lebg5rfyKxQl3RUgiuISelZZSvzB2l_y8D0xQRD2tVJmTiP4SfJ6ZneMAT3XQE0pe8i_Hyzn_TjZGaRtVqcIVAMMielfUK4Bb8UMy_BvuXsMcUee52WKsVTobSMF"); opacity: 0.4;'>
+</div>
+<div class="absolute inset-0 z-0 bg-gradient-to-br from-primary/90 to-purple-900/90 mix-blend-multiply"></div>
+<!-- Content -->
+<div class="relative z-10 p-5 flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-yellow-300 filled" style="font-size: 20px; font-variation-settings: 'FILL' 1;">star</span>
+<p class="text-xs font-bold uppercase tracking-wider text-yellow-300">Fast Track</p>
+</div>
+<h3 class="text-xl font-bold">Priority Waitlist</h3>
+<p class="text-white/80 text-sm leading-relaxed max-w-[260px]">
+                                    Your item will auto-publish as soon as a slot opens up.
+                                </p>
+</div>
+<div class="bg-white/20 backdrop-blur-md rounded-lg p-3 flex flex-col items-center justify-center min-w-[80px]">
+<span class="material-symbols-outlined mb-1" style="font-size: 24px;">timer</span>
+<span class="text-xs font-medium text-white/80">Est. Wait</span>
+<span class="text-lg font-bold">45m</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Actions -->
+<div class="mt-auto w-full p-4 pb-8 bg-background-light dark:bg-background-dark">
+<div class="flex flex-col gap-4">
+<button class="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-primary hover:bg-primary/90 transition-all shadow-lg shadow-primary/30 active:scale-[0.98]">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+<span class="text-white text-lg font-bold tracking-wide">Join Waitlist</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center h-10 text-gray-500 dark:text-gray-400 font-semibold text-sm hover:text-primary dark:hover:text-primary transition-colors">
+                    Browse Electronics instead
+                </button>
+</div>
+</div>
+</div>
+</body></html>

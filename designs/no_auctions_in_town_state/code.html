@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>No Auctions in Town State</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b68",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-white dark:bg-background-dark shadow-xl">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-10 flex items-center justify-between bg-white/90 dark:bg-background-dark/90 p-4 backdrop-blur-md">
+<button class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<div class="flex flex-col items-center">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight text-center">Springfield</h2>
+<span class="text-xs font-medium text-gray-500 dark:text-gray-400">Current Location</span>
+</div>
+<button class="flex size-12 shrink-0 items-center justify-center rounded-full text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">tune</span>
+</button>
+</header>
+<!-- Main Content (Empty State) -->
+<main class="flex-1 flex flex-col items-center justify-center px-6 pb-20 pt-8">
+<!-- Illustration Area -->
+<div class="relative w-full max-w-[280px] aspect-square mb-8">
+<!-- Decorative circle background -->
+<div class="absolute inset-0 bg-primary/5 dark:bg-primary/10 rounded-full scale-90 blur-2xl"></div>
+<div class="relative w-full h-full bg-center bg-contain bg-no-repeat z-10" data-alt="Illustration of a peaceful empty park bench in a town square" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC_Ce13skAcSTg7BgL8tVB3BkfWg6_FzUz0AT40GrjhzC_c-aVQtPokVmfIBa9a6sUeqOVx3nsqxb61kqEgLORKlqlLkM642rFbhZM0GhYtMzX3XWRLgp2qNCYroCXPYq84UhAc62NQJcaiNuCsX3yV7_uNzt7Xjn9mUJjWu-1aDJydCtVEP9MMLvUGpdY0L44sXGaD3GMBC2Y-7YraDutCuxpsP3rDfFLZVzuRl7MmC3D9sNWlJjLpiOnbG-xWsLwHpdnfDQITIOFE"); border-radius: 1rem; mask-image: linear-gradient(to bottom, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);'>
+</div>
+</div>
+<!-- HeadlineText -->
+<div class="flex flex-col gap-2 mb-8 animate-fade-in-up">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight text-center">
+                    It's quiet...<br/>too quiet.
+                </h1>
+<!-- BodyText -->
+<p class="text-gray-600 dark:text-gray-400 text-base font-normal leading-relaxed text-center px-2">
+                    There are no active auctions in <span class="font-semibold text-slate-900 dark:text-white">Springfield</span> at the moment. Why not clear out your garage and spark some local competition?
+                </p>
+</div>
+<!-- ButtonGroup -->
+<div class="flex w-full flex-col gap-3 max-w-[320px]">
+<button class="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95">
+<span class="material-symbols-outlined mr-2 text-[20px]">gavel</span>
+<span class="font-bold tracking-wide">Create New Auction</span>
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-gray-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="font-semibold">See National Trends</span>
+<span class="material-symbols-outlined ml-2 text-[18px]">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 z-20 w-full max-w-md bg-white dark:bg-[#1a0c10] border-t border-gray-100 dark:border-white/5 pb-safe">
+<div class="flex items-center justify-around h-16 px-2">
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-primary">
+<span class="material-symbols-outlined text-[24px] filled">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[24px]">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+<div class="size-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-primary text-[24px]">add</span>
+</div>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="text-[10px] font-medium">Alerts</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<!-- iOS Home Indicator Spacing -->
+<div class="h-5 w-full"></div>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,37 @@
+# System Files
+.DS_Store
+Thumbs.db
+*.swp
+
+# Environment Files
+.env
+.env.*
+
+# Build and IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Go related
+backend/bin/
+backend/dist/
+backend/vendor/
+backend/*.exe
+backend/*.test
+backend/*.prof
+
+# Flutter related
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/ios/Flutter/.last_build_id
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/flutter_export_environment.sh
+
+# Logs
+*.log

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Won Items - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen flex flex-col relative pb-20">
+<header class="sticky top-0 z-30 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-lg border-b border-gray-200 dark:border-white/5 px-4 pt-12 pb-4">
+<div class="flex items-center justify-between max-w-md mx-auto w-full">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold">Won Items</h1>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+</button>
+</div>
+</header>
+<main class="flex-1 w-full max-w-md mx-auto p-4 space-y-4">
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-white dark:bg-card-dark p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm">
+<div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To Pay</div>
+<div class="text-2xl font-bold text-primary">$120</div>
+</div>
+<div class="bg-white dark:bg-card-dark p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm">
+<div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To Collect</div>
+<div class="text-2xl font-bold text-[#181112] dark:text-white">2 Items</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-1">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Action Required</h2>
+</div>
+<div class="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-lg shadow-primary/5 border border-primary/20 dark:border-primary/20 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between mb-3 pl-2">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-sm text-primary">credit_card</span>
+<span class="text-xs font-bold text-primary">Payment Pending</span>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Ended 2h ago</span>
+</div>
+<div class="flex gap-4 pl-2">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'></div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-center">
+<h3 class="font-bold text-[#181112] dark:text-white truncate mb-1">Vintage Espresso Machine</h3>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Surry Hills, Sydney</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-xs text-gray-400">Winning Bid:</span>
+<span class="text-lg font-bold text-primary">$120.00</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pl-2 grid grid-cols-5 gap-2">
+<button class="col-span-3 bg-primary hover:bg-primary/90 text-white text-sm font-bold h-10 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-primary/20">
+<span>Pay Now</span>
+</button>
+<button class="col-span-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#181112] dark:text-white border border-gray-200 dark:border-white/10 text-sm font-bold h-10 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg">chat</span>
+<span>Chat</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 rounded-lg">
+<span class="material-symbols-outlined text-sm text-green-600 dark:text-green-400">package_2</span>
+<span class="text-xs font-bold text-green-600 dark:text-green-400">Ready for Pickup</span>
+</div>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Paid yesterday</span>
+</div>
+<div class="flex gap-4">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<img alt="Camera" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0-L7EKI0aSsLzqxN8xxAAVUMXszWwthlOUM8DMcWbJ7F9Nt4UvHpfeHv8UX5sXCxqjNzBwLGF7x1ZQJF44Pa6oK8k0o3NLbBKBDnn3xIOMgIDJsm_b_Zikpk6GuUv9Vq-Ne-AY9NuEgfVYxooYjXPP4fL_P4yjXXOBnTrdiDl5b_sxCkyH8pSaBRDZ1Mzaw4qhoHvebUe8Ozlmpyx7_-eKKIfmebjxzGSfajeUZOFk_y2Amd6wtYcmxM7SAosI4JvOtGCXcRxSLka"/>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-center">
+<h3 class="font-bold text-[#181112] dark:text-white truncate mb-1">Sony A7III Camera Body</h3>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Redfern, Sydney</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-xs text-gray-400">Winning Bid:</span>
+<span class="text-lg font-bold text-[#181112] dark:text-white">$1,450.00</span>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<button class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-bold h-10 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-green-600/20">
+<span class="material-symbols-outlined text-lg">map</span>
+<span>View Pickup Instructions</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between px-1 mt-6">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Past Wins</h2>
+</div>
+<div class="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-white/5 opacity-80 hover:opacity-100 transition-opacity">
+<div class="flex gap-4">
+<div class="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<img alt="Chair" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzX46FXMOzbNFYFqr8FMSjtCNQ_S38oYiyLoO_chxbgF3mOMTeqi9LP-HonX2yM8yJizCxG-MapBLDeMqhh9VrMWCWXocWeGTslKkNNe6mLXwX3c9-HGrcPSckrXa2UKpx9UU5z8G-HIwr1bS5PydqaLrscru1OKLdla_nn_xkkLK8v-4AG_FH2scwb5WqkgqJF2f_VhV_BNW-orUjErmxVhQOulmFogw21hOIaY2pn0oCPNB96BLT2o-alKryGB-qw-tDOxW1L8YM"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-[#181112] dark:text-white truncate text-sm mb-1">Eames Molded Plastic Chair</h3>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>Collected • Newtown</span>
+</div>
+</div>
+<span class="text-sm font-bold text-gray-900 dark:text-white">$85.00</span>
+</div>
+<div class="mt-3 flex gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                            Leave Review
+                        </button>
+<button class="px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                            Receipt
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

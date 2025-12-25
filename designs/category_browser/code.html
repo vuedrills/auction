@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Category Browser</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "primary-content": "#ffffff",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b1f",
+                        "text-main-light": "#181112",
+                        "text-main-dark": "#f8f6f6",
+                        "text-sub-light": "#89616a",
+                        "text-sub-dark": "#d1b3b9",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-text-main-light dark:text-text-main-dark transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-xl overflow-hidden">
+<!-- Sticky Header Area -->
+<div class="sticky top-0 z-20 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-colors">
+<!-- Top App Bar -->
+<div class="flex items-center p-4 pb-2 justify-between">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-text-main-light dark:text-text-main-dark" style="font-size: 24px;">arrow_back</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Browse Categories</h2>
+</div>
+<!-- Segmented Buttons (Location Toggle) -->
+<div class="px-4 pb-3">
+<div class="flex h-10 w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-black/20 p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 transition-all duration-200 has-[:checked]:bg-white dark:has-[:checked]:bg-surface-dark has-[:checked]:shadow-sm has-[:checked]:text-primary">
+<span class="truncate text-sm font-semibold">Springfield</span>
+<input checked="" class="invisible w-0 h-0 absolute" name="location_toggle" type="radio" value="Springfield"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 transition-all duration-200 has-[:checked]:bg-white dark:has-[:checked]:bg-surface-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-text-sub-light dark:text-text-sub-dark hover:text-text-main-light dark:hover:text-text-main-dark">
+<span class="truncate text-sm font-medium">National</span>
+<input class="invisible w-0 h-0 absolute" name="location_toggle" type="radio" value="National"/>
+</label>
+</div>
+</div>
+</div>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto pb-24">
+<!-- Search Bar -->
+<div class="px-4 py-3 mt-2">
+<div class="relative flex w-full items-center">
+<span class="absolute left-4 material-symbols-outlined text-text-sub-light dark:text-text-sub-dark pointer-events-none" style="font-size: 20px;">search</span>
+<input class="w-full h-12 rounded-xl bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark pl-11 pr-4 text-base font-medium placeholder:text-text-sub-light/60 dark:placeholder:text-text-sub-dark/50 border-none focus:ring-2 focus:ring-primary/50 shadow-sm" placeholder="Search tables, chairs, electronics..." type="text"/>
+</div>
+</div>
+<!-- Trending Chips -->
+<div class="w-full overflow-x-auto no-scrollbar pb-2">
+<div class="flex gap-3 px-4 min-w-max">
+<button class="flex h-9 items-center justify-center gap-x-1.5 rounded-full bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors px-3 pl-3.5 border border-transparent active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary" style="font-size: 16px;">trending_up</span>
+<span class="text-primary text-xs font-bold leading-normal">Trending</span>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark px-4 border border-gray-100 dark:border-gray-800 shadow-sm active:scale-95 transition-transform duration-150">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-semibold leading-normal">#Vintage</span>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark px-4 border border-gray-100 dark:border-gray-800 shadow-sm active:scale-95 transition-transform duration-150">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-semibold leading-normal">#EstateSale</span>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark px-4 border border-gray-100 dark:border-gray-800 shadow-sm active:scale-95 transition-transform duration-150">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-semibold leading-normal">#Refurbished</span>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark px-4 border border-gray-100 dark:border-gray-800 shadow-sm active:scale-95 transition-transform duration-150">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-semibold leading-normal">#Handmade</span>
+</button>
+</div>
+</div>
+<!-- Section Title -->
+<div class="px-4 pt-4 pb-2 flex items-baseline justify-between">
+<h3 class="text-text-main-light dark:text-text-main-dark text-base font-bold">Top Categories</h3>
+<span class="text-xs text-primary font-semibold">View All</span>
+</div>
+<!-- Category Grid -->
+<div class="grid grid-cols-2 gap-3 p-4 pt-0">
+<!-- Card 1 -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Mid-century modern green sofa in a living room" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Mid-century modern green sofa in a living room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6OckNx81K6z1pSI4xDPV2SKu7PuMJalxR9kw9uEROTsVOqlQR_B4IDJxrlQrywFDcTslm95mFrGuxDkdDouKpiqcoEAH7c1h_dz0e1pq8ETGKvquV06w6OjjJfVecyE59YMUHj-O_HE9YwNm4irC9xw6uTOJKyWZ5h8ikt8zQVPSNEQ4F7yOoDyuBUIShlFiF3ggy0F2CGIf4sDhAVlHgFPspygOc-WLGeVSAXXlH41mdrAMkV7T_Chuq7qxeHNnXj3x_M2QOHmEX"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute top-3 right-3 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                        HOT
+                    </div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Furniture</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">124 active</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Vintage electronics camera and gadgets on table" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Vintage electronics camera and gadgets on table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDMF2aFUwM2htxswPyk3EdWQ_8OMdaimYvaesux306GJOR-LlBXNzfHIyjYZvOs_V5CalA2907AMGsGnDPNk6PRjUB078tN0qS72yyfjn8k_TIASZfhq-H2_TatWteSosxE9kHboGx2wRXLRBR5exdN868aCQUc0Ce8UuvkBNuJnlDy4_YhXWBodBO3IICkm_CIw7_wMCQ6vBsK0aiR_Z-XwM1kUvO-3A9b0UIE8x2mNrj20Ax-OX2KEn4pj8R5OMDhFK_8rLLZssp"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Electronics</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">89 active</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Classic blue vintage car front view" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Classic blue vintage car front view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB19KWEVhnHoTzAog5E5h6VkEV7QpP9u_h096h_cEFf3zF6NO3VJKiln3gsR0zFDZ5Kc0lqDnkHcn53l_wBwAF-_NqPtrIoONc6TX1y2p0YH5zKInADl_V-DqlWg8fcJDas1QIzHKCjatY9KRP2fsf4y2vC08CGMd1iu2UpZ9d-ql_cPLFg0jo8GqU87jyI4Q87uvAqDC6J0Cpm-BIwkRDHYxeMI-4EyFrv4rO0zlcJYCT2RwyAu5dBQq_tqei2VbYLGl8IHw_qDnAX"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Vehicles</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">12 active</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Fashion model walking down street with shopping bags" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Fashion model walking down street with shopping bags" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHM63CikIUPeTdJk-9jnvlccCsqPAWAKvBHA_NXn6_8aW-2jtIQsu1pPQyPyQYxZyut3bG9cnNlqbpPNVkyrmnyGo-9BwCiXJ0hOC1iUZyXRYaFgcdxRCoVtJuvxTvLtLiM2fGRT7X1n1VV-aRL-YIP8GDuyrVMj1KexmAAl4hdDAL_qUV6O3itSlen2Kq7bSpdVesz4VyFnkD0wKmIQ0ESnz8z500wzZo8CPuRc45eQQaTpJgeQKhYU7pktIUvhUXb7uiRuqYMsn7"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute top-3 right-3 bg-white/20 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        NEW
+                    </div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Fashion</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">256 active</span>
+</div>
+</div>
+</div>
+<!-- Card 5 (Collectibles) -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Stack of collectible trading cards and coins" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Stack of collectible trading cards and coins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcqd-2zeP3Em_K8m6UBhNy2MxYRqnRgMdMkCuw1mWGheUrNlA85ByyRs0pKqNRlz4FBKFUJy6YmpPSRyL5uqjYF3s_4H4IiGuPoun0YkBBySGFR4RxA_zD20vVBGIz7oEx5yoUD_glZuM5fYzDIjpQ4vJJgGJkU1AIUFHVtayGvHrUByQTDobq949VvEUxjxCcv3WaWLuZqX-xrdX1gIhLvc5JtbhrBbdDl2H0eDJWgVnjkRAnIK7ako-vo9jAuj69f3SFQK4ash_d"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Collectibles</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">42 active</span>
+</div>
+</div>
+</div>
+<!-- Card 6 (Home & Garden) -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 shadow-sm active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<img alt="Gardening tools and potted plants on wooden table" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Gardening tools and potted plants on wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI5dTjqliRNSVwDDciYomtRuabC8qy22Vz2xtLr9iz1JaaBGYNz5cFY2qhETaXp26-ZBCKKZ9k27tl2KsdLjpCcvamlN4VqlmAYH4vM1U2LQJaF2Csx1FimaaZGNlUA2XChsHxd_pLVIT-py_MVpnIfhQCpb9-Drvjg2hI-fKp_tFQuYgQAWLubAwjbdNcxUGc4sG8IDOq1_ReP4oHU1y7_JgUYysL0BMZZ7OG2E25CPJjXP4TKYIpvoaBT2qQqVSBgjOVTYrZyA3y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="text-white text-lg font-bold leading-tight mb-0.5">Home &amp; Garden</h4>
+<div class="flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+<span class="text-gray-200 text-xs font-medium">67 active</span>
+</div>
+</div>
+</div>
+<!-- Empty State Example -->
+<div class="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-surface-dark flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-600 mb-2" style="font-size: 32px;">sports_soccer</span>
+<h4 class="text-text-sub-light dark:text-text-sub-dark text-base font-bold leading-tight">Sports</h4>
+<p class="text-xs text-gray-400 dark:text-gray-600 mt-1">0 active locally</p>
+<span class="text-primary text-xs font-semibold mt-3">View National →</span>
+</div>
+</div>
+<div class="h-6 w-full"></div>
+</div>
+<!-- Bottom Navigation Bar (iOS Style) -->
+<div class="fixed bottom-0 w-full max-w-md bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe">
+<div class="flex justify-around items-center h-16 px-2">
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 dark:text-gray-500 hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<span class="material-symbols-outlined text-[26px]">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-primary">
+<span class="material-symbols-outlined text-[26px] fill-current">grid_view</span>
+<span class="text-[10px] font-bold">Browse</span>
+</button>
+<div class="relative -top-5">
+<button class="flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[28px]">gavel</span>
+</button>
+</div>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 dark:text-gray-500 hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<div class="relative">
+<span class="material-symbols-outlined text-[26px]">favorite</span>
+<span class="absolute top-0 -right-0.5 flex size-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full size-2.5 bg-primary"></span>
+</span>
+</div>
+<span class="text-[10px] font-medium">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 dark:text-gray-500 hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<span class="material-symbols-outlined text-[26px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<!-- Safe Area Spacer for iOS Home Indicator -->
+<div class="h-4 w-full"></div>
+</div>
+</div>
+</body></html>

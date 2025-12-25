@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass Chat Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b68",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181113] dark:text-gray-100 font-display flex flex-col h-screen overflow-hidden antialiased">
+<!-- Top Navigation Bar -->
+<header class="bg-white dark:bg-[#2a151d] shadow-sm z-30 shrink-0">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-primary">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex-1 text-center mx-2 truncate">
+<h1 class="text-base font-bold leading-tight truncate text-[#181113] dark:text-white">Vintage Sony Amplifier</h1>
+</div>
+<button class="flex items-center justify-center p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+<!-- Context Banner -->
+<div class="bg-primary/10 dark:bg-primary/20 border-t border-primary/10 dark:border-primary/5 px-4 py-1.5 flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px] leading-none">location_on</span>
+<p class="text-xs font-semibold text-primary tracking-wide uppercase">Harare • Electronics</p>
+</div>
+</header>
+<!-- Scrollable Chat Content -->
+<main class="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-6 bg-background-light dark:bg-background-dark relative">
+<!-- Auction Snapshot Card (Sticky-ish feel at top of convo) -->
+<div class="bg-white dark:bg-[#2a151d] p-3 rounded-lg shadow-sm border border-gray-100 dark:border-white/5 flex gap-3 items-center">
+<div class="h-14 w-14 shrink-0 rounded-md bg-cover bg-center" data-alt="Close up of a vintage audio amplifier knob" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGga3g6WsB5MVKsjVr6l-wHlZnEVepXrpd-3LUDFhnF7bKP12ODw-AOy8vLL9SVKTR7dwkwjOcsD_77oDbx5mWYs8rmC9zrY6NbKjIS4hOxjAjNpbpLuYcRswliHlplRz5keyXwlPeK0jn8aLFqID8pazx-f2nckmBqwgXsfpO7ZK_4o1PXoKbOPESX7VXabOFN4ujiAyLkOmOiUsCa7bgV1N27N4dknP8AVgDiNj2gswrCt2AiRLbf_YjFclWGX38TIyuUD7Ld8YZ');"></div>
+<div class="flex-1 min-w-0">
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Current Bid: $45.00</p>
+<h3 class="text-sm font-bold truncate text-[#181113] dark:text-white">Sony TA-1150 Integrated Amp</h3>
+<p class="text-xs text-primary font-medium">Ends in 2h 15m</p>
+</div>
+<button class="shrink-0 px-3 py-1.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 rounded text-xs font-bold text-[#181113] dark:text-white transition-colors">
+                View
+            </button>
+</div>
+<!-- Safety Warning System Message -->
+<div class="flex justify-center">
+<div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-900/30 px-3 py-1.5 rounded-full flex items-center gap-2 max-w-[90%]">
+<span class="material-symbols-outlined text-yellow-600 dark:text-yellow-500 text-[16px]">security</span>
+<p class="text-xs text-yellow-800 dark:text-yellow-200 font-medium">Safety Tip: Meet in a public place.</p>
+</div>
+</div>
+<!-- Time Divider -->
+<div class="relative flex py-2 items-center">
+<div class="flex-grow border-t border-gray-200 dark:border-white/10"></div>
+<span class="flex-shrink-0 mx-4 text-xs text-gray-400 dark:text-gray-500 font-medium">Today, 10:23 AM</span>
+<div class="flex-grow border-t border-gray-200 dark:border-white/10"></div>
+</div>
+<!-- Chat Messages Area -->
+<div class="flex flex-col gap-4">
+<!-- Received Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="h-8 w-8 shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center" data-alt="Portrait of the potential buyer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDL8KTNT3RxjUujfCCm05naTDg8WFGChcdjGp1nAr4rJrrKy8HgMnZPpHb_GWnuozdgp5hLQTh1Pk-tkiOoWoI1NJwCxEhtnzV2kENjog157I_Y543-KUBXpLS1-d1bXjGpP50UVBguukk9gSuSdfWTv1GIWTqSCjpjVAiKN42Zbi-j0TbwW-1tbb1rmybp2KAQN_BwgdgSlPrEPbOG5iCMJyn0Tf406P_8Vom7P2VTIIlHyDJmbxYA2zXJAk3Y66rsA53WnhrqEdhD');"></div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">Buyer (John)</span>
+<div class="bg-white dark:bg-[#2a151d] border border-gray-100 dark:border-white/5 p-3 rounded-2xl rounded-tl-sm shadow-sm">
+<p class="text-sm text-[#181113] dark:text-gray-200 leading-normal">Hi! Is this still available for pickup in Avondale? I can come by later today.</p>
+</div>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary p-3 rounded-2xl rounded-tr-sm shadow-md text-white">
+<p class="text-sm leading-normal">Yes, I'm available after 5 PM. Does 5:30 work for you?</p>
+</div>
+<span class="text-[10px] text-gray-400 flex items-center gap-1">
+                        10:45 AM
+                        <span class="material-symbols-outlined text-[12px]">done_all</span>
+</span>
+</div>
+</div>
+<!-- Received Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="h-8 w-8 shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center" data-alt="Portrait of the potential buyer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtO992m9AsAl41ONm4a81-A96X2wRWyMa0ygNcmTsYjBs7M70NgTFSAyu8GWlQt7ELmbUbLVap1OlpZQRIWOPAHor-SdSYBQqJENAuTJuNbS5ScA6WvPvGeiJWSEbGCbO5bYJBSYbcWUezNDNHvg8xBm5Ye_P2oJpznIOa_mM7_BbPF7o_fA0PInQztlZMbzjeSBpvOKDeXjAHTpdvLu_lE2RdPHdaDIwunFWSltuLonA07xhZkp547EMozgCxIbeFLQcy2GlVVXmT');"></div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">Buyer (John)</span>
+<div class="bg-white dark:bg-[#2a151d] border border-gray-100 dark:border-white/5 p-3 rounded-2xl rounded-tl-sm shadow-sm">
+<p class="text-sm text-[#181113] dark:text-gray-200 leading-normal">Great, I'll be there. I'll bring cash as requested.</p>
+</div>
+</div>
+</div>
+<!-- System Message: Auction Won -->
+<div class="my-4 flex flex-col items-center gap-2">
+<span class="text-xs text-gray-400 dark:text-gray-500 font-medium">10:55 AM</span>
+<div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-100 dark:border-green-800/30 p-4 rounded-xl w-full text-center shadow-sm">
+<div class="flex justify-center mb-2">
+<div class="h-10 w-10 bg-green-100 dark:bg-green-800/40 rounded-full flex items-center justify-center text-green-600 dark:text-green-300">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+</div>
+<p class="text-sm font-bold text-green-800 dark:text-green-200 mb-1">Auction Won!</p>
+<p class="text-xs text-green-700 dark:text-green-300">The auction has ended. Please arrange final exchange details.</p>
+<button class="mt-3 text-xs font-bold text-white bg-green-600 hover:bg-green-700 py-2 px-4 rounded-lg shadow-sm w-full sm:w-auto transition-colors">
+                        Mark as Exchanged
+                    </button>
+</div>
+</div>
+<!-- Sent Message (Follow up) -->
+<div class="flex gap-3 max-w-[85%] self-end flex-row-reverse pb-4">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary p-3 rounded-2xl rounded-tr-sm shadow-md text-white">
+<p class="text-sm leading-normal">Perfect, see you then!</p>
+</div>
+<span class="text-[10px] text-gray-400 flex items-center gap-1">
+                        10:56 AM
+                        <span class="material-symbols-outlined text-[12px]">done</span>
+</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Input Area -->
+<footer class="bg-white dark:bg-[#2a151d] border-t border-gray-100 dark:border-white/5 p-3 shrink-0 pb-6 sm:pb-3">
+<!-- Floating Action Button (Contextual) -->
+<div class="flex justify-center -mt-10 mb-3 pointer-events-none">
+<button class="pointer-events-auto shadow-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold py-2 px-4 rounded-full flex items-center gap-2 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                Request Payment
+            </button>
+</div>
+<div class="flex items-end gap-2">
+<button class="shrink-0 p-3 text-gray-400 hover:text-primary transition-colors rounded-full hover:bg-gray-50 dark:hover:bg-white/5">
+<span class="material-symbols-outlined block">add_circle</span>
+</button>
+<div class="flex-1 bg-gray-100 dark:bg-white/5 rounded-2xl flex items-center min-h-[48px] px-4 py-2">
+<textarea class="w-full bg-transparent border-none p-0 text-sm text-[#181113] dark:text-white placeholder-gray-400 focus:ring-0 resize-none max-h-24" placeholder="Message buyer..." rows="1" style="min-height: 24px;"></textarea>
+<button class="shrink-0 ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+</button>
+</div>
+<button class="shrink-0 h-12 w-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center text-white shadow-md transition-colors">
+<span class="material-symbols-outlined ml-1">send</span>
+</button>
+</div>
+</footer>
+</body></html>

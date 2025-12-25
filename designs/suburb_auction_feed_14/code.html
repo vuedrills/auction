@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Auctions - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-x-hidden selection:bg-primary selection:text-white pb-24">
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+<div class="absolute -top-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute top-1/4 -left-20 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
+</div>
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#221014]/80 backdrop-blur-md border-b border-gray-100 dark:border-white/5">
+<div class="max-w-md mx-auto w-full px-6 py-4 flex items-center justify-between">
+<div class="flex flex-col">
+<h1 class="text-xl font-bold text-[#181112] dark:text-white tracking-tight">My Auctions</h1>
+<div class="flex items-center gap-1 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[16px] fill-1" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="text-xs font-bold uppercase tracking-wide">Surry Hills</span>
+</div>
+</div>
+<button class="flex size-9 items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-sm text-[#181112] dark:text-white">close</span>
+</button>
+</div>
+<div class="max-w-md mx-auto w-full px-6 pb-3 overflow-x-auto hide-scrollbar">
+<div class="flex gap-3">
+<button class="px-4 py-1.5 rounded-full bg-[#181112] dark:bg-white text-white dark:text-[#181112] text-xs font-bold whitespace-nowrap shadow-sm">
+                    Active (2)
+                </button>
+<button class="px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold whitespace-nowrap hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
+                    Drafts (1)
+                </button>
+<button class="px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold whitespace-nowrap hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
+                    Sold History
+                </button>
+</div>
+</div>
+</header>
+<main class="relative z-10 w-full max-w-md mx-auto pt-[136px] px-4 space-y-4">
+<div class="group bg-white dark:bg-card-dark rounded-2xl p-3 shadow-sm hover:shadow-md border border-gray-100 dark:border-white/5 transition-all">
+<div class="flex gap-3 mb-3">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-200">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'></div>
+<div class="absolute top-1.5 left-1.5 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
+<span class="size-1.5 bg-white rounded-full animate-pulse"></span>
+                        LIVE
+                    </div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+<div>
+<div class="flex items-start justify-between gap-2">
+<h3 class="font-bold text-[#181112] dark:text-white truncate text-[15px] leading-tight">Vintage Espresso Machine</h3>
+<button class="text-gray-400 hover:text-[#181112] dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-xs text-gray-500 dark:text-gray-400">
+<span class="font-medium">Surry Hills</span>
+<span class="size-0.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+<span class="truncate">Kitchen &amp; Dining</span>
+</div>
+</div>
+<div class="flex items-end justify-between mt-2">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Highest Bid</p>
+<p class="text-lg font-bold text-primary leading-none">$120</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Ends In</p>
+<p class="text-xs font-bold text-[#181112] dark:text-white bg-gray-100 dark:bg-white/10 px-2 py-1 rounded leading-none">2h 14m</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 border-t border-gray-100 dark:border-white/5 pt-3">
+<button class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 text-xs font-bold text-[#181112] dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                    View Listing
+                </button>
+<button class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/5 text-xs font-bold text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                    Manage
+                </button>
+</div>
+</div>
+<div class="group bg-white dark:bg-card-dark rounded-2xl p-3 shadow-sm hover:shadow-md border border-gray-100 dark:border-white/5 transition-all">
+<div class="flex gap-3 mb-3">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-700 dark:text-amber-500 text-4xl">chair</span>
+<div class="absolute top-1.5 left-1.5 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
+<span class="size-1.5 bg-white rounded-full animate-pulse"></span>
+                        LIVE
+                    </div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+<div>
+<div class="flex items-start justify-between gap-2">
+<h3 class="font-bold text-[#181112] dark:text-white truncate text-[15px] leading-tight">Mid-Century Armchair</h3>
+<button class="text-gray-400 hover:text-[#181112] dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-xs text-gray-500 dark:text-gray-400">
+<span class="font-medium">Surry Hills</span>
+<span class="size-0.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+<span class="truncate">Furniture</span>
+</div>
+</div>
+<div class="flex items-end justify-between mt-2">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Highest Bid</p>
+<p class="text-lg font-bold text-primary leading-none">$345</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Ends In</p>
+<p class="text-xs font-bold text-[#181112] dark:text-white bg-gray-100 dark:bg-white/10 px-2 py-1 rounded leading-none">1d 04h</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 border-t border-gray-100 dark:border-white/5 pt-3">
+<button class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 text-xs font-bold text-[#181112] dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                    View Listing
+                </button>
+<button class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/5 text-xs font-bold text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                    Manage
+                </button>
+</div>
+</div>
+<div class="group bg-gray-50 dark:bg-card-dark/50 rounded-2xl p-3 shadow-none border border-gray-200 dark:border-white/10 border-dashed transition-all">
+<div class="flex gap-3 mb-3">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-400 text-4xl">photo_camera</span>
+<div class="absolute top-1.5 left-1.5 bg-gray-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                        DRAFT
+                    </div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+<div>
+<div class="flex items-start justify-between gap-2">
+<h3 class="font-bold text-gray-600 dark:text-gray-300 truncate text-[15px] leading-tight">Sony A7III Camera Kit</h3>
+<button class="text-gray-400 hover:text-[#181112] dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-xs text-gray-500 dark:text-gray-500">
+<span class="font-medium">Surry Hills</span>
+<span class="size-0.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+<span class="truncate">Electronics</span>
+</div>
+</div>
+<div class="flex items-end justify-between mt-2">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Starting at</p>
+<p class="text-lg font-bold text-gray-400 leading-none">$1,200</p>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-1 rounded leading-none flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> Finish
+                             </p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 pt-3">
+<button class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-bold text-[#181112] dark:text-white hover:bg-gray-50 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                    Resume Editing
+                </button>
+</div>
+</div>
+</main>
+<div class="fixed bottom-6 right-6 z-40">
+<button class="flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-[0_4px_20px_rgba(238,68,105,0.4)] hover:bg-primary/90 hover:scale-105 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform duration-300">add</span>
+</button>
+</div>
+
+</body></html>

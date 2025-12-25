@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Session Expired</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ee4469",
+            "background-light": "#f8f6f6",
+            "background-dark": "#221014",
+            "text-main": "#181112",
+            "text-secondary": "#89616a",
+          },
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased selection:bg-primary/30">
+<!-- Main Container -->
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-6 group/design-root">
+<!-- Background Decor (Subtle Blur) -->
+<div class="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute bottom-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3"></div>
+<!-- Content Card/Wrapper -->
+<div class="relative z-10 flex w-full max-w-[400px] flex-col items-center gap-8">
+<!-- Illustration Area -->
+<div class="flex flex-col items-center justify-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-2xl w-full aspect-[4/3] shadow-sm ring-1 ring-black/5 dark:ring-white/10 relative overflow-hidden bg-white dark:bg-white/5" data-alt="Abstract illustration of a locked gate representing a secured session timeout" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuApIfccyKyDMWxcTr1-iZ3pizOoZkx1QtPTGCabONaeKiobx5W9Yfr0ItZmyh73FonZsowOIPcAt0_UvNCKRbTzN4V6kuYgK1WPg7qGMzZcpAtPvJvyxUdR_T86Ap4KBueSHrHe_I5AS4SHEp-KaX1NzgMpptrviMXmprQ9a95Bdxc6TsQyH4XJ53pQLiJ0HOAbSAGTTZ3vsD8pM45-j4EnYOJPeS1WxLW_Z3zhxTLiexLKepSpyBo1KchhLxHTOQC72LaoC6sNKqN6");'>
+<!-- Overlay Icon for reinforcement -->
+<div class="absolute inset-0 flex items-center justify-center bg-background-light/30 dark:bg-background-dark/30 backdrop-blur-[2px]">
+<div class="flex h-20 w-20 items-center justify-center rounded-full bg-white dark:bg-[#2A1519] shadow-lg ring-4 ring-primary/10">
+<span class="material-symbols-outlined text-4xl text-primary">lock_clock</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col items-center gap-3 text-center">
+<h1 class="text-text-main dark:text-white text-2xl md:text-3xl font-extrabold leading-tight tracking-tight">
+          Session Expired
+        </h1>
+<p class="text-text-main/80 dark:text-gray-300 text-sm md:text-base font-medium leading-relaxed max-w-[320px]">
+          For your security, we've logged you out of AirMass. Please sign in again to continue bidding in your town.
+        </p>
+</div>
+<!-- Actions -->
+<div class="flex w-full flex-col items-center gap-5 pt-2">
+<!-- Primary Button -->
+<button class="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-12 px-6 bg-primary text-white hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">login</span>
+<span class="text-base font-bold tracking-wide">Log In</span>
+</button>
+<!-- Secondary Action -->
+<button class="text-text-secondary dark:text-primary/80 text-sm font-semibold leading-normal pb-1 border-b border-transparent hover:border-text-secondary dark:hover:border-primary/80 transition-all">
+          Switch Account
+        </button>
+</div>
+</div>
+</div>
+</body></html>

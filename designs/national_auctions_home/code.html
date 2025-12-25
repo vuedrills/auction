@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>National Auctions - AirMass</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2a1d21",
+                        "text-main-light": "#181112",
+                        "text-main-dark": "#ffffff",
+                        "text-sub-light": "#89616a",
+                        "text-sub-dark": "#d0b0b6",
+                        "accent-timer": "#FF8322",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main-light dark:text-text-main-dark antialiased selection:bg-primary selection:text-white pb-24">
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/5">
+<div class="px-4 pt-4 pb-2">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+</div>
+<h2 class="text-xl font-extrabold tracking-tight">National Auctions</h2>
+</div>
+<button class="relative p-2 text-text-main-light dark:text-text-main-dark hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</div>
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm font-medium pl-10">Auctions from all towns</p>
+</div>
+<div class="px-4 py-2">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-sub-light dark:text-text-sub-dark">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark placeholder-text-sub-light dark:placeholder-text-sub-dark focus:ring-2 focus:ring-primary shadow-sm text-sm" placeholder="Search items, towns, or suburbs..." type="text"/>
+</div>
+</div>
+<div class="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar scroll-pl-4">
+<button class="flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface-light dark:bg-surface-dark border border-black/5 dark:border-white/5 px-4 py-2 shadow-sm whitespace-nowrap active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span class="text-sm font-bold">Filter</span>
+</button>
+<button class="flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-white px-4 py-2 shadow-sm shadow-primary/30 whitespace-nowrap active:scale-95 transition-transform">
+<span class="text-sm font-bold">All Items</span>
+</button>
+<button class="flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface-light dark:bg-surface-dark border border-black/5 dark:border-white/5 px-4 py-2 shadow-sm whitespace-nowrap active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="text-sm font-medium">Ending Soon</span>
+</button>
+<button class="flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface-light dark:bg-surface-dark border border-black/5 dark:border-white/5 px-4 py-2 shadow-sm whitespace-nowrap active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">devices</span>
+<span class="text-sm font-medium">Electronics</span>
+</button>
+<button class="flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface-light dark:bg-surface-dark border border-black/5 dark:border-white/5 px-4 py-2 shadow-sm whitespace-nowrap active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">chair</span>
+<span class="text-sm font-medium">Furniture</span>
+</button>
+</div>
+</header>
+<main class="grid grid-cols-2 gap-3 p-3 pt-2">
+<article class="flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-transform duration-200">
+<div class="relative w-full aspect-[4/3] bg-gray-200 overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Vintage black analog camera sitting on a wooden table" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgaaFCvEyCXBuqvXKpSlYBSM1OrGQWwLE95tOy3fJWFv4FYJO7xBRJhWkajlfmSL3Ssu5OuM9ZC6V-h6tPZfCNzDO5pz56-JgyfzbFpgok9YW9WZ7wVT5joxbJ7DUxKfXX3kFjClms_ioAUC7o1ntJTFvfs6ELQuxRmnYH1T2Yhxrvy6a5hHz0gGZX186Y3VYbhYHFy6-Cnpx_xjOpOJlugnoOoZcZfCn1-vJiIHmzKyfZf9C5Z-JNEtGzx1Z9ZAKjGtDd_lMbtAoX');"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-red-400 filled">local_fire_department</span>
+<span>Hot</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+<div class="flex items-center gap-0.5 bg-primary/10 dark:bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[10px] filled">location_on</span>
+<span>Springfield</span>
+</div>
+<span class="text-[10px] font-medium text-text-sub-light dark:text-text-sub-dark truncate">• North End</span>
+</div>
+<div class="text-[10px] font-bold uppercase tracking-wider text-text-sub-light/70 dark:text-text-sub-dark/70 mb-1">Photography</div>
+<h3 class="text-sm font-bold leading-tight text-text-main-light dark:text-text-main-dark line-clamp-2 mb-2 min-h-[2.5em]">Vintage Canon AE-1 Program Camera</h3>
+<div class="mt-auto pt-2 border-t border-black/5 dark:border-white/5 flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark font-medium">Current Bid</span>
+<span class="text-base font-extrabold text-primary">$120</span>
+</div>
+<div class="flex items-center gap-0.5 text-accent-timer pb-0.5">
+<span class="material-symbols-outlined text-[14px] filled">timer</span>
+<span class="text-xs font-bold">2h 14m</span>
+</div>
+</div>
+</div>
+</article>
+<article class="flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-transform duration-200">
+<div class="relative w-full aspect-[4/3] bg-gray-200 overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Modern mountain bike parked on a forest trail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1HOUmMoHkdhfCt1RNycydumuwGwMx19qh0f3wlvnmsm7ktiShOZ4P-P17ZCj2Ym_1Ku-ZskDmZ1qdU57lThPMcq5rT36VlAd8Dm03EWETjX4nz5-a6dWh7iQKhvxcIRUQ6jYBwSR3WYHAjS-sirHSs1Nn7cl1f0YHkGRQXlwhmBjviy2HZy_kvV-tcHS1Pcus8dTsaebVoWdFb5coFdyXLgRIwgGWOaywcRWSNxz8lv8UTz1Czwe753DSM8ApCYe6V5QVvcd5xXm_');"></div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+<div class="flex items-center gap-0.5 bg-primary/10 dark:bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[10px] filled">location_on</span>
+<span>Oakville</span>
+</div>
+<span class="text-[10px] font-medium text-text-sub-light dark:text-text-sub-dark truncate">• Lakeside</span>
+</div>
+<div class="text-[10px] font-bold uppercase tracking-wider text-text-sub-light/70 dark:text-text-sub-dark/70 mb-1">Sports</div>
+<h3 class="text-sm font-bold leading-tight text-text-main-light dark:text-text-main-dark line-clamp-2 mb-2 min-h-[2.5em]">Trek Marlin 5 Mountain Bike - Like New</h3>
+<div class="mt-auto pt-2 border-t border-black/5 dark:border-white/5 flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark font-medium">Current Bid</span>
+<span class="text-base font-extrabold text-primary">$450</span>
+</div>
+<div class="flex items-center gap-0.5 text-accent-timer pb-0.5">
+<span class="material-symbols-outlined text-[14px] filled">alarm</span>
+<span class="text-xs font-bold">12m left</span>
+</div>
+</div>
+</div>
+</article>
+<article class="flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-transform duration-200">
+<div class="relative w-full aspect-[4/3] bg-gray-200 overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="PlayStation 5 console and controller on a dark surface" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhPo8vT5BSmjeX1EswEJU49r2gJtvh-mqnrnznj01hzmSP9cJ340G4Qi856qRBjpdUGb6nv-PCIMpCAEck0aMsLaI-V6kpsuik7dpi6vDvzxXXFChS1HULh9XlTs-ZrnBFnXilJT-h6BIimXqgm6dBY6abFGnVO4d52IYHeo9k11H94hm_xK7C7eV7xJOMt9x7jQqJlWuzesA7vllxAY3GFaZ4dV81RwVyUgqPZPfli8mQTbw-77JXGYEA0DvVlZGzjjEFJa5JYJoe');"></div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+<div class="flex items-center gap-0.5 bg-primary/10 dark:bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[10px] filled">location_on</span>
+<span>Bristol</span>
+</div>
+<span class="text-[10px] font-medium text-text-sub-light dark:text-text-sub-dark truncate">• Downtown</span>
+</div>
+<div class="text-[10px] font-bold uppercase tracking-wider text-text-sub-light/70 dark:text-text-sub-dark/70 mb-1">Gaming</div>
+<h3 class="text-sm font-bold leading-tight text-text-main-light dark:text-text-main-dark line-clamp-2 mb-2 min-h-[2.5em]">Sony PlayStation 5 Digital Edition</h3>
+<div class="mt-auto pt-2 border-t border-black/5 dark:border-white/5 flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark font-medium">Current Bid</span>
+<span class="text-base font-extrabold text-primary">$200</span>
+</div>
+<div class="flex items-center gap-0.5 text-accent-timer pb-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span class="text-xs font-bold">1d left</span>
+</div>
+</div>
+</div>
+</article>
+<article class="flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-transform duration-200">
+<div class="relative w-full aspect-[4/3] bg-gray-200 overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Luxury wrist watch on a wooden table" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDk0aW7dr37mTD0AbPMdO4A1bhbxRwHOzPj8iWKbdjl6LIvp2v6BjuXqqM0Y1lsHSKh4iVkZTS09Xre_gQ7RNP45y9XFScdIPwtDZhzsmHagBB5qJz4TswWVBBUjpUVx2TZYjT6U9B8Q4y1EYfSJxoG_on2EEH4CIqDAqPHG71Eq-0M7nP6o-b7nLktqFEnR6eqq2E-7fQX804ZdU4Z-mD0yK9cma04oeq09lkmT2LIWWH5G6A8zCXBxgLqDXbWX6XgQi5Sw_7_XOHc');"></div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+<div class="flex items-center gap-0.5 bg-primary/10 dark:bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[10px] filled">location_on</span>
+<span>Rivertown</span>
+</div>
+<span class="text-[10px] font-medium text-text-sub-light dark:text-text-sub-dark truncate">• West Side</span>
+</div>
+<div class="text-[10px] font-bold uppercase tracking-wider text-text-sub-light/70 dark:text-text-sub-dark/70 mb-1">Luxury</div>
+<h3 class="text-sm font-bold leading-tight text-text-main-light dark:text-text-main-dark line-clamp-2 mb-2 min-h-[2.5em]">Vintage Omega Seamaster</h3>
+<div class="mt-auto pt-2 border-t border-black/5 dark:border-white/5 flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark font-medium">Current Bid</span>
+<span class="text-base font-extrabold text-primary">$850</span>
+</div>
+<div class="flex items-center gap-0.5 text-accent-timer pb-0.5">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span class="text-xs font-bold">5h 30m</span>
+</div>
+</div>
+</div>
+</article>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-lg border-t border-black/5 dark:border-white/5 pb-safe z-50">
+<div class="flex justify-around items-center h-16">
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-primary">
+<span class="material-symbols-outlined text-[24px] filled">public</span>
+<span class="text-[10px] font-bold">National</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">house</span>
+<span class="text-[10px] font-medium">My Town</span>
+</button>
+<div class="relative -top-5">
+<button class="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+<span class="text-[10px] font-medium">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<div class="h-[env(safe-area-inset-bottom)] w-full"></div>
+</nav>
+
+</body></html>

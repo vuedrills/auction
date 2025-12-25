@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Help &amp; Support - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b68",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2f1b22",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181113] dark:text-gray-100 font-display transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-xl">
+<!-- Top App Bar -->
+<div class="flex items-center px-4 py-4 justify-between sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm">
+<button aria-label="Go back" class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors text-[#181113] dark:text-white">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-[#181113] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Help Center</h2>
+<div class="size-10"></div> <!-- Spacer for alignment -->
+</div>
+<!-- Hero Search Section -->
+<div class="px-4 pb-6 pt-2">
+<div class="relative w-full rounded-2xl bg-gradient-to-br from-primary to-[#ff6b95] p-6 text-white shadow-lg overflow-hidden">
+<!-- Abstract shapes for decoration -->
+<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+<div class="absolute -left-6 bottom-0 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
+<h1 class="relative mb-2 text-2xl font-bold leading-tight">How can we help?</h1>
+<p class="relative mb-4 text-sm font-medium text-white/90">Find help regarding auctions, towns, and more.</p>
+<label class="relative flex w-full items-center">
+<div class="absolute left-3 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input h-12 w-full rounded-xl border-none bg-white pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 shadow-sm" placeholder="Search for answers..." value=""/>
+</label>
+</div>
+</div>
+<!-- Quick Topics Grid -->
+<div class="px-4">
+<h2 class="text-[#181113] dark:text-white tracking-tight text-xl font-bold leading-tight pb-4">Quick Topics</h2>
+<div class="grid grid-cols-2 gap-3">
+<!-- Buying & Bidding -->
+<button class="flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark p-4 items-start text-left shadow-sm hover:border-primary/30 transition-colors group">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<span class="text-[#181113] dark:text-white text-sm font-bold leading-tight">Buying &amp;<br/>Bidding</span>
+</button>
+<!-- Selling & Listings -->
+<button class="flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark p-4 items-start text-left shadow-sm hover:border-primary/30 transition-colors group">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<span class="text-[#181113] dark:text-white text-sm font-bold leading-tight">Selling &amp;<br/>Listings</span>
+</button>
+<!-- Town Residency -->
+<button class="flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark p-4 items-start text-left shadow-sm hover:border-primary/30 transition-colors group">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">location_city</span>
+</div>
+<span class="text-[#181113] dark:text-white text-sm font-bold leading-tight">Town<br/>Residency</span>
+</button>
+<!-- Safety & Trust -->
+<button class="flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark p-4 items-start text-left shadow-sm hover:border-primary/30 transition-colors group">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">shield</span>
+</div>
+<span class="text-[#181113] dark:text-white text-sm font-bold leading-tight">Safety &amp;<br/>Trust</span>
+</button>
+</div>
+</div>
+<!-- Community Tip Banner -->
+<div class="px-4 py-6">
+<div class="flex items-start gap-3 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 p-4">
+<div class="text-orange-500 dark:text-orange-400 shrink-0">
+<span class="material-symbols-outlined text-[24px]">lightbulb</span>
+</div>
+<div>
+<h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Did you know?</h3>
+<p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    AirMass auctions are local first. You can only create listings in your registered home town.
+                </p>
+</div>
+</div>
+</div>
+<!-- Top Questions Accordion List -->
+<div class="px-4 pb-4">
+<h2 class="text-[#181113] dark:text-white tracking-tight text-xl font-bold leading-tight mb-4">Top Questions</h2>
+<div class="flex flex-col gap-3">
+<!-- Question 1 -->
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark overflow-hidden">
+<button class="flex w-full items-center justify-between p-4 text-left">
+<span class="text-sm font-semibold text-[#181113] dark:text-white">Why can't I post in another town?</span>
+<span class="material-symbols-outlined text-gray-400">expand_more</span>
+</button>
+</div>
+<!-- Question 2 -->
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark overflow-hidden">
+<button class="flex w-full items-center justify-between p-4 text-left">
+<span class="text-sm font-semibold text-[#181113] dark:text-white">How do real-time bids work?</span>
+<span class="material-symbols-outlined text-gray-400">expand_more</span>
+</button>
+</div>
+<!-- Question 3 -->
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark overflow-hidden">
+<button class="flex w-full items-center justify-between p-4 text-left">
+<span class="text-sm font-semibold text-[#181113] dark:text-white">What are the fees for selling?</span>
+<span class="material-symbols-outlined text-gray-400">expand_more</span>
+</button>
+</div>
+<button class="w-full text-center py-2 text-sm font-medium text-primary hover:underline">
+                View all articles
+            </button>
+</div>
+</div>
+<!-- Contact Support Card -->
+<div class="mt-auto px-4 pb-8 pt-4">
+<div class="rounded-xl bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
+<div class="flex flex-col items-center text-center">
+<div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-300">support_agent</span>
+</div>
+<h3 class="mb-1 text-base font-bold text-[#181113] dark:text-white">Still need help?</h3>
+<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Our support team is available 24/7 to assist you with any town disputes or auction issues.</p>
+<button class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-transform active:scale-95 hover:bg-primary/90">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+                    Chat with Support
+                </button>
+</div>
+</div>
+</div>
+<div class="h-6"></div> <!-- Bottom safe area spacer -->
+</div>
+</body></html>

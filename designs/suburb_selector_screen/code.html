@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Suburb Selector</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ff8324",
+              "background-light": "#f8f7f5",
+              "background-dark": "#23180f",
+              "surface-light": "#ffffff",
+              "surface-dark": "#2d231a",
+              "text-main-light": "#181410",
+              "text-main-dark": "#eceae9",
+              "text-sub-light": "#8d725e",
+              "text-sub-dark": "#b0a69e",
+              "border-light": "#e5e0dc",
+              "border-dark": "#3e322a",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            boxShadow: {
+                'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-filled {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased overflow-hidden selection:bg-primary/30">
+<!-- Mobile Container -->
+<div class="relative flex flex-col h-screen w-full max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+<!-- Top App Bar / Town Header -->
+<header class="flex flex-col gap-2 bg-surface-light dark:bg-surface-dark p-4 pb-2 shadow-sm z-20 transition-colors duration-200">
+<div class="flex items-center h-8 justify-between">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-filled text-lg">location_on</span>
+<span class="text-xs font-bold uppercase tracking-wider">Home Town</span>
+</div>
+<button class="flex items-center justify-end gap-1 group">
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm font-bold leading-normal tracking-[0.015em] shrink-0 group-hover:text-primary transition-colors">Change Town</p>
+<span class="material-symbols-outlined text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-primary transition-colors">expand_more</span>
+</button>
+</div>
+<div class="flex items-end justify-between">
+<h1 class="text-text-main-light dark:text-text-main-dark tracking-tight text-3xl font-extrabold leading-tight">Springfield</h1>
+<p class="text-sm text-text-sub-light dark:text-text-sub-dark font-medium pb-1">72°F Partly Cloudy</p>
+</div>
+</header>
+<!-- Main Scrollable Content -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<!-- Search Bar -->
+<div class="px-4 py-4 sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm">
+<label class="flex flex-col h-12 w-full shadow-subtle rounded-xl">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full bg-surface-light dark:bg-surface-dark border border-transparent focus-within:border-primary/50 transition-colors">
+<div class="text-text-sub-light dark:text-text-sub-dark flex items-center justify-center pl-4 rounded-l-xl">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-main-light dark:text-text-main-dark focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-text-sub-light dark:placeholder:text-text-sub-dark/50 px-3 text-base font-normal leading-normal" placeholder="Find a neighborhood..." value=""/>
+</div>
+</label>
+</div>
+<!-- "All Suburbs" Aggregation Card -->
+<div class="px-4 pb-2">
+<div class="group relative flex items-stretch justify-between gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-4 shadow-card hover:shadow-lg transition-all cursor-pointer border border-border-light dark:border-border-dark">
+<div class="flex flex-[2_2_0px] flex-col justify-between z-10">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<p class="text-text-main-light dark:text-text-main-dark text-lg font-bold leading-tight">All of Springfield</p>
+<span class="material-symbols-outlined text-primary text-sm animate-pulse">circle</span>
+</div>
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm font-medium leading-normal">
+<span class="text-primary font-bold">24</span> active auctions across town
+                            </p>
+</div>
+<div class="mt-4 flex items-center gap-1 text-primary text-sm font-bold">
+<span>Browse All</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<!-- Decorative Map Graphic -->
+<div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-transparent to-surface-light dark:to-surface-dark z-[5]"></div>
+<div class="w-28 bg-center bg-no-repeat bg-cover rounded-lg flex-1 opacity-80 dark:opacity-60 grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Abstract map view of a city grid with orange highlights" data-location="Springfield" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDV39q_47NZGru0oRyG5nKWvmjs1YO0EON7D-puVyfoIguPpN8JakAVSqSwJ22q977L8_oDJHIVQrTaXgGR6n5-OcSvQYjrscvk2CTnI2PChfPpp0ixSKg1E9cYrLJYDfsQv6Z1e29NsPS5XphknTEOK3rTkq5giLz2B5BTLsRcrK19pExhPTo06svT15_zpuLumnhfGTJSYLFUEzBy-n07ZPcgFchrZFxX02hlsl-mI8_Cxc6oDyBVrB8HZWWf_n-XTpv7_qSqFHcT");'>
+</div>
+</div>
+</div>
+<!-- List Header -->
+<h3 class="text-text-main-light dark:text-text-main-dark text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-6 flex items-center justify-between">
+<span>Neighborhoods</span>
+<span class="text-xs font-normal text-text-sub-light dark:text-text-sub-dark bg-surface-light dark:bg-surface-dark px-2 py-1 rounded-full border border-border-light dark:border-border-dark">Sorted by Urgency</span>
+</h3>
+<!-- Suburb List -->
+<div class="flex flex-col px-4 gap-3">
+<!-- Item 1: High Activity -->
+<div class="flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-subtle border-l-4 border-primary cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-dark/80 transition-colors">
+<div class="flex flex-col justify-center flex-1">
+<p class="text-text-main-light dark:text-text-main-dark text-base font-bold leading-normal line-clamp-1">North Springfield</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-medium bg-background-light dark:bg-background-dark px-1.5 py-0.5 rounded text-opacity-80">22151</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="bg-primary/10 dark:bg-primary/20 text-primary px-2.5 py-1 rounded-full flex items-center gap-1.5">
+<span class="material-symbols-filled text-[10px] animate-pulse">bolt</span>
+<span class="text-xs font-bold leading-none">3 Live</span>
+</div>
+<p class="text-primary text-xs font-bold leading-normal flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                            00:12:43
+                        </p>
+</div>
+<span class="material-symbols-outlined text-text-sub-light dark:text-text-sub-dark/30">chevron_right</span>
+</div>
+<!-- Item 2: Moderate Activity -->
+<div class="flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-subtle border-l-4 border-transparent cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-dark/80 transition-colors">
+<div class="flex flex-col justify-center flex-1">
+<p class="text-text-main-light dark:text-text-main-dark text-base font-bold leading-normal line-clamp-1">Old Town</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-medium bg-background-light dark:bg-background-dark px-1.5 py-0.5 rounded text-opacity-80">22152</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="bg-primary/10 dark:bg-primary/20 text-primary px-2.5 py-1 rounded-full flex items-center gap-1.5">
+<span class="material-symbols-filled text-[10px]">bolt</span>
+<span class="text-xs font-bold leading-none">8 Live</span>
+</div>
+<p class="text-primary text-xs font-bold leading-normal flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                             01:45:00
+                        </p>
+</div>
+<span class="material-symbols-outlined text-text-sub-light dark:text-text-sub-dark/30">chevron_right</span>
+</div>
+<!-- Item 3: Low Activity -->
+<div class="flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-subtle border-l-4 border-transparent cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-dark/80 transition-colors opacity-90">
+<div class="flex flex-col justify-center flex-1">
+<p class="text-text-main-light dark:text-text-main-dark text-base font-bold leading-normal line-clamp-1">River District</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-medium bg-background-light dark:bg-background-dark px-1.5 py-0.5 rounded text-opacity-80">22153</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark px-2.5 py-1 rounded-full flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[10px]">gavel</span>
+<span class="text-xs font-bold leading-none">1 Live</span>
+</div>
+<p class="text-text-sub-light dark:text-text-sub-dark text-xs font-normal leading-normal flex items-center gap-1">
+                             Ends tomorrow
+                        </p>
+</div>
+<span class="material-symbols-outlined text-text-sub-light dark:text-text-sub-dark/30">chevron_right</span>
+</div>
+<!-- Item 4: Empty State -->
+<div class="flex items-center gap-4 bg-surface-light/50 dark:bg-surface-dark/30 px-4 py-3 rounded-xl border border-dashed border-border-light dark:border-border-dark cursor-pointer hover:bg-surface-light dark:hover:bg-surface-dark transition-colors">
+<div class="flex flex-col justify-center flex-1">
+<p class="text-text-sub-light dark:text-text-sub-dark text-base font-medium leading-normal line-clamp-1">West End</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-text-sub-light dark:text-text-sub-dark text-xs font-medium opacity-60">22154</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<p class="text-text-sub-light dark:text-text-sub-dark text-xs font-medium leading-normal italic">
+                            No auctions
+                        </p>
+<button class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark p-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="h-8"></div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="absolute bottom-0 w-full bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark px-6 py-2 flex justify-between items-center z-30 pb-6">
+<button class="flex flex-col items-center gap-1 w-16 text-primary">
+<span class="material-symbols-filled text-2xl">home_pin</span>
+<span class="text-[10px] font-bold">Town</span>
+</button>
+<button class="flex flex-col items-center gap-1 w-16 text-text-sub-light dark:text-text-sub-dark hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<span class="material-symbols-outlined text-2xl">gavel</span>
+<span class="text-[10px] font-medium">My Bids</span>
+</button>
+<button class="flex flex-col items-center gap-1 w-16 text-text-sub-light dark:text-text-sub-dark hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</nav>
+<!-- Background Accent (Subtle) -->
+<div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none z-0"></div>
+</div>
+</body></html>

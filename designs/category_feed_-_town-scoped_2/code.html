@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Category Feed</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "urgent": "#FF8322",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b20",
+                        "text-main-light": "#181112",
+                        "text-main-dark": "#fcecee",
+                        "text-secondary-light": "#89616a",
+                        "text-secondary-dark": "#cfb0b6",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased transition-colors duration-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md shadow-sm border-b border-black/5 dark:border-white/5">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full text-text-main-light dark:text-text-main-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center flex-1 mx-2">
+<h1 class="text-text-main-light dark:text-text-main-dark text-lg font-bold leading-tight tracking-tight text-center">
+                    Vintage Furniture
+                </h1>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-primary text-[14px]">location_on</span>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-none">
+                        In <span class="text-text-main-light dark:text-text-main-dark font-bold">Springfield</span>
+</p>
+</div>
+</div>
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full text-text-main-light dark:text-text-main-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<div class="w-full overflow-x-auto no-scrollbar pb-3 pt-1 px-4">
+<div class="flex gap-2 min-w-max">
+<button class="flex h-8 items-center justify-center gap-x-1.5 rounded-full bg-primary text-white pl-3 pr-4 shadow-sm shadow-primary/30">
+<span class="material-symbols-outlined text-[18px]">hourglass_bottom</span>
+<span class="text-sm font-semibold">Ending Soon</span>
+</button>
+<button class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-black/5 dark:border-white/10 pl-3 pr-3">
+<span class="text-text-main-light dark:text-text-main-dark text-sm font-medium">Distance</span>
+</button>
+<button class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-black/5 dark:border-white/10 pl-3 pr-3">
+<span class="text-text-main-light dark:text-text-main-dark text-sm font-medium">Price: Low to High</span>
+</button>
+<button class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-black/5 dark:border-white/10 pl-3 pr-3">
+<span class="text-text-main-light dark:text-text-main-dark text-sm font-medium">Condition</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 px-3 py-4 pb-24 mx-auto w-full max-w-lg">
+<div class="grid grid-cols-2 gap-3">
+<article class="group cursor-pointer flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none dark:border dark:border-white/10 overflow-hidden hover:shadow-md transition-all duration-300">
+<div class="relative w-full aspect-square bg-gray-100 dark:bg-gray-800">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCKVtmz9mqnRw5w82-QgyYeBl2DmXO0Ea3AG9v84PRr-lnzw-i1DyJVPjpDeyMTqmcbRUlipV4fgG01Z6436f0zVLMv6VBEXB_rM2aDK6c5PSL_WZeuvzIxqB5e4aKWjpcvQno0--gwh5BZx7_B3hgZpPzPQl1Xjnc7o01bchc48FzmC_0zWdwXfq024NdIxJXgipURsazn9bsidukEIw7uiMklwaej26A6-vFmXYS1ximf09rp0ZxSbX37sL9wE_8GiTv9tRPkLsWN");'></div>
+<div class="absolute top-2 right-2 p-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</div>
+</div>
+<div class="flex flex-col p-3 gap-1.5 flex-1">
+<span class="text-[10px] font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">Lighting</span>
+<h3 class="text-text-main-light dark:text-text-main-dark text-sm font-bold leading-tight line-clamp-2 min-h-[2.5em]">
+                        Brass Desk Lamp - Working condition
+                    </h3>
+<div class="flex items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark text-[11px] mb-1">
+<span class="material-symbols-outlined text-[12px]">location_on</span>
+<span class="truncate">Springfield, Downtown</span>
+</div>
+<div class="flex flex-col gap-1 mt-auto">
+<span class="text-text-main-light dark:text-text-main-dark font-bold text-base">$45.00</span>
+<div class="flex items-center gap-1 text-urgent font-bold text-xs animate-pulse">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>05m 12s</span>
+</div>
+</div>
+</div>
+</article>
+<article class="group cursor-pointer flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none dark:border dark:border-white/10 overflow-hidden hover:shadow-md transition-all duration-300">
+<div class="relative w-full aspect-square bg-gray-100 dark:bg-gray-800">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCb7ky_jNSyx43cxzL1zhMPsbuth3XH7AD7qHwZpgiDIq9Wjsje6jEo7dtgDSoJxsIqFNtdJAFjSWfhSw68gK3_draNloybSK7zkuO_QojsbjwqHdnqBbXA1TSH45OjS63WRRoDOH6CSfCs-TtJcQNEYGXD7yXca8isDdom8a1Wdi36M4qJBvWsYgQSyG4Yu9FaNN6jSzXxzFtnSIW7aZyWpQWHeTh_GFu6oJp4q9vswY7j0AmLIn3J2gBsXOUdjdvYeoChMJQ53YEk");'></div>
+<div class="absolute top-2 right-2 p-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</div>
+</div>
+<div class="flex flex-col p-3 gap-1.5 flex-1">
+<span class="text-[10px] font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">Seating</span>
+<h3 class="text-text-main-light dark:text-text-main-dark text-sm font-bold leading-tight line-clamp-2 min-h-[2.5em]">
+                        Original 1960s Eames Chair
+                    </h3>
+<div class="flex items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark text-[11px] mb-1">
+<span class="material-symbols-outlined text-[12px]">location_on</span>
+<span class="truncate">Springfield, Northside</span>
+</div>
+<div class="flex flex-col gap-1 mt-auto">
+<span class="text-text-main-light dark:text-text-main-dark font-bold text-base">$150.00</span>
+<div class="flex items-center gap-1 text-urgent font-bold text-xs">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>02h 14m</span>
+</div>
+</div>
+</div>
+</article>
+<article class="group cursor-pointer flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none dark:border dark:border-white/10 overflow-hidden hover:shadow-md transition-all duration-300">
+<div class="relative w-full aspect-square bg-gray-100 dark:bg-gray-800">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCv-qf96nyta8C6X06oe3UcSTz091lGIeuMkkvD7aYigoRtsDkD2UIMUmVCSwcN2JkBuOP5pUBaw2XSbWPg9D8djOyoJt28QjTtFKN52lrbqHRIw98P1mbSdLXofMSeMt7bNsoQRuco11BAd7Y52Ben6uFZQcuAO5Ca6rRPMijun2TAWO_e50VXf7Lmoe6XMnh-cjLSSClKcn5LG8NRQFnctUwKHCGBGHg-7MZ_UsM9m2xvoVM3ryVf6hQk8f99H8K-x11Nlbj2CEte");'></div>
+<div class="absolute top-2 left-2 bg-primary text-white px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                        New
+                    </div>
+<div class="absolute top-2 right-2 p-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</div>
+</div>
+<div class="flex flex-col p-3 gap-1.5 flex-1">
+<span class="text-[10px] font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">Storage</span>
+<h3 class="text-text-main-light dark:text-text-main-dark text-sm font-bold leading-tight line-clamp-2 min-h-[2.5em]">
+                        Teak Sideboard - Fully Restored
+                    </h3>
+<div class="flex items-center gap-1 text-text-secondary-light dark:text-text-secondary-dark text-[11px] mb-1">
+<span class="material-symbols-outlined text-[12px]">location_on</span>
+<span class="truncate">Springfield, West End</span>
+</div>
+<div class="flex flex-col gap-1 mt-auto">
+<span class="text-text-main-light dark:text-text-main-dark font-bold text-base">$210.00</span>
+<div class="flex items-center gap-1 text-urgent font-bold text-xs">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>23h 58m</span>
+</div>
+</div>
+</div>
+</article>
+<div class="col-span-full flex flex-col items-center justify-center py-10 opacity-60">
+<span class="material-symbols-outlined text-5xl text-text-secondary-light dark:text-text-secondary-dark mb-3">storefront</span>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-center text-xs font-medium px-8 leading-relaxed">
+                    That's all for Vintage Furniture in Springfield.<br/>Check back later or expand your search!
+                </p>
+</div>
+</div>
+</main>
+<button class="fixed bottom-6 right-6 flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-transform z-40 group">
+<span class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform duration-300">add</span>
+<span class="sr-only">Create Auction</span>
+</button>
+</div>
+
+</body></html>

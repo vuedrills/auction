@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Town Filter</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-dark": "#2d1b20", // Slightly lighter than background-dark for modal
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem", 
+                        "3xl": "1.5rem", 
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for clean look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-900 font-display text-base text-[#181112] antialiased overflow-hidden h-screen w-full relative">
+<!-- Background Context (Simulating the App behind the modal) -->
+<div class="absolute inset-0 z-0 opacity-40 pointer-events-none" style="background: radial-gradient(circle at center, #333 0%, #000 100%);">
+<!-- Simulated Header -->
+<div class="h-20 w-full bg-white dark:bg-background-dark pt-12 px-4 flex justify-between items-center opacity-50">
+<div class="h-4 w-6 bg-gray-300 rounded"></div>
+<div class="h-4 w-32 bg-gray-300 rounded"></div>
+<div class="h-6 w-6 rounded-full bg-gray-300"></div>
+</div>
+<!-- Simulated List -->
+<div class="p-4 space-y-4 opacity-50">
+<div class="h-32 bg-white dark:bg-surface-dark rounded-xl w-full"></div>
+<div class="h-32 bg-white dark:bg-surface-dark rounded-xl w-full"></div>
+<div class="h-32 bg-white dark:bg-surface-dark rounded-xl w-full"></div>
+</div>
+</div>
+<!-- Modal Backdrop -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-10"></div>
+<!-- Modal Content -->
+<div class="absolute bottom-0 left-0 w-full z-20 h-[85vh] flex flex-col transition-transform duration-300 ease-out transform translate-y-0">
+<!-- Modal Container -->
+<div class="w-full h-full bg-white dark:bg-surface-dark rounded-t-[32px] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden relative">
+<!-- 1. Drag Handle Area -->
+<div class="w-full flex justify-center pt-4 pb-2 shrink-0 cursor-grab active:cursor-grabbing">
+<div class="h-1.5 w-12 rounded-full bg-gray-200 dark:bg-white/20"></div>
+</div>
+<!-- 2. Header & Search -->
+<div class="px-6 pb-2 shrink-0">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-2xl font-bold tracking-tight text-[#181112] dark:text-white">Select Locations</h2>
+<span class="text-sm font-medium text-gray-400 dark:text-gray-500">3 selected</span>
+</div>
+<!-- Search Bar -->
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="block w-full rounded-xl border-0 bg-background-light dark:bg-black/20 py-3.5 pl-10 pr-4 text-[#181112] dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-black/30 transition-all sm:text-sm sm:leading-6" placeholder="Find a town..." type="text"/>
+</div>
+</div>
+<!-- 3. Scrollable List Area -->
+<div class="flex-1 overflow-y-auto no-scrollbar px-6 py-2 pb-24">
+<!-- Section: Popular -->
+<div class="mb-6">
+<h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3 mt-4">Popular Towns</h3>
+<div class="space-y-1">
+<!-- Item 1 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-white/5 p-2 rounded-full text-[20px]">location_city</span>
+<span class="text-base font-medium text-[#181112] dark:text-gray-200">Harare</span>
+</div>
+<div class="relative flex items-center">
+<input checked="" class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 2 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-white/5 p-2 rounded-full text-[20px]">location_city</span>
+<span class="text-base font-medium text-[#181112] dark:text-gray-200">Bulawayo</span>
+</div>
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+</div>
+</div>
+<!-- Section: All Towns -->
+<div class="mb-4">
+<h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3 sticky top-0 bg-white/95 dark:bg-surface-dark/95 backdrop-blur py-2 z-10">All Towns</h3>
+<div class="space-y-1">
+<!-- Item 3 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Chitungwiza</span>
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 4 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Gweru</span>
+<div class="relative flex items-center">
+<input checked="" class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 5 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Kwekwe</span>
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 6 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Mutare</span>
+<div class="relative flex items-center">
+<input checked="" class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 7 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Masvingo</span>
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+<!-- Item 8 -->
+<label class="group flex items-center justify-between p-3 rounded-xl hover:bg-background-light dark:hover:bg-white/5 cursor-pointer transition-colors">
+<span class="text-base font-medium text-[#181112] dark:text-gray-200 ml-2">Victoria Falls</span>
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-gray-300 dark:border-white/20 bg-transparent text-primary focus:ring-primary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"/>
+</div>
+</label>
+</div>
+</div>
+</div>
+<!-- 4. Action Bar (Sticky Bottom) -->
+<div class="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-md border-t border-gray-100 dark:border-white/5 px-6 pt-4 pb-8 z-20">
+<div class="flex items-center gap-4">
+<button class="flex-1 h-12 rounded-lg text-gray-600 dark:text-gray-300 font-bold text-base hover:bg-gray-100 dark:hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200">
+                        Reset
+                    </button>
+<button class="flex-[2] h-12 rounded-lg bg-primary text-white font-bold text-base shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-surface-dark flex items-center justify-center gap-2">
+<span>Show Auctions</span>
+<span class="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-semibold">3</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
