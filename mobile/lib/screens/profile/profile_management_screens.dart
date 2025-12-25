@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../widgets/common/app_text_field.dart';
+import '../../core/services/supabase_storage_service.dart';
 
 /// Edit Profile Screen - Connected to Backend
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -20,6 +22,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   bool _isLoading = false;
+  bool _isUploadingAvatar = false;
+  String? _newAvatarUrl;
 
   @override
   void initState() {
@@ -31,12 +35,111 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _phoneController = TextEditingController(text: user?.phone ?? '');
   }
 
+  Future<void> _pickAndUploadAvatar(ImageSource source) async {
+    setState(() => _isUploadingAvatar = true);
+    try {
+      final storageService = ref.read(supabaseStorageProvider);
+      final url = await storageService.pickAndUploadImage(
+        folder: 'avatars',
+        source: source,
+      );
+      if (url != null) {
+        setState(() => _newAvatarUrl = url);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Photo uploaded! Tap Save to update.'), backgroundColor: AppColors.success),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Upload cancelled or failed'), backgroundColor: AppColors.error),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
+    }
+  }
+
+  void _showAvatarOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Change Profile Photo', style: AppTypography.titleLarge),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: AppColors.primary),
+                ),
+                title: Text('Take Photo', style: AppTypography.titleSmall),
+                subtitle: Text('Use your camera', style: AppTypography.bodySmall),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickAndUploadAvatar(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.photo_library, color: AppColors.primary),
+                ),
+                title: Text('Choose from Gallery', style: AppTypography.titleSmall),
+                subtitle: Text('Select an existing photo', style: AppTypography.bodySmall),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickAndUploadAvatar(ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _handleSave() async {
     setState(() => _isLoading = true);
     try {
       final success = await ref.read(authProvider.notifier).updateProfile(
         fullName: _nameController.text,
         phone: _phoneController.text,
+        avatarUrl: _newAvatarUrl,
       );
       if (mounted) {
         if (success) {
@@ -64,6 +167,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final displayAvatarUrl = _newAvatarUrl ?? user?.avatarUrl;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -84,30 +188,37 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // Avatar
-            Stack(
-              children: [
-                Container(
-                  width: 100, height: 100,
-                  decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                  child: user?.avatarUrl != null
-                    ? ClipOval(child: CachedNetworkImage(imageUrl: user!.avatarUrl!, fit: BoxFit.cover))
-                    : const Icon(Icons.person, size: 48, color: AppColors.primary),
-                ),
-                Positioned(
-                  right: 0, bottom: 0,
-                  child: Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)),
-                    child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+            // Avatar with upload
+            GestureDetector(
+              onTap: _isUploadingAvatar ? null : _showAvatarOptions,
+              child: Stack(
+                children: [
+                  Container(
+                    width: 100, height: 100,
+                    decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                    child: _isUploadingAvatar
+                        ? const Center(child: CircularProgressIndicator())
+                        : displayAvatarUrl != null
+                          ? ClipOval(child: CachedNetworkImage(imageUrl: displayAvatarUrl, fit: BoxFit.cover, width: 100, height: 100))
+                          : const Icon(Icons.person, size: 48, color: AppColors.primary),
                   ),
-                ),
-              ],
+                  Positioned(
+                    right: 0, bottom: 0,
+                    child: Container(
+                      width: 36, height: 36,
+                      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)),
+                      child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+            Text('Tap to change photo', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+            const SizedBox(height: 24),
             AppTextField(controller: _nameController, label: 'Full Name'),
             const SizedBox(height: 16),
-            AppTextField(controller: _usernameController, label: 'Username', prefixIcon: Icons.alternate_email),
+            AppTextField(controller: _usernameController, label: 'Username', prefixIcon: Icons.alternate_email, enabled: false),
             const SizedBox(height: 16),
             AppTextField(controller: _emailController, label: 'Email', keyboardType: TextInputType.emailAddress, prefixIcon: Icons.mail_outline, enabled: false),
             const SizedBox(height: 16),
