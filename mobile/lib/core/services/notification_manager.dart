@@ -66,22 +66,52 @@ class _NotificationManagerState extends ConsumerState<NotificationManager> {
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          action: (type == 'auction_won' || type == 'auction_sold') && chatId != null
-              ? SnackBarAction(
-                  label: 'CHAT',
-                  textColor: Colors.white,
-                  onPressed: () => context.push('/chats/$chatId'),
-                )
-              : auctionId != null
-                  ? SnackBarAction(
-                      label: 'VIEW',
-                      textColor: Colors.white,
-                      onPressed: () => context.push('/auction/$auctionId'),
-                    )
-                  : null,
-          duration: const Duration(seconds: 5),
+          action: _buildsnackBarAction(type, data, context),
+          duration: const Duration(seconds: 8), // Longer duration for rating
         ),
       );
+  }
+
+  SnackBarAction? _buildsnackBarAction(String? type, Map<String, dynamic> data, BuildContext context) {
+    final auctionId = data['auction_id'] as String? ?? data['related_auction_id'];
+    final chatId = data['chat_id'] as String?;
+    
+    // Rating Logic
+    if (type == 'auction_won' && data.containsKey('seller_id')) {
+        final sellerId = data['seller_id'] as String;
+        return SnackBarAction(
+          label: 'RATE SELLER', 
+          textColor: Colors.yellowAccent,
+          onPressed: () => context.push('/rate/$sellerId?auctionId=$auctionId'),
+        );
+    }
+    
+    if (type == 'auction_sold' && data.containsKey('winner_id')) {
+        final winnerId = data['winner_id'] as String;
+         return SnackBarAction(
+          label: 'RATE BUYER', 
+          textColor: Colors.yellowAccent,
+          onPressed: () => context.push('/rate/$winnerId?auctionId=$auctionId'),
+        );
+    }
+
+    if (chatId != null) {
+        return SnackBarAction(
+          label: 'CHAT', 
+          textColor: Colors.white, 
+          onPressed: () => context.push('/chats/$chatId')
+        );
+    } 
+    
+    if (auctionId != null) {
+        return SnackBarAction(
+          label: 'VIEW', 
+          textColor: Colors.white, 
+          onPressed: () => context.push('/auction/$auctionId')
+        );
+    }
+    
+    return null;
   }
 
   Color _getColorForType(String? type) {

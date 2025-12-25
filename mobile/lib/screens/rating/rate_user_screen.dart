@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/repositories/features_repository.dart';
 import '../../widgets/common/app_button.dart';
+import '../../data/repositories/auction_repository.dart';
+import '../../data/providers/auth_provider.dart';
 
 class RateUserScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -19,48 +21,146 @@ class RateUserScreen extends ConsumerStatefulWidget {
   ConsumerState<RateUserScreen> createState() => _RateUserScreenState();
 }
 
-class _RateUserScreenState extends ConsumerState<RateUserScreen> {
-  int _rating = 5;
-  int _communicationRating = 5;
-  int _accuracyRating = 5;
-  int _speedRating = 5;
+class _RateUserScreenState extends ConsumerState<RateUserScreen> with SingleTickerProviderStateMixin {
+  int _rating = 0;
+  // ...
+  String? _resolvedUserId;
+  bool _isLoadingUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+       vsync: this, duration: const Duration(milliseconds: 600)
+    )..forward();
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    
+    if (widget.userId == 'placeholder' && widget.auctionId != null) {
+      _resolveUserId();
+    } else {
+        _resolvedUserId = widget.userId;
+    }
+  }
+
+  Future<void> _resolveUserId() async {
+      setState(() => _isLoadingUser = true);
+      try {
+          if (widget.auctionId == null) throw Exception('Auction ID required to resolve user');
+
+          final auction = await ref.read(auctionRepositoryProvider).getAuction(widget.auctionId!);
+          final currentUser = ref.read(currentUserProvider);
+          
+          if (currentUser == null) throw Exception('User not logged in');
+          
+          String? targetId;
+          
+          // If I am the winner, I rate the seller
+          if (auction.winnerId == currentUser.id) {
+            targetId = auction.sellerId;
+          } 
+          // If I am the seller, I rate the winner
+          else if (auction.sellerId == currentUser.id) {
+            targetId = auction.winnerId;
+          }
+          
+          if (targetId == null) {
+             throw Exception('You are neither the winner nor the seller of this auction');
+          }
+          
+          if (mounted) {
+            setState(() {
+              _resolvedUserId = targetId;
+              _isLoadingUser = false;
+            });
+          }
+      } catch (e) {
+          debugPrint('Error resolving user: $e');
+          if (mounted) {
+             setState(() => _isLoadingUser = false);
+             ScaffoldMessenger.of(context).showSnackBar(
+               SnackBar(content: Text('Could not load user details: $e'), backgroundColor: AppColors.error),
+             );
+          }
+      }
+  }
+
+  int _communicationRating = 0;
+  int _accuracyRating = 0;
+  int _speedRating = 0;
+  
   final _reviewController = TextEditingController();
+  final Set<String> _selectedTags = {};
   bool _wouldRecommend = true;
   bool _isSubmitting = false;
+  
+  late AnimationController _animController;
+  late Animation<double> _fadeAnim;
+
+  final List<String> _feedbackTags = [
+    'Fast Payment', 'Quick Shipping', 'Polite', 'Responsive', 
+    'Item as Described', 'Friendly', 'Professional'
+  ];
+
+
 
   @override
   void dispose() {
     _reviewController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
   Future<void> _submitRating() async {
+    if (_rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide an overall rating')),
+      );
+      return;
+    }
+    
     if (_isSubmitting) return;
-
     setState(() => _isSubmitting = true);
 
     try {
+      if (_resolvedUserId == null) {
+          throw Exception('User to rate is not identified');
+      }
+
+      // Append tags to review if selected
+      String reviewText = _reviewController.text.trim();
+      if (_selectedTags.isNotEmpty) {
+        final tagsStr = _selectedTags.map((t) => '#${t.replaceAll(' ', '')}').join(' ');
+        if (reviewText.isNotEmpty) {
+          reviewText += '\n\n$tagsStr';
+        } else {
+          reviewText = tagsStr;
+        }
+      }
+
       await ref.read(featuresRepositoryProvider).rateUser(
-        userId: widget.userId,
+        userId: _resolvedUserId!,
         auctionId: widget.auctionId,
         rating: _rating,
-        communicationRating: _communicationRating,
-        accuracyRating: _accuracyRating,
-        speedRating: _speedRating,
-        review: _reviewController.text.trim().isNotEmpty ? _reviewController.text.trim() : null,
+        communicationRating: _communicationRating > 0 ? _communicationRating : _rating,
+        accuracyRating: _accuracyRating > 0 ? _accuracyRating : _rating,
+        speedRating: _speedRating > 0 ? _speedRating : _rating,
+        review: reviewText.isNotEmpty ? reviewText : null,
         wouldRecommend: _wouldRecommend,
       );
 
       if (mounted) {
+        context.pop(); 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Rating submitted successfully!'), backgroundColor: AppColors.success),
+          const SnackBar(
+            content: Text('Thanks for your feedback!'), 
+            backgroundColor: AppColors.success
+          ),
         );
-        context.pop(); // Go back
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit rating: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -68,21 +168,28 @@ class _RateUserScreenState extends ConsumerState<RateUserScreen> {
     }
   }
 
-  Widget _buildStarRating(String label, int value, Function(int) onChanged) {
+  Widget _buildStarRating(String label, int value, Function(int) onChanged, {bool isLarge = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.titleSmall),
+        Text(label, style: isLarge ? AppTypography.titleMedium.copyWith(fontWeight: FontWeight.bold) : AppTypography.bodyMedium),
         const SizedBox(height: 8),
         Row(
+          mainAxisAlignment: isLarge ? MainAxisAlignment.center : MainAxisAlignment.start,
           children: List.generate(5, (index) {
-            return IconButton(
-              icon: Icon(
-                index < value ? Icons.star : Icons.star_border,
-                color: AppColors.warning,
-                size: 32,
+            final int starValue = index + 1;
+            final isSelected = starValue <= value;
+            return GestureDetector(
+              onTap: () => onChanged(starValue),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(
+                  isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
+                  color: isSelected ? Colors.amber.shade600 : Colors.grey.shade300,
+                  size: isLarge ? 48 : 28,
+                ),
               ),
-              onPressed: () => onChanged(index + 1),
             );
           }),
         ),
@@ -93,55 +200,152 @@ class _RateUserScreenState extends ConsumerState<RateUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Rate User'),
-        backgroundColor: AppColors.surfaceLight,
+        title: const Text('Rate Experience'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('How was your experience?', style: AppTypography.headlineSmall),
-            const SizedBox(height: 24),
-            
-            _buildStarRating('Overall Rating', _rating, (val) => setState(() => _rating = val)),
-            const SizedBox(height: 16),
-            _buildStarRating('Communication', _communicationRating, (val) => setState(() => _communicationRating = val)),
-            const SizedBox(height: 16),
-            _buildStarRating('Item Accuracy', _accuracyRating, (val) => setState(() => _accuracyRating = val)),
-            const SizedBox(height: 16),
-            _buildStarRating('Speed', _speedRating, (val) => setState(() => _speedRating = val)),
-            
-            const SizedBox(height: 24),
-            Text('Review (Optional)', style: AppTypography.titleSmall),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _reviewController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: 'Share details about your experience...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: Colors.white,
+      body: FadeTransition(
+        opacity: _fadeAnim,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header
+              Center(
+                child: Column(
+                  children: [
+                    const CircleAvatar(
+                      radius: 30,
+                      backgroundColor: AppColors.surfaceLight,
+                      child: Icon(Icons.person, size: 32, color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'How was it?',
+                      style: AppTypography.headlineSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimaryLight
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your feedback helps the community',
+                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            SwitchListTile(
-              title: Text('Would you recommend this user?', style: AppTypography.titleSmall),
-              value: _wouldRecommend,
-              onChanged: (val) => setState(() => _wouldRecommend = val),
-              activeColor: AppColors.success,
-            ),
-            
-            const SizedBox(height: 32),
-            AppButton(
-              label: 'Submit Rating',
-              isLoading: _isSubmitting,
-              onPressed: _submitRating,
-            ),
-          ],
+              const SizedBox(height: 32),
+
+              // Main Rating
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildStarRating('Overall Rating', _rating, (v) => setState(() => _rating = v), isLarge: true),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    _buildStarRating('Communication', _communicationRating, (v) => setState(() => _communicationRating = v)),
+                    const SizedBox(height: 16),
+                    _buildStarRating('Item Accuracy', _accuracyRating, (v) => setState(() => _accuracyRating = v)),
+                    const SizedBox(height: 16),
+                    _buildStarRating('Responsiveness', _speedRating, (v) => setState(() => _speedRating = v)),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+
+              // Quick Tags
+              Text('What went well?', style: AppTypography.titleSmall),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _feedbackTags.map((tag) {
+                  final isSelected = _selectedTags.contains(tag);
+                  return FilterChip(
+                    label: Text(tag),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                         selected ? _selectedTags.add(tag) : _selectedTags.remove(tag);
+                      });
+                    },
+                    selectedColor: AppColors.primary.withOpacity(0.2),
+                    checkmarkColor: AppColors.primary,
+                    labelStyle: TextStyle(
+                      color: isSelected ? AppColors.primary : AppColors.textSecondaryLight,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primary : Colors.grey.shade200,
+                      )
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Review Text
+              TextField(
+                controller: _reviewController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: 'Share more details (optional)...',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Recommendation Switch
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: SwitchListTile(
+                  title: const Text('Recommend this user?', style: TextStyle(fontWeight: FontWeight.w600)),
+                  value: _wouldRecommend,
+                  onChanged: (val) => setState(() => _wouldRecommend = val),
+                  activeColor: AppColors.primary,
+                ),
+              ),
+
+              const SizedBox(height: 32),
+              
+              // Submit Button
+              AppButton(
+                label: 'Submit Feedback',
+                isLoading: _isSubmitting,
+                onPressed: _submitRating,
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

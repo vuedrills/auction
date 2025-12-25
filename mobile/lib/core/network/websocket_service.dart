@@ -17,6 +17,8 @@ class WsMessageType {
   static const bidOutbid = 'bid:outbid';
   static const auctionEnding = 'auction:ending';
   static const auctionEnded = 'auction:ended';
+  static const auctionWon = 'auction:won';
+  static const auctionSold = 'auction:sold';
   static const auctionUpdate = 'auction:update';
   static const notificationNew = 'notification:new';
   static const messageNew = 'message:new';
@@ -261,6 +263,8 @@ class WebSocketService {
           break;
           
         case WsMessageType.notificationNew:
+        case WsMessageType.auctionWon:
+        case WsMessageType.auctionSold:
           _notificationController.add(message);
           break;
           

@@ -26,6 +26,7 @@ import '../screens/search/national_search_screen.dart';
 import '../screens/user/user_screens.dart';
 import '../screens/legal/legal_screens.dart';
 import '../screens/states/error_states_screen.dart';
+import '../screens/rating/rate_user_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -127,6 +128,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/user/:id',
       builder: (_, state) => UserProfileScreen(userId: state.pathParameters['id'] ?? ''),
+    ),
+    GoRoute(
+      path: '/rate/:userId',
+      builder: (_, state) => RateUserScreen(
+        userId: state.pathParameters['userId'] ?? '',
+        auctionId: state.uri.queryParameters['auctionId'],
+      ),
     ),
     GoRoute(path: '/waiting-list', builder: (_, __) => const WaitingListScreen()),
     

@@ -155,11 +155,16 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 			autoBids.GET("", featuresHandler.GetMyAutoBids)
 		}
 
-		// Promotions pricing
+		// PROMOTION ENDPOINTS
 		promotions := api.Group("/promotions")
 		{
 			promotions.GET("/pricing", featuresHandler.GetPromotionPricing)
+			promotions.POST("/:id", middleware.Auth(jwtService), featuresHandler.PromoteAuction)
 		}
+
+		// TEST ENDPOINTS (REMOVE IN PRODUCTION)
+		testHandler := handlers.NewTestHandler(db, hub)
+		api.POST("/test/end-auction/:id", testHandler.EndAuctionTest)
 	}
 
 	// WebSocket
