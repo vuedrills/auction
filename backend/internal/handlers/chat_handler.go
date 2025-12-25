@@ -293,5 +293,40 @@ func (h *ChatHandler) StartChat(c *gin.Context) {
 }
 
 func (h *ChatHandler) MarkAsRead(c *gin.Context) {
+	userID, _ := middleware.GetUserID(c)
+	chatID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid chat ID"})
+		return
+	}
+
+	// Get conversation participants to determine which unread count to reset
+	var p1, p2 uuid.UUID
+	err = h.db.Pool.QueryRow(context.Background(), 
+		"SELECT participant_1, participant_2 FROM conversations WHERE id = $1", chatID).
+		Scan(&p1, &p2)
+	
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Chat not found"})
+		return
+	}
+
+	// Reset the appropriate unread count based on which participant the user is
+	if p1 == userID {
+		_, err = h.db.Pool.Exec(context.Background(),
+			"UPDATE conversations SET unread_count_1 = 0 WHERE id = $1", chatID)
+	} else if p2 == userID {
+		_, err = h.db.Pool.Exec(context.Background(),
+			"UPDATE conversations SET unread_count_2 = 0 WHERE id = $1", chatID)
+	} else {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Not a participant in this chat"})
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark as read"})
+		return
+	}
+
 	c.Status(http.StatusOK)
 }

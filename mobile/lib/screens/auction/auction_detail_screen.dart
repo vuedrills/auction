@@ -27,21 +27,24 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
   double? _livePrice;
   int? _liveBidCount;
   String? _liveTimeRemaining;
+  
+  // Store WebSocket manager reference for cleanup in dispose
+  late final WebSocketManager _wsManager;
 
   @override
   void initState() {
     super.initState();
+    _wsManager = ref.read(wsManagerProvider.notifier);
     _setupWebSocket();
   }
   
   void _setupWebSocket() {
     // Connect to WebSocket if not already connected
-    final wsManager = ref.read(wsManagerProvider.notifier);
-    wsManager.connect();
+    _wsManager.connect();
     
     // Subscribe to this auction's updates
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      wsManager.subscribeToAuction(widget.auctionId);
+      _wsManager.subscribeToAuction(widget.auctionId);
       _listenToBidUpdates();
     });
   }
@@ -96,8 +99,8 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
   void dispose() {
     _bidSubscription?.cancel();
     _outbidSubscription?.cancel();
-    // Unsubscribe from auction when leaving
-    ref.read(wsManagerProvider.notifier).unsubscribeFromAuction(widget.auctionId);
+    // Unsubscribe from auction when leaving (using stored reference)
+    _wsManager.unsubscribeFromAuction(widget.auctionId);
     _bidController.dispose();
     super.dispose();
   }
@@ -145,7 +148,11 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                   error: (_, __) => const Padding(padding: EdgeInsets.all(16), child: Text('Failed to load bid history')),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 120)),
+              // Add padding for bottom sheet - adjust based on whether user can bid
+              // Bottom sheet height is approximately 180px when visible (including SafeArea)
+              SliverToBoxAdapter(
+                child: SizedBox(height: isSeller ? 24 : 180),
+              ),
             ],
           ),
           if (!isSeller)
@@ -246,105 +253,93 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Location breadcrumb
+          // Location - consistent font size
           Text(
-            '${auction.town?.name ?? ''} > ${auction.suburb?.name ?? ''} > ${auction.category?.name ?? ''}',
-            style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+            '${auction.town?.name ?? ''}${auction.suburb != null ? ' • ${auction.suburb!.name}' : ''}${auction.category != null ? ' • ${auction.category!.name}' : ''}',
+            style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight),
           ),
-          const SizedBox(height: 8),
-          Text(auction.title, style: AppTypography.headlineLarge),
-          const SizedBox(height: 16),
-          // Price card with live updates
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+          const SizedBox(height: 12),
+          Text(auction.title, style: AppTypography.headlineMedium),
+          const SizedBox(height: 20),
+          
+          // Price and status - simplified design
+          Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
-                    Container(width: 8, height: 8, decoration: BoxDecoration(
-                      color: auction.status == AuctionStatus.active ? AppColors.success : AppColors.textSecondaryLight,
-                      shape: BoxShape.circle,
-                    )),
-                    const SizedBox(width: 8),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [
+                      if (auction.status == AuctionStatus.active) ...[
+                        Container(width: 6, height: 6, decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        )),
+                        const SizedBox(width: 6),
+                        Text(
+                          'LIVE',
+                          style: AppTypography.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ]),
+                    const SizedBox(height: 8),
                     Text(
-                      auction.status == AuctionStatus.active ? 'LIVE' : auction.status.value.toUpperCase(),
-                      style: AppTypography.labelSmall.copyWith(
-                        color: auction.status == AuctionStatus.active ? AppColors.success : AppColors.textSecondaryLight,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      '\$${displayPrice.toStringAsFixed(2)}',
+                      style: AppTypography.headlineLarge.copyWith(color: AppColors.textPrimaryLight),
                     ),
-                    // Live indicator when receiving updates
-                    if (_livePrice != null) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
-                            Text('LIVE', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontSize: 8)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ]),
-                  const SizedBox(height: 8),
-                  // Animated price display
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: displayPrice, end: displayPrice),
-                    duration: const Duration(milliseconds: 300),
-                    builder: (context, value, child) => Text(
-                      '\$${value.toStringAsFixed(2)}',
-                      style: AppTypography.displaySmall.copyWith(color: AppColors.primary),
-                    ),
-                  ),
-                  Text('$displayBidCount bids', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
-                ]),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                  child: Column(children: [
-                    Icon(Icons.timer, color: AppColors.secondary),
-                    Text(displayTimeRemaining ?? '', style: AppTypography.titleMedium.copyWith(color: AppColors.secondary)),
+                    const SizedBox(height: 4),
+                    Text('$displayBidCount bids', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
                   ]),
                 ),
+                if (displayTimeRemaining != null && displayTimeRemaining.isNotEmpty)
+                  Column(children: [
+                    Icon(Icons.access_time, color: AppColors.textSecondaryLight, size: 20),
+                    const SizedBox(height: 4),
+                    Text(displayTimeRemaining, style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+                  ]),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Condition
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(color: AppColors.info.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
-              child: Text(auction.condition, style: AppTypography.labelSmall.copyWith(color: AppColors.info)),
-            ),
-            if (auction.shippingAvailable) ...[
-              const SizedBox(width: 8),
+          const SizedBox(height: 20),
+          
+          // Condition and shipping - simplified
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
-                child: Row(children: [
-                  Icon(Icons.local_shipping, size: 14, color: AppColors.success),
-                  const SizedBox(width: 4),
-                  Text('Shipping', style: AppTypography.labelSmall.copyWith(color: AppColors.success)),
-                ]),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceLight,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child: Text(auction.condition, style: AppTypography.bodySmall.copyWith(color: AppColors.textPrimaryLight)),
               ),
+              if (auction.shippingAvailable)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.local_shipping, size: 14, color: AppColors.success),
+                    const SizedBox(width: 4),
+                    Text('Shipping Available', style: AppTypography.bodySmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w500)),
+                  ]),
+                ),
             ],
-          ]),
-          const SizedBox(height: 16),
-          Text('Description', style: AppTypography.headlineSmall),
+          ),
+          const SizedBox(height: 24),
+          Text('Description', style: AppTypography.titleLarge),
           const SizedBox(height: 8),
           Text(auction.description ?? 'No description provided.', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
         ],
@@ -383,9 +378,15 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                 Text(seller.homeTown?.name ?? '', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
               ]),
             ),
-            TextButton(
-              onPressed: () => context.push('/user/${seller.id}'),
-              child: Text('View Profile', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: TextButton(
+                onPressed: () => context.push('/user/${seller.id}'),
+                child: Text('View Profile', style: AppTypography.labelMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
+              ),
             ),
           ],
         ),
@@ -400,9 +401,14 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Bid History', style: AppTypography.headlineSmall),
-            const SizedBox(height: 12),
-            Center(child: Text('No bids yet. Be the first!', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight))),
+            Text('Bid History', style: AppTypography.titleLarge),
+            const SizedBox(height: 16),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text('No bids yet. Be the first!', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+              ),
+            ),
           ],
         ),
       );
@@ -413,8 +419,8 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Bid History', style: AppTypography.headlineSmall),
-          const SizedBox(height: 12),
+          Text('Bid History', style: AppTypography.titleLarge),
+          const SizedBox(height: 16),
           ...bids.take(5).toList().asMap().entries.map((entry) {
             final i = entry.key;
             final bid = entry.value;
@@ -425,26 +431,42 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isHighest ? AppColors.success.withValues(alpha: 0.1) : AppColors.surfaceLight,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isHighest ? AppColors.success.withValues(alpha: 0.3) : AppColors.borderLight),
+                color: isHighest ? AppColors.success.withValues(alpha: 0.05) : AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isHighest ? AppColors.success : AppColors.borderLight,
+                  width: isHighest ? 1.5 : 1,
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(children: [
-                    Text(bid.bidder?.fullName ?? 'Anonymous', style: AppTypography.titleSmall),
-                    if (isCurrentUser) ...[
-                      const SizedBox(width: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(4)),
-                        child: Text('You', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontSize: 10)),
-                      ),
-                    ],
-                  ]),
-                  Text('\$${bid.amount.toStringAsFixed(2)}', style: AppTypography.titleMedium.copyWith(
-                    color: isHighest ? AppColors.success : AppColors.textPrimaryLight)),
+                  Expanded(
+                    child: Row(children: [
+                      if (isHighest) ...[
+                        Icon(Icons.emoji_events, size: 16, color: AppColors.success),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(bid.bidder?.fullName ?? 'Anonymous', style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: isHighest ? FontWeight.w600 : FontWeight.w400,
+                      )),
+                      if (isCurrentUser) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text('You', style: AppTypography.labelSmall.copyWith(color: Colors.white)),
+                        ),
+                      ],
+                    ]),
+                  ),
+                  Text('\$${bid.amount.toStringAsFixed(2)}', style: AppTypography.bodyMedium.copyWith(
+                    color: isHighest ? AppColors.success : AppColors.textPrimaryLight,
+                    fontWeight: isHighest ? FontWeight.w700 : FontWeight.w400,
+                  )),
                 ],
               ),
             );
@@ -477,22 +499,22 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Price info row
+            // Price info row - simplified
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Current Bid', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
-                    Text('\$${currentPrice.toStringAsFixed(2)}', style: AppTypography.headlineSmall.copyWith(color: AppColors.primary)),
+                    Text('Current Bid', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+                    Text('\$${currentPrice.toStringAsFixed(2)}', style: AppTypography.titleLarge.copyWith(color: AppColors.textPrimaryLight)),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Next Bid', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
-                    Text('\$${nextBid.toStringAsFixed(2)}', style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimaryLight)),
+                    Text('Next Bid', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+                    Text('\$${nextBid.toStringAsFixed(2)}', style: AppTypography.titleLarge.copyWith(color: AppColors.textPrimaryLight)),
                   ],
                 ),
               ],
@@ -521,14 +543,14 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppColors.success),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.check_circle, color: AppColors.success, size: 20),
                     const SizedBox(width: 8),
-                    Text('You\'re the highest bidder!', style: AppTypography.titleMedium.copyWith(color: AppColors.success)),
+                    Text('You\'re the highest bidder!', style: AppTypography.bodyMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
                   ],
                 ),
               )
@@ -554,7 +576,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                             const SizedBox(width: 8),
                             Text(
                               'Bid +\$${increment.toStringAsFixed(increment == increment.truncate() ? 0 : 2)}',
-                              style: AppTypography.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: AppTypography.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(width: 8),
                             Container(
@@ -565,7 +587,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                               ),
                               child: Text(
                                 '\$${nextBid.toStringAsFixed(2)}',
-                                style: AppTypography.labelMedium.copyWith(color: Colors.white),
+                                style: AppTypography.bodySmall.copyWith(color: Colors.white),
                               ),
                             ),
                           ],

@@ -24,9 +24,9 @@ func NewNotificationHandler(db *database.DB, hub *websocket.Hub) *NotificationHa
 func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	userID, _ := middleware.GetUserID(c)
 
-	// Query notifications
+	// Query notifications - include data field for chat_id etc.
 	rows, err := h.db.Pool.Query(context.Background(), `
-		SELECT id, user_id, type, title, body, related_auction_id, is_read, created_at
+		SELECT id, user_id, type, title, body, related_auction_id, data, is_read, created_at
 		FROM notifications
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -41,7 +41,7 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	notifications := []models.Notification{}
 	for rows.Next() {
 		var n models.Notification
-		if err := rows.Scan(&n.ID, &n.UserID, &n.Type, &n.Title, &n.Body, &n.RelatedAuctionID, &n.IsRead, &n.CreatedAt); err != nil {
+		if err := rows.Scan(&n.ID, &n.UserID, &n.Type, &n.Title, &n.Body, &n.RelatedAuctionID, &n.Data, &n.IsRead, &n.CreatedAt); err != nil {
 			continue // Skip malformed rows
 		}
 		notifications = append(notifications, n)

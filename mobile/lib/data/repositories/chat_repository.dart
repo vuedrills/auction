@@ -170,6 +170,9 @@ class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
       final chatIndex = chats.indexWhere((c) => c.id == newMsg.chatId);
       if (chatIndex != -1) {
         final existingChat = chats[chatIndex];
+        // Only increment unread count if message is not from current user (handled by is_read flag)
+        // If the message is_read is false, it means it's unread for the current user
+        final shouldIncrementUnread = !(newMsg.isRead ?? false);
         final updatedChat = ChatThread(
           id: existingChat.id,
           auctionId: existingChat.auctionId,
@@ -179,7 +182,7 @@ class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
           participantName: existingChat.participantName,
           participantAvatar: existingChat.participantAvatar,
           lastMessage: newMsg,
-          unreadCount: existingChat.unreadCount + 1,
+          unreadCount: shouldIncrementUnread ? existingChat.unreadCount + 1 : existingChat.unreadCount,
           updatedAt: newMsg.createdAt,
         );
         
@@ -193,6 +196,38 @@ class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
         load();
       }
     });
+  }
+  
+  /// Mark a chat as read and update local state
+  Future<void> markChatAsRead(String chatId) async {
+    try {
+      await _repository.markAsRead(chatId);
+      // Update local state - set unread count to 0 for this chat
+      state.whenData((chats) {
+        final chatIndex = chats.indexWhere((c) => c.id == chatId);
+        if (chatIndex != -1) {
+          final existingChat = chats[chatIndex];
+          final updatedChat = ChatThread(
+            id: existingChat.id,
+            auctionId: existingChat.auctionId,
+            auctionTitle: existingChat.auctionTitle,
+            auctionImage: existingChat.auctionImage,
+            participantId: existingChat.participantId,
+            participantName: existingChat.participantName,
+            participantAvatar: existingChat.participantAvatar,
+            lastMessage: existingChat.lastMessage,
+            unreadCount: 0,
+            updatedAt: existingChat.updatedAt,
+          );
+          final List<ChatThread> newList = List.from(chats);
+          newList[chatIndex] = updatedChat;
+          state = AsyncValue.data(newList);
+        }
+      });
+    } catch (e) {
+      // If marking as read fails, still reload to sync with server
+      load();
+    }
   }
 
   @override

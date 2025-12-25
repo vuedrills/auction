@@ -241,7 +241,13 @@ class _NotificationsTab extends ConsumerWidget {
   static void _handleNotificationTap(BuildContext context, WidgetRef ref, AppNotification notification) {
     ref.read(notificationsProvider.notifier).markAsRead(notification.id);
     
-    // For auction won/sold, navigate to chats to message the other party
+    // If notification has a chat_id, navigate directly to that chat conversation
+    if (notification.chatId != null) {
+      context.push('/chats/${notification.chatId}');
+      return;
+    }
+    
+    // For auction won/sold without chat_id, navigate to chat list
     if (notification.type == NotificationType.auctionWon || 
         notification.type == NotificationType.auctionSold) {
       context.push('/chats');

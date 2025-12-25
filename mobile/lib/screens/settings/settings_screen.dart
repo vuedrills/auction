@@ -154,7 +154,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Center(child: Text('AirMass v1.0.2', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight))),
+          Center(child: Text('Trabab v1.0.2', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight))),
           const SizedBox(height: 32),
         ],
       ),
