@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../widgets/common/app_button.dart';
-import '../../widgets/common/custom_text_field.dart';
+import '../../widgets/common/app_text_field.dart';
 
 class CreateStoreScreen extends ConsumerStatefulWidget {
   const CreateStoreScreen({super.key});
@@ -102,7 +102,7 @@ class _CreateStoreScreenState extends ConsumerState<CreateStoreScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.storefront, size: 48, color: AppColors.primary),
-                  const SizedBox(width: 16),
+                  const SizedBox(height: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,21 +123,22 @@ class _CreateStoreScreenState extends ConsumerState<CreateStoreScreen> {
             Text('Store Details', style: AppTypography.headlineSmall),
             const SizedBox(height: 16),
 
-            CustomTextField(
+            AppTextField(
               label: 'Store Name',
-              hint: 'e.g. Tendai Tech Hub',
+              hintText: 'e.g. Tendai Tech Hub',
               controller: _nameController,
               prefixIcon: Icons.store,
               validator: (v) => v == null || v.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
 
-            CustomTextField(
+            AppTextField(
               label: 'Tagline (Short)',
-              hint: 'e.g. Best gadgets in Harare',
+              hintText: 'e.g. Best gadgets in Harare',
               controller: _taglineController,
-              message: 'Appears under your store name',
             ),
+            const SizedBox(height: 4),
+            Text('Appears under your store name', style: AppTypography.labelSmall.copyWith(color: Colors.grey)),
             const SizedBox(height: 24),
 
             Text('Business Category', style: AppTypography.headlineSmall),
@@ -170,20 +171,21 @@ class _CreateStoreScreenState extends ConsumerState<CreateStoreScreen> {
             Text('Contact Info', style: AppTypography.headlineSmall),
             const SizedBox(height: 16),
 
-            CustomTextField(
+            AppTextField(
               label: 'WhatsApp Number',
-              hint: '+263 7...',
+              hintText: '+263 7...',
               controller: _whatsappController,
               prefixIcon: Icons.chat,
               keyboardType: TextInputType.phone,
               validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-              message: 'Customers will contact you here',
             ),
+            const SizedBox(height: 4),
+            Text('Customers will contact you here', style: AppTypography.labelSmall.copyWith(color: Colors.grey)),
             
             const SizedBox(height: 32),
 
             AppButton(
-              text: 'Launch Store 🚀',
+              label: 'Launch Store 🚀',
               onPressed: _submit,
               isLoading: _isSubmitting,
             ),

@@ -31,6 +31,9 @@ import '../screens/rating/user_reviews_screen.dart';
 import '../screens/profile/verification_screen.dart';
 import '../screens/store/create_store_screen.dart';
 import '../screens/store/storefront_screen.dart';
+import '../screens/store/store_products_screen.dart';
+import '../screens/store/product_detail_screen.dart';
+import '../screens/store/store_explore_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -137,9 +140,15 @@ final appRouter = GoRouter(
 
     // Store Routes
     GoRoute(path: '/store/create', builder: (_, __) => const CreateStoreScreen()),
+    GoRoute(path: '/stores', builder: (_, __) => const StoreExploreScreen()),
     GoRoute(
       path: '/store/:slug',
       builder: (_, state) => StorefrontScreen(slug: state.pathParameters['slug'] ?? ''),
+    ),
+    GoRoute(path: '/store/manage/products', builder: (_, __) => const StoreProductsScreen()),
+    GoRoute(
+      path: '/product/:id',
+      builder: (_, state) => ProductDetailScreen(productId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
       path: '/rate/:userId',
