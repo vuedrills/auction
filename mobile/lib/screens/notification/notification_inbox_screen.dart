@@ -587,21 +587,23 @@ class _NotificationCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: onTap,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: notification.type == NotificationType.auctionWon ? AppColors.success : AppColors.primary, 
-                        minimumSize: const Size.fromHeight(36)
+                   if (!notification.hasRated) ...[
+                     Expanded(
+                      child: ElevatedButton(
+                        onPressed: onTap,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: notification.type == NotificationType.auctionWon ? AppColors.success : AppColors.primary, 
+                          minimumSize: const Size.fromHeight(36)
+                        ),
+                        child: Text(
+                          notification.type == NotificationType.auctionWon ? 'Rate Seller' : 'Rate Buyer', 
+                          style: AppTypography.labelMedium.copyWith(color: Colors.white)
+                        ),
                       ),
-                      child: Text(
-                        notification.type == NotificationType.auctionWon ? 'Rate Seller' : 'Rate Buyer', 
-                        style: AppTypography.labelMedium.copyWith(color: Colors.white)
-                      ),
-                    ),
-                   ),
+                     ),
+                     if (onMessage != null) const SizedBox(width: 8),
+                   ],
                    if (onMessage != null) ...[
-                      const SizedBox(width: 8),
                       Expanded(
                         child: OutlinedButton(
                           onPressed: onMessage,

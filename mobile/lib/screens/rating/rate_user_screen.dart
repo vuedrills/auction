@@ -6,6 +6,7 @@ import '../../data/repositories/features_repository.dart';
 import '../../widgets/common/app_button.dart';
 import '../../data/repositories/auction_repository.dart';
 import '../../data/providers/auth_provider.dart';
+import '../../data/repositories/notification_repository.dart';
 
 class RateUserScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -147,6 +148,11 @@ class _RateUserScreenState extends ConsumerState<RateUserScreen> with SingleTick
         review: reviewText.isNotEmpty ? reviewText : null,
         wouldRecommend: _wouldRecommend,
       );
+
+      // Update notification state locally so button disappears
+      if (widget.auctionId != null) {
+         ref.read(notificationsProvider.notifier).markAsRated(widget.auctionId!);
+      }
 
       if (mounted) {
         context.pop(); 

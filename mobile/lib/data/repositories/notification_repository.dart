@@ -37,6 +37,7 @@ class AppNotification {
   final String? location;
   final bool isRead;
   final bool isUrgent;
+  final bool hasRated;
   final DateTime createdAt;
   final Map<String, dynamic>? data;
   
@@ -58,6 +59,7 @@ class AppNotification {
     this.location,
     this.isRead = false,
     this.isUrgent = false,
+    this.hasRated = false,
     required this.createdAt,
     this.data,
   });
@@ -73,6 +75,7 @@ class AppNotification {
       location: json['location'] as String?,
       isRead: json['is_read'] as bool? ?? false,
       isUrgent: json['is_urgent'] as bool? ?? false,
+      hasRated: json['has_rated'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       data: json['data'] as Map<String, dynamic>?,
     );
@@ -166,6 +169,7 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotificatio
       auctionId: data['auction_id'] as String? ?? message.auctionId,
       isRead: false,
       isUrgent: true,
+      hasRated: false, // Default false for new
       createdAt: DateTime.now(),
       data: data,
     );
@@ -194,7 +198,7 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotificatio
           ? AppNotification(
               id: n.id, type: n.type, title: n.title, body: n.body,
               auctionId: n.auctionId, imageUrl: n.imageUrl, location: n.location,
-              isRead: true, isUrgent: n.isUrgent, createdAt: n.createdAt, data: n.data,
+              isRead: true, isUrgent: n.isUrgent, hasRated: n.hasRated, createdAt: n.createdAt, data: n.data,
             )
           : n
         ).toList(),
@@ -209,8 +213,23 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotificatio
         notifications.map((n) => AppNotification(
           id: n.id, type: n.type, title: n.title, body: n.body,
           auctionId: n.auctionId, imageUrl: n.imageUrl, location: n.location,
-          isRead: true, isUrgent: n.isUrgent, createdAt: n.createdAt, data: n.data,
+          isRead: true, isUrgent: n.isUrgent, hasRated: n.hasRated, createdAt: n.createdAt, data: n.data,
         )).toList(),
+      );
+    });
+  }
+
+  Future<void> markAsRated(String auctionId) async {
+    state.whenData((notifications) {
+      state = AsyncValue.data(
+        notifications.map((n) => n.auctionId == auctionId 
+          ? AppNotification(
+              id: n.id, type: n.type, title: n.title, body: n.body,
+              auctionId: n.auctionId, imageUrl: n.imageUrl, location: n.location,
+              isRead: n.isRead, isUrgent: n.isUrgent, hasRated: true, createdAt: n.createdAt, data: n.data,
+            )
+          : n
+        ).toList(),
       );
     });
   }

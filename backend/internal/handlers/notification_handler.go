@@ -26,10 +26,13 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 
 	// Query notifications - include data field for chat_id etc.
 	rows, err := h.db.Pool.Query(context.Background(), `
-		SELECT id, user_id, type, title, body, related_auction_id, data, is_read, created_at
-		FROM notifications
-		WHERE user_id = $1
-		ORDER BY created_at DESC
+		SELECT n.id, n.user_id, n.type, n.title, n.body, n.related_auction_id, n.data, n.is_read, n.created_at,
+		       CASE WHEN n.related_auction_id IS NOT NULL THEN 
+		           EXISTS(SELECT 1 FROM user_ratings r WHERE r.auction_id = n.related_auction_id AND r.rater_id = n.user_id) 
+		       ELSE FALSE END
+		FROM notifications n
+		WHERE n.user_id = $1
+		ORDER BY n.created_at DESC
 		LIMIT 50
 	`, userID)
 	if err != nil {
@@ -41,7 +44,7 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	notifications := []models.Notification{}
 	for rows.Next() {
 		var n models.Notification
-		if err := rows.Scan(&n.ID, &n.UserID, &n.Type, &n.Title, &n.Body, &n.RelatedAuctionID, &n.Data, &n.IsRead, &n.CreatedAt); err != nil {
+		if err := rows.Scan(&n.ID, &n.UserID, &n.Type, &n.Title, &n.Body, &n.RelatedAuctionID, &n.Data, &n.IsRead, &n.CreatedAt, &n.HasRated); err != nil {
 			continue // Skip malformed rows
 		}
 		notifications = append(notifications, n)
