@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 	"github.com/airmass/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 // StoreHandler handles store-related endpoints
@@ -111,25 +113,25 @@ func (h *StoreHandler) CreateStore(c *gin.Context) {
 		INSERT INTO stores (
 			user_id, store_name, slug, tagline, about, logo_url, cover_url,
 			category_id, whatsapp, phone, delivery_options, delivery_radius_km,
-			town_id, suburb_id, is_verified
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+			town_id, suburb_id, address, is_verified
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
 			(SELECT is_verified FROM users WHERE id = $1))
 		RETURNING id, user_id, store_name, slug, tagline, about, logo_url, cover_url,
 			category_id, whatsapp, phone, delivery_options, delivery_radius_km,
-			town_id, suburb_id, is_active, is_verified, is_featured,
+			town_id, suburb_id, address, is_active, is_verified, is_featured,
 			total_products, total_sales, follower_count, views, created_at, updated_at
 	`,
 		userID, req.StoreName, slug, nilIfEmpty(req.Tagline), nilIfEmpty(req.About),
 		nilIfEmpty(req.LogoURL), nilIfEmpty(req.CoverURL), categoryID,
 		nilIfEmpty(req.WhatsApp), nilIfEmpty(req.Phone),
 		deliveryOptions, nilIfZero(req.DeliveryRadiusKm),
-		townID, suburbID,
+		townID, suburbID, nilIfEmpty(req.Address),
 	).Scan(
 		&store.ID, &store.UserID, &store.StoreName, &store.Slug,
 		&store.Tagline, &store.About, &store.LogoURL, &store.CoverURL,
 		&store.CategoryID, &store.WhatsApp, &store.Phone,
 		&store.DeliveryOptions, &store.DeliveryRadiusKm,
-		&store.TownID, &store.SuburbID, &store.IsActive, &store.IsVerified,
+		&store.TownID, &store.SuburbID, &store.Address, &store.IsActive, &store.IsVerified,
 		&store.IsFeatured, &store.TotalProducts, &store.TotalSales,
 		&store.FollowerCount, &store.Views, &store.CreatedAt, &store.UpdatedAt,
 	)
@@ -148,7 +150,11 @@ func (h *StoreHandler) GetMyStore(c *gin.Context) {
 
 	store, err := h.getStoreByUserID(userID.(uuid.UUID))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error: " + err.Error()})
+		}
 		return
 	}
 
@@ -225,6 +231,11 @@ func (h *StoreHandler) UpdateMyStore(c *gin.Context) {
 	if req.OperatingHours != nil {
 		updates = append(updates, "operating_hours = $"+strconv.Itoa(argNum))
 		args = append(args, *req.OperatingHours)
+		argNum++
+	}
+	if req.Address != nil {
+		updates = append(updates, "address = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Address)
 		argNum++
 	}
 	if req.IsActive != nil {
@@ -335,7 +346,7 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 	query := `
 		SELECT s.id, s.user_id, s.store_name, s.slug, s.tagline, s.about,
 			s.logo_url, s.cover_url, s.category_id, s.whatsapp, s.phone,
-			s.delivery_options, s.town_id, s.is_active, s.is_verified,
+			s.delivery_options, s.town_id, s.address, s.is_active, s.is_verified,
 			s.is_featured, s.total_products, s.follower_count, s.views,
 			t.name as town_name,
 			u.full_name as owner_name, u.avatar_url as owner_avatar
@@ -362,7 +373,7 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 			&store.ID, &store.UserID, &store.StoreName, &store.Slug,
 			&store.Tagline, &store.About, &store.LogoURL, &store.CoverURL,
 			&store.CategoryID, &store.WhatsApp, &store.Phone,
-			&store.DeliveryOptions, &store.TownID, &store.IsActive,
+			&store.DeliveryOptions, &store.TownID, &store.Address, &store.IsActive,
 			&store.IsVerified, &store.IsFeatured, &store.TotalProducts,
 			&store.FollowerCount, &store.Views,
 			&townName, &ownerName, &ownerAvatar,
@@ -559,7 +570,7 @@ func (h *StoreHandler) getStoreByUserID(userID uuid.UUID) (*models.Store, error)
 	err := h.db.Pool.QueryRow(context.Background(), `
 		SELECT id, user_id, store_name, slug, tagline, about, logo_url, cover_url,
 			category_id, whatsapp, phone, delivery_options, delivery_radius_km,
-			operating_hours, town_id, suburb_id, is_active, is_verified, is_featured,
+			operating_hours, town_id, suburb_id, address, is_active, is_verified, is_featured,
 			total_products, total_sales, follower_count, views, created_at, updated_at
 		FROM stores WHERE user_id = $1
 	`, userID).Scan(
@@ -567,7 +578,7 @@ func (h *StoreHandler) getStoreByUserID(userID uuid.UUID) (*models.Store, error)
 		&store.Tagline, &store.About, &store.LogoURL, &store.CoverURL,
 		&store.CategoryID, &store.WhatsApp, &store.Phone,
 		&store.DeliveryOptions, &store.DeliveryRadiusKm,
-		&store.OperatingHours, &store.TownID, &store.SuburbID,
+		&store.OperatingHours, &store.TownID, &store.SuburbID, &store.Address,
 		&store.IsActive, &store.IsVerified, &store.IsFeatured,
 		&store.TotalProducts, &store.TotalSales, &store.FollowerCount,
 		&store.Views, &store.CreatedAt, &store.UpdatedAt,
@@ -587,7 +598,7 @@ func (h *StoreHandler) getStoreBySlug(slug string, currentUserID *uuid.UUID) (*m
 		SELECT s.id, s.user_id, s.store_name, s.slug, s.tagline, s.about,
 			s.logo_url, s.cover_url, s.category_id, s.whatsapp, s.phone,
 			s.delivery_options, s.delivery_radius_km, s.operating_hours,
-			s.town_id, s.suburb_id, s.is_active, s.is_verified, s.is_featured,
+			s.town_id, s.suburb_id, s.address, s.is_active, s.is_verified, s.is_featured,
 			s.total_products, s.total_sales, s.follower_count, s.views,
 			s.created_at, s.updated_at,
 			t.name as town_name, sub.name as suburb_name,
@@ -613,7 +624,7 @@ func (h *StoreHandler) getStoreBySlug(slug string, currentUserID *uuid.UUID) (*m
 		&store.Tagline, &store.About, &store.LogoURL, &store.CoverURL,
 		&store.CategoryID, &store.WhatsApp, &store.Phone,
 		&store.DeliveryOptions, &store.DeliveryRadiusKm, &store.OperatingHours,
-		&store.TownID, &store.SuburbID, &store.IsActive, &store.IsVerified,
+		&store.TownID, &store.SuburbID, &store.Address, &store.IsActive, &store.IsVerified,
 		&store.IsFeatured, &store.TotalProducts, &store.TotalSales,
 		&store.FollowerCount, &store.Views, &store.CreatedAt, &store.UpdatedAt,
 		&townName, &suburbName, &ownerName, &ownerAvatar, &categoryName, &isFollowing,

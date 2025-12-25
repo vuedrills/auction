@@ -35,6 +35,7 @@ type Store struct {
 	OperatingHours         *string    `json:"operating_hours,omitempty"` // JSON string
 	TownID                 *uuid.UUID `json:"town_id,omitempty"`
 	SuburbID               *uuid.UUID `json:"suburb_id,omitempty"`
+	Address                *string    `json:"address,omitempty"`
 	IsActive               bool       `json:"is_active"`
 	IsVerified             bool       `json:"is_verified"`
 	IsFeatured             bool       `json:"is_featured"`
@@ -138,6 +139,7 @@ type CreateStoreRequest struct {
 	DeliveryRadiusKm int      `json:"delivery_radius_km"`
 	TownID           string   `json:"town_id"`
 	SuburbID         string   `json:"suburb_id"`
+	Address          string   `json:"address"`
 }
 
 // UpdateStoreRequest represents request to update a store
@@ -153,6 +155,7 @@ type UpdateStoreRequest struct {
 	DeliveryOptions  []string `json:"delivery_options"`
 	DeliveryRadiusKm *int     `json:"delivery_radius_km"`
 	OperatingHours   *string  `json:"operating_hours"`
+	Address          *string  `json:"address"`
 	IsActive         *bool    `json:"is_active"`
 }
 
