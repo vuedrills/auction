@@ -15,6 +15,7 @@ type AuctionWorker struct {
 	db              *database.DB
 	hub             *websocket.Hub
 	notificationSvc *services.NotificationService
+	badgeWorker     *BadgeWorker
 }
 
 func NewAuctionWorker(db *database.DB, hub *websocket.Hub) *AuctionWorker {
@@ -22,6 +23,7 @@ func NewAuctionWorker(db *database.DB, hub *websocket.Hub) *AuctionWorker {
 		db:              db,
 		hub:             hub,
 		notificationSvc: services.NewNotificationService(db, hub),
+		badgeWorker:     NewBadgeWorker(db),
 	}
 }
 
@@ -119,6 +121,10 @@ func (w *AuctionWorker) endExpiredAuctions(ctx context.Context) {
 
 			// Send notification to seller
 			w.notificationSvc.SendAuctionSoldNotification(ctx, sellerID, auctionID, conversationID, title, winnerName, finalAmount)
+
+			// Evaluate badges for seller and winner
+			go w.badgeWorker.EvaluateUserBadges(sellerID)
+			go w.badgeWorker.EvaluateUserBadges(winnerID)
 
 			log.Printf("🏆 Auction won: %s (%s) by %s for R%.2f", title, auctionID, winnerName, finalAmount)
 		}
