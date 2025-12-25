@@ -109,7 +109,10 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
     return auctionAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
-        appBar: AppBar(leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop())),
+        appBar: AppBar(leading: IconButton(
+          icon: const Icon(Icons.arrow_back), 
+          onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
+        )),
         body: Center(child: Text('Error loading auction: $e')),
       ),
       data: (auction) => _buildContent(context, auction),
@@ -188,7 +191,14 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _CircleButton(Icons.arrow_back, () => context.pop()),
+                    _CircleButton(Icons.arrow_back, () {
+                      // Try to pop, fall back to home if no back stack
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    }),
                     Row(children: [
                       GestureDetector(
                         onTap: () => _toggleWatchlist(auction, isInWatchlist),

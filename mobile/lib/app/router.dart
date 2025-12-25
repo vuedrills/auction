@@ -11,6 +11,7 @@ import '../screens/home/national_auctions_screen.dart';
 import '../screens/auction/auction_detail_screen.dart';
 import '../screens/auction/create_auction_screen.dart';
 import '../screens/auction/auction_states_screen.dart';
+import '../screens/auction/filtered_auctions_screen.dart';
 import '../screens/category/category_browser_screen.dart';
 import '../screens/category/category_feed_screens.dart';
 import '../screens/suburb/suburb_screens.dart';
@@ -21,6 +22,7 @@ import '../screens/notification/notification_detail_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/chat/chat_screens.dart';
 import '../screens/search/search_results_screen.dart';
+import '../screens/search/national_search_screen.dart';
 import '../screens/user/user_screens.dart';
 import '../screens/legal/legal_screens.dart';
 import '../screens/states/error_states_screen.dart';
@@ -58,6 +60,16 @@ final appRouter = GoRouter(
       builder: (_, state) => AuctionDetailScreen(auctionId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(path: '/create-auction', builder: (_, __) => const CreateAuctionScreen()),
+    GoRoute(
+      path: '/auctions/filtered',
+      builder: (_, state) => FilteredAuctionsScreen(
+        title: state.uri.queryParameters['title'] ?? 'Auctions',
+        filterType: state.uri.queryParameters['filter'] ?? 'fresh',
+        townId: state.uri.queryParameters['townId'],
+        categoryId: state.uri.queryParameters['categoryId'],
+        suburbId: state.uri.queryParameters['suburbId'],
+      ),
+    ),
     GoRoute(
       path: '/auction/:id/ended',
       builder: (_, state) => AuctionEndedScreen(auctionId: state.pathParameters['id'] ?? ''),
@@ -140,6 +152,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/search',
       builder: (_, state) => SearchResultsScreen(query: state.uri.queryParameters['q'] ?? ''),
+    ),
+    GoRoute(
+      path: '/search/national',
+      builder: (_, __) => const NationalSearchScreen(),
     ),
     
     // Legal

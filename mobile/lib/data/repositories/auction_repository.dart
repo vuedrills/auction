@@ -109,7 +109,10 @@ class AuctionRepository {
       'shipping_available': shippingAvailable,
       'allow_offers': allowOffers,
     });
-    
+    final data = response.data;
+    if (data is Map && data.containsKey('auction')) {
+      return Auction.fromJson(data['auction'] as Map<String, dynamic>);
+    }
     return Auction.fromJson(response.data);
   }
   
