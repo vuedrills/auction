@@ -55,6 +55,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 			users.POST("/:userId/ratings", middleware.Auth(jwtService), featuresHandler.RateUser)
 
 			// User Auctions & Bids (NEW)
+			users.GET("/me/auctions", middleware.Auth(jwtService), auctionHandler.GetMyAuctions)
 			users.GET("/me/bids", middleware.Auth(jwtService), auctionHandler.GetMyBids)
 			users.GET("/me/won", middleware.Auth(jwtService), auctionHandler.GetWonAuctions)
 

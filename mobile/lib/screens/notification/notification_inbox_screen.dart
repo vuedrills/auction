@@ -47,9 +47,9 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
           // Toggle
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Container(
-                height: 56,
+                height: 48,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
                 child: Row(children: [
@@ -62,14 +62,16 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: !_showNational ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
                         ),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(Icons.location_on, size: 18, color: !_showNational ? AppColors.textPrimaryLight : AppColors.textSecondaryLight),
-                          const SizedBox(width: 8),
-                          Text('My Town', style: AppTypography.titleSmall.copyWith(
-                            color: !_showNational ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
-                            fontWeight: !_showNational ? FontWeight.w600 : null,
-                          )),
-                        ]),
+                        child: Center(
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Icon(Icons.location_on, size: 18, color: !_showNational ? AppColors.textPrimaryLight : Colors.grey),
+                            const SizedBox(width: 6),
+                            Text('My Town', style: AppTypography.titleSmall.copyWith(
+                              color: !_showNational ? AppColors.textPrimaryLight : Colors.grey,
+                              fontWeight: !_showNational ? FontWeight.w600 : FontWeight.w400,
+                            )),
+                          ]),
+                        ),
                       ),
                     ),
                   ),
@@ -84,8 +86,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                         ),
                         child: Center(
                           child: Text('National', style: AppTypography.titleSmall.copyWith(
-                            color: _showNational ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
-                            fontWeight: _showNational ? FontWeight.w600 : null,
+                            color: _showNational ? AppColors.textPrimaryLight : Colors.grey,
+                            fontWeight: _showNational ? FontWeight.w600 : FontWeight.w400,
                           )),
                         ),
                       ),

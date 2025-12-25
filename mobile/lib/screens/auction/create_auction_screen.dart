@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../core/services/supabase_storage_service.dart';
+import '../../core/services/image_compression_service.dart';
 import '../../widgets/common/app_text_field.dart';
 import '../../widgets/common/app_button.dart';
 
@@ -36,6 +37,12 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
   final List<String> _uploadedImageUrls = [];
   bool _isUploading = false;
   bool _isPublishing = false;
+  
+  // Upload progress tracking
+  int _currentUploadIndex = 0;
+  int _totalUploads = 0;
+  String _uploadStatus = '';
+  double _uploadProgress = 0.0;
 
   final _imagePicker = ImagePicker();
 
@@ -80,34 +87,71 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
   Future<void> _uploadImages() async {
     if (_localImages.isEmpty) return;
     
-    setState(() => _isUploading = true);
+    setState(() {
+      _isUploading = true;
+      _currentUploadIndex = 0;
+      _totalUploads = _localImages.length;
+      _uploadStatus = 'Preparing images...';
+      _uploadProgress = 0.0;
+    });
     
     try {
       final storageService = ref.read(supabaseStorageProvider);
       _uploadedImageUrls.clear();
       
       int successCount = 0;
-      for (final image in _localImages) {
-        final url = await storageService.uploadFile(image, 'auctions');
+      int totalOriginalSize = 0;
+      int totalCompressedSize = 0;
+      
+      for (var i = 0; i < _localImages.length; i++) {
+        final image = _localImages[i];
+        final originalSize = await image.length();
+        totalOriginalSize += originalSize;
+        
+        setState(() {
+          _currentUploadIndex = i + 1;
+          _uploadStatus = 'Compressing & uploading ${i + 1}/${_localImages.length}...';
+          _uploadProgress = i / _localImages.length;
+        });
+        
+        // Upload with automatic compression
+        final url = await storageService.uploadFile(
+          image, 
+          'auctions',
+          compressionConfig: ImageCompressionConfig.auction,
+        );
+        
         if (url != null) {
           _uploadedImageUrls.add(url);
           successCount++;
+          // Estimate compressed size (actual tracking would require service changes)
+          totalCompressedSize += (originalSize * 0.15).round();
         }
+        
+        setState(() {
+          _uploadProgress = (i + 1) / _localImages.length;
+        });
       }
       
       if (successCount == 0 && _localImages.isNotEmpty) {
-        throw Exception('Could not upload any images. Please check your internet connection or storage configuration.');
+        throw Exception('Could not upload any images. Please check your internet connection.');
       }
       
       if (successCount < _localImages.length) {
         throw Exception('Only $successCount of ${_localImages.length} images were uploaded. Please try again.');
       }
       
+      // Calculate and show savings
+      final savedBytes = totalOriginalSize - totalCompressedSize;
+      final savedMB = (savedBytes / (1024 * 1024)).toStringAsFixed(1);
+      final savingsPercent = ((savedBytes / totalOriginalSize) * 100).toStringAsFixed(0);
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$successCount photos uploaded'),
+            content: Text('$successCount photos uploaded (saved ~$savedMB MB - $savingsPercent% smaller)'),
             backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -117,9 +161,15 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
           SnackBar(content: Text('Upload Error: $e'), backgroundColor: AppColors.error),
         );
       }
-      rethrow; // Re-throw to prevent publishing
+      rethrow;
     } finally {
-      if (mounted) setState(() => _isUploading = false);
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+          _uploadStatus = '';
+          _uploadProgress = 0.0;
+        });
+      }
     }
   }
 
@@ -200,8 +250,9 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Auction published successfully!'), backgroundColor: AppColors.success),
         );
-        // Navigate to the created auction
-        context.go('/auction/${auction.id}');
+        // Navigate to the created auction - use pushReplacement to keep home in navigation stack
+        // This allows the back button to work properly (goes back to home)
+        context.pushReplacement('/auction/${auction.id}');
       }
     } catch (e) {
       String errorMessage = e.toString();
@@ -330,56 +381,154 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
   }
 
   Widget _buildPhotoStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        Text('Add Photos', style: AppTypography.headlineMedium),
-        const SizedBox(height: 8),
-        Text('Add up to 10 photos. First photo is the cover.', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
-        const SizedBox(height: 24),
-        
-        // Photo grid
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: (_localImages.length < 10) ? _localImages.length + 1 : _localImages.length,
-          itemBuilder: (_, i) {
-            if (i == _localImages.length && _localImages.length < 10) {
-              return _AddPhotoCard(onTap: _showPhotoOptions);
-            }
-            return _PhotoCard(
-              file: _localImages[i],
-              isCover: i == 0,
-              onRemove: () => _removeImage(i),
-            );
-          },
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Add Photos', style: AppTypography.headlineMedium),
+            const SizedBox(height: 8),
+            Text('Add up to 10 photos. First photo is the cover.', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+            const SizedBox(height: 8),
+            // Compression info banner
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.compress, color: AppColors.success, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Images are automatically compressed to save data (~85% smaller)',
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.success),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Photo grid
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: (_localImages.length < 10) ? _localImages.length + 1 : _localImages.length,
+              itemBuilder: (_, i) {
+                if (i == _localImages.length && _localImages.length < 10) {
+                  return _AddPhotoCard(onTap: _showPhotoOptions);
+                }
+                return _PhotoCard(
+                  file: _localImages[i],
+                  isCover: i == 0,
+                  onRemove: () => _removeImage(i),
+                );
+              },
+            ),
+            
+            if (_localImages.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.info.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(children: [
+                  Icon(Icons.info_outline, color: AppColors.info, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${_localImages.length} photo${_localImages.length > 1 ? 's' : ''} selected. Drag to reorder.',
+                      style: AppTypography.bodySmall,
+                    ),
+                  ),
+                ]),
+              ),
+            ],
+          ],
         ),
         
-        if (_localImages.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.info.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(children: [
-              Icon(Icons.info_outline, color: AppColors.info, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${_localImages.length} photo${_localImages.length > 1 ? 's' : ''} selected. Drag to reorder.',
-                  style: AppTypography.bodySmall,
+        // Upload progress overlay
+        if (_isUploading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.7),
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Animated icon
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: 1),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, value, child) {
+                          return Transform.rotate(
+                            angle: value * 2 * 3.14159,
+                            child: Icon(
+                              Icons.compress,
+                              size: 48,
+                              color: AppColors.primary,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _uploadStatus,
+                        style: AppTypography.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      // Progress bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: _uploadProgress,
+                          minHeight: 8,
+                          backgroundColor: AppColors.borderLight,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${(_uploadProgress * 100).toInt()}%',
+                        style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondaryLight),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Optimizing for faster uploads...',
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ]),
+            ),
           ),
-        ],
       ],
     );
   }

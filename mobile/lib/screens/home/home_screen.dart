@@ -69,36 +69,98 @@ class MyTownTabContent extends ConsumerWidget {
     final auctionState = ref.watch(myTownAuctionsProvider);
     final user = ref.watch(currentUserProvider);
     final endingSoonAsync = ref.watch(endingSoonProvider(user?.homeTownId));
+    final selectedSuburb = ref.watch(selectedSuburbProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+
+    // Filter auctions by BOTH suburb and category
+    final filteredAuctions = auctionState.auctions.where((a) {
+      final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
+      final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+      return matchesSuburb && matchesCategory;
+    }).toList();
 
     return RefreshIndicator(
       onRefresh: () => ref.read(myTownAuctionsProvider.notifier).refresh(),
       child: CustomScrollView(
         slivers: [
-          // Header
-          SliverToBoxAdapter(child: _buildHeader(context, user)),
+          // Header with Suburb Dropdown
+          SliverToBoxAdapter(child: _HeaderWithDropdown(user: user)),
           
-          // Suburb chips
-          SliverToBoxAdapter(child: _SuburbChips(townId: user?.homeTownId)),
+          // Category Chips
+          const SliverToBoxAdapter(child: _CategoryChips()),
           
           // Ending Soon Section
-          SliverToBoxAdapter(child: _buildSectionHeader(context, 'Ending Soon', Icons.timer_rounded)),
+          SliverToBoxAdapter(child: _buildSectionHeader(
+            context, 
+            'Ending Soon', 
+            Icons.timer_rounded,
+            onSeeAll: () {
+              final params = <String, String>{
+                'title': 'Ending Soon',
+                'filter': 'ending_soon',
+              };
+              if (user?.homeTownId != null) params['townId'] = user!.homeTownId!;
+              if (selectedSuburb != null) params['suburbId'] = selectedSuburb.id;
+              if (selectedCategory != null) params['categoryId'] = selectedCategory.id;
+              context.push('/auctions/filtered?${Uri(queryParameters: params).query}');
+            },
+          )),
           SliverToBoxAdapter(
             child: endingSoonAsync.when(
-              data: (auctions) => _EndingSoonList(auctions: auctions),
+              data: (auctions) {
+                // Filter ending soon by suburb and category too
+                final filtered = auctions.where((a) {
+                  final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
+                  final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+                  return matchesSuburb && matchesCategory;
+                }).toList();
+                return _EndingSoonList(auctions: filtered);
+              },
               loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
               error: (_, __) => const SizedBox(height: 200, child: Center(child: Text('Failed to load'))),
             ),
           ),
           
           // Fresh in Town Section
-          SliverToBoxAdapter(child: _buildSectionHeader(context, 'Fresh in Your Town', Icons.local_fire_department_rounded)),
+          SliverToBoxAdapter(child: _buildSectionHeader(
+            context, 
+            'Fresh in Your Town', 
+            Icons.local_fire_department_rounded,
+            onSeeAll: () {
+              final params = <String, String>{
+                'title': 'Fresh in ${user?.homeTown?.name ?? 'Your Town'}',
+                'filter': 'fresh',
+              };
+              if (user?.homeTownId != null) params['townId'] = user!.homeTownId!;
+              if (selectedSuburb != null) params['suburbId'] = selectedSuburb.id;
+              if (selectedCategory != null) params['categoryId'] = selectedCategory.id;
+              context.push('/auctions/filtered?${Uri(queryParameters: params).query}');
+            },
+          )),
           
           if (auctionState.isLoading && auctionState.auctions.isEmpty)
             const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
           else if (auctionState.error != null && auctionState.auctions.isEmpty)
             SliverFillRemaining(child: Center(child: Text('Error: ${auctionState.error}')))
-          else if (auctionState.auctions.isEmpty)
-            const SliverFillRemaining(child: Center(child: Text('No auctions in your town yet')))
+          else if (filteredAuctions.isEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                height: 200,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
+                    const SizedBox(height: 12),
+                    Text(
+                      _getEmptyMessage(selectedSuburb, selectedCategory),
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                    ),
+                  ],
+                ),
+              ),
+            )
           else
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -110,8 +172,8 @@ class MyTownTabContent extends ConsumerWidget {
                   mainAxisSpacing: 12,
                 ),
                 delegate: SliverChildBuilderDelegate(
-                  (context, index) => _AuctionCard(auction: auctionState.auctions[index]),
-                  childCount: auctionState.auctions.length,
+                  (context, index) => _AuctionCard(auction: filteredAuctions[index]),
+                  childCount: filteredAuctions.length,
                 ),
               ),
             ),
@@ -122,8 +184,32 @@ class MyTownTabContent extends ConsumerWidget {
       ),
     );
   }
+  
+  String _getEmptyMessage(Suburb? suburb, Category? category) {
+    if (suburb != null && category != null) {
+      return 'No ${category.name} in ${suburb.name}';
+    } else if (suburb != null) {
+      return 'No auctions in ${suburb.name}';
+    } else if (category != null) {
+      return 'No ${category.name} auctions';
+    }
+    return 'No auctions in your town yet';
+  }
+}
 
-  Widget _buildHeader(BuildContext context, User? user) {
+
+/// Header with integrated suburb dropdown
+class _HeaderWithDropdown extends ConsumerWidget {
+  final User? user;
+  const _HeaderWithDropdown({this.user});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final suburbsAsync = user?.homeTownId != null 
+        ? ref.watch(suburbsProvider(user!.homeTownId!))
+        : const AsyncValue<List<Suburb>>.data([]);
+    final selectedSuburb = ref.watch(selectedSuburbProvider);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       decoration: BoxDecoration(color: AppColors.surfaceLight),
@@ -141,21 +227,68 @@ class MyTownTabContent extends ConsumerWidget {
                   Text('HOME TOWN', style: AppTypography.labelSmall.copyWith(
                     color: AppColors.primary, fontWeight: FontWeight.w700, letterSpacing: 1)),
                 ]),
-                GestureDetector(
-                  onTap: () => context.push('/national'),
-                  child: Row(children: [
-                    Text('See National', style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondaryLight)),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryLight, size: 18),
-                  ]),
-                ),
+                if (user?.homeTownId != null)
+                  GestureDetector(
+                    onTap: () => context.push('/suburbs/${user?.homeTownId}?name=${Uri.encodeComponent(user?.homeTown?.name ?? '')}'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(children: [
+                        Icon(Icons.explore_rounded, size: 14, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text('Explore Suburbs', style: AppTypography.labelSmall.copyWith(
+                          color: AppColors.primary, fontWeight: FontWeight.w600)),
+                      ]),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Town name
                 Text(user?.homeTown?.name ?? 'Your Town', style: AppTypography.displaySmall),
+                const Spacer(),
+                // Suburb dropdown (compact)
+                suburbsAsync.when(
+                  data: (suburbs) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<Suburb?>(
+                      value: selectedSuburb,
+                      hint: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.location_on, size: 14, color: AppColors.textSecondaryLight),
+                          const SizedBox(width: 4),
+                          Text('All', style: AppTypography.labelSmall),
+                        ],
+                      ),
+                      underline: const SizedBox(),
+                      isDense: true,
+                      icon: Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.textSecondaryLight),
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.textPrimaryLight),
+                      items: [
+                        DropdownMenuItem<Suburb?>(value: null, child: Text('All Suburbs')),
+                        ...suburbs.map((s) => DropdownMenuItem<Suburb?>(
+                          value: s,
+                          child: Text(s.name),
+                        )),
+                      ],
+                      onChanged: (s) => ref.read(selectedSuburbProvider.notifier).state = s,
+                    ),
+                  ),
+                  loading: () => const SizedBox(width: 60),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+                const SizedBox(width: 12),
+                // Profile icon
                 GestureDetector(
                   onTap: () => context.push('/profile'),
                   child: Container(
@@ -179,53 +312,56 @@ class MyTownTabContent extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(children: [
-            Icon(icon, color: AppColors.secondary, size: 20),
-            const SizedBox(width: 8),
-            Text(title, style: AppTypography.headlineSmall),
-          ]),
-          Text('See All', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
-        ],
-      ),
-    );
-  }
 }
 
-/// Suburb Chips - Connected to Backend
-class _SuburbChips extends ConsumerWidget {
-  final String? townId;
-  const _SuburbChips({this.townId});
+Widget _buildSectionHeader(BuildContext context, String title, IconData icon, {VoidCallback? onSeeAll}) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(children: [
+          Icon(icon, color: AppColors.secondary, size: 20),
+          const SizedBox(width: 8),
+          Text(title, style: AppTypography.headlineSmall),
+        ]),
+        GestureDetector(
+          onTap: onSeeAll,
+          child: Text('See All', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
+        ),
+      ],
+    ),
+  );
+}
+
+
+/// Category Chips - Primary Filter
+class _CategoryChips extends ConsumerWidget {
+  const _CategoryChips();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (townId == null) return const SizedBox.shrink();
-    
-    final suburbsAsync = ref.watch(suburbsProvider(townId!));
-    final selectedSuburb = ref.watch(selectedSuburbProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
-    return suburbsAsync.when(
-      data: (suburbs) => SingleChildScrollView(
+    return categoriesAsync.when(
+      data: (categories) => SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             // "All" chip
-            _SuburbChip(
-              name: 'All Suburbs',
-              isSelected: selectedSuburb == null,
-              onTap: () => ref.read(selectedSuburbProvider.notifier).state = null,
+            _CategoryChip(
+              name: 'All',
+              icon: Icons.grid_view_rounded,
+              isSelected: selectedCategory == null,
+              onTap: () => ref.read(selectedCategoryProvider.notifier).state = null,
             ),
-            ...suburbs.map((s) => _SuburbChip(
-              name: s.name,
-              isSelected: selectedSuburb?.id == s.id,
-              onTap: () => ref.read(selectedSuburbProvider.notifier).state = s,
+            ...categories.map((c) => _CategoryChip(
+              name: c.name,
+              icon: _getCategoryIcon(c.icon),
+              isSelected: selectedCategory?.id == c.id,
+              onTap: () => ref.read(selectedCategoryProvider.notifier).state = c,
             )),
           ],
         ),
@@ -234,13 +370,31 @@ class _SuburbChips extends ConsumerWidget {
       error: (_, __) => const SizedBox.shrink(),
     );
   }
+  
+  IconData _getCategoryIcon(String? iconName) {
+    switch (iconName) {
+      case 'phone_iphone': return Icons.phone_iphone;
+      case 'directions_car': return Icons.directions_car;
+      case 'checkroom': return Icons.checkroom;
+      case 'chair': return Icons.chair;
+      case 'build': return Icons.build;
+      case 'sports_basketball': return Icons.sports_basketball;
+      case 'auto_stories': return Icons.auto_stories;
+      case 'toys': return Icons.toys;
+      case 'kitchen': return Icons.kitchen;
+      case 'music_note': return Icons.music_note;
+      case 'diamond': return Icons.diamond;
+      default: return Icons.category;
+    }
+  }
 }
 
-class _SuburbChip extends StatelessWidget {
+class _CategoryChip extends StatelessWidget {
   final String name;
+  final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
-  const _SuburbChip({required this.name, required this.isSelected, required this.onTap});
+  const _CategoryChip({required this.name, required this.icon, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -249,19 +403,29 @@ class _SuburbChip extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.textPrimaryLight : AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: isSelected ? Colors.transparent : AppColors.borderLight),
           ),
-          child: Text(name, style: AppTypography.labelMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimaryLight)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: isSelected ? Colors.white : AppColors.textSecondaryLight),
+              const SizedBox(width: 6),
+              Text(name, style: AppTypography.labelMedium.copyWith(
+                color: isSelected ? Colors.white : AppColors.textPrimaryLight,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              )),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 /// Ending Soon List
 class _EndingSoonList extends StatelessWidget {

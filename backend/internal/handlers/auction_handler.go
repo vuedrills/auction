@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"time"
@@ -56,6 +58,92 @@ func (h *AuctionHandler) GetBidIncrement(currentPrice float64) float64 {
 	default:
 		return 25.00
 	}
+}
+
+// fetchFullAuction retrieves a complete auction object with all joined data
+func (h *AuctionHandler) fetchFullAuction(ctx context.Context, auctionID uuid.UUID) (*models.Auction, error) {
+	row := h.db.Pool.QueryRow(ctx, `
+		SELECT a.id, a.title, a.description, a.starting_price, a.current_price, a.reserve_price,
+		a.bid_increment, a.seller_id, a.winner_id, a.category_id, a.town_id, a.suburb_id, 
+		a.status, a.condition, a.start_time, a.end_time, a.original_end_time, a.anti_snipe_minutes,
+		a.total_bids, a.views, a.images, a.is_featured, a.allow_offers, 
+		a.pickup_location, a.shipping_available, a.created_at, a.updated_at,
+		u.id, u.username, u.full_name, u.avatar_url, u.rating, u.rating_count, u.completed_auctions, u.is_verified,
+		c.name, c.icon,
+		t.name, s.name
+		FROM auctions a
+		LEFT JOIN users u ON a.seller_id = u.id
+		LEFT JOIN categories c ON a.category_id = c.id
+		LEFT JOIN towns t ON a.town_id = t.id
+		LEFT JOIN suburbs s ON a.suburb_id = s.id
+		WHERE a.id = $1
+	`, auctionID)
+
+	var auction models.Auction
+	var seller models.User
+	var categoryName, categoryIcon, townName, suburbName *string
+	var sellerRating *float64
+	var sellerRatingCount, sellerCompletedAuctions *int
+	var sellerIsVerified *bool
+
+	err := row.Scan(
+		&auction.ID, &auction.Title, &auction.Description, &auction.StartingPrice, &auction.CurrentPrice,
+		&auction.ReservePrice, &auction.BidIncrement, &auction.SellerID, &auction.WinnerID,
+		&auction.CategoryID, &auction.TownID, &auction.SuburbID, &auction.Status, &auction.Condition,
+		&auction.StartTime, &auction.EndTime, &auction.OriginalEndTime, &auction.AntiSnipeMinutes,
+		&auction.TotalBids, &auction.Views, &auction.Images, &auction.IsFeatured, &auction.AllowOffers,
+		&auction.PickupLocation, &auction.ShippingAvailable, &auction.CreatedAt, &auction.UpdatedAt,
+		&seller.ID, &seller.Username, &seller.FullName, &seller.AvatarURL,
+		&sellerRating, &sellerRatingCount, &sellerCompletedAuctions, &sellerIsVerified,
+		&categoryName, &categoryIcon, &townName, &suburbName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set seller details
+	if sellerRating != nil {
+		seller.Rating = *sellerRating
+	}
+	if sellerRatingCount != nil {
+		seller.RatingCount = *sellerRatingCount
+	}
+	if sellerCompletedAuctions != nil {
+		seller.CompletedAuctions = *sellerCompletedAuctions
+	}
+	if sellerIsVerified != nil {
+		seller.IsVerified = *sellerIsVerified
+	}
+	auction.Seller = &seller
+
+	if categoryName != nil {
+		auction.Category = &models.Category{ID: auction.CategoryID, Name: *categoryName, Icon: categoryIcon}
+	}
+	if townName != nil {
+		auction.Town = &models.Town{ID: auction.TownID, Name: *townName}
+	}
+	if suburbName != nil && auction.SuburbID != nil {
+		auction.Suburb = &models.Suburb{ID: *auction.SuburbID, Name: *suburbName}
+	}
+
+	// Calculate computed fields
+	if auction.EndTime != nil {
+		remaining := time.Until(*auction.EndTime)
+		if remaining > 0 {
+			auction.TimeRemaining = formatDuration(remaining)
+			auction.IsEndingSoon = remaining < time.Hour
+		}
+	}
+
+	currentPrice := auction.StartingPrice
+	if auction.CurrentPrice != nil {
+		currentPrice = *auction.CurrentPrice
+	}
+	increment := h.GetBidIncrement(currentPrice)
+	auction.BidIncrement = increment
+	auction.MinNextBid = currentPrice + increment
+
+	return &auction, nil
 }
 
 // GetNextValidBid returns the ONLY valid next bid amount for an auction
@@ -468,11 +556,30 @@ func (h *AuctionHandler) CreateAuction(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"id":      auctionID,
+	// Fetch full auction for response
+	createdAuction, err := h.fetchFullAuction(context.Background(), auctionID)
+	if err != nil {
+		log.Printf("DEBUG: fetchFullAuction failed: %v", err)
+		// Fallback if full fetch fails
+		c.JSON(http.StatusCreated, gin.H{
+			"id":      auctionID,
+			"status":  status,
+			"message": message,
+		})
+		return
+	}
+
+	respBody := gin.H{
+		"auction": createdAuction,
 		"status":  status,
 		"message": message,
-	})
+		"id":      auctionID, // Still provide ID at top level
+	}
+
+	respJSON, _ := json.Marshal(respBody)
+	log.Printf("DEBUG: CreateAuction Response: %s", string(respJSON))
+
+	c.JSON(http.StatusCreated, respBody)
 }
 
 // PlaceBid places a bid on an auction with STRICT tiered increment enforcement
@@ -769,6 +876,103 @@ func (h *AuctionHandler) scanAuctions(rows pgx.Rows) []models.Auction {
 		auctions = append(auctions, a)
 	}
 	return auctions
+}
+
+// GetMyAuctions returns all auctions created by the current user
+func (h *AuctionHandler) GetMyAuctions(c *gin.Context) {
+	userID, _ := middleware.GetUserID(c)
+
+	// Parse query parameters
+	status := c.Query("status") // active, ended, pending, or empty for all
+	page := 1
+	limit := 20
+	if p := c.Query("page"); p != "" {
+		fmt.Sscanf(p, "%d", &page)
+	}
+	if l := c.Query("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	// Build query based on status filter
+	baseQuery := `
+		SELECT a.id, a.title, a.description, a.starting_price, a.current_price, a.bid_increment,
+		a.seller_id, a.category_id, a.town_id, a.suburb_id, a.status, a.condition,
+		a.start_time, a.end_time, a.total_bids, a.views, a.images,
+		a.is_featured, a.created_at,
+		u.username as seller_username, u.avatar_url as seller_avatar,
+		c.name as category_name, c.icon as category_icon,
+		t.name as town_name, s.name as suburb_name
+		FROM auctions a
+		LEFT JOIN users u ON a.seller_id = u.id
+		LEFT JOIN categories c ON a.category_id = c.id
+		LEFT JOIN towns t ON a.town_id = t.id
+		LEFT JOIN suburbs s ON a.suburb_id = s.id
+		WHERE a.seller_id = $1
+	`
+	countQuery := `SELECT COUNT(*) FROM auctions a WHERE a.seller_id = $1`
+	args := []interface{}{userID}
+	argCount := 1
+
+	// Apply status filter
+	if status != "" {
+		argCount++
+		switch status {
+		case "active":
+			baseQuery += " AND a.status IN ('active', 'ending_soon')"
+			countQuery += " AND a.status IN ('active', 'ending_soon')"
+		case "ended":
+			baseQuery += " AND a.status IN ('ended', 'sold', 'cancelled')"
+			countQuery += " AND a.status IN ('ended', 'sold', 'cancelled')"
+		case "pending":
+			baseQuery += " AND a.status = 'pending'"
+			countQuery += " AND a.status = 'pending'"
+		default:
+			argCount-- // No filter applied
+		}
+	}
+
+	baseQuery += " ORDER BY a.created_at DESC"
+	baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+
+	// Get total count
+	var total int
+	h.db.Pool.QueryRow(context.Background(), countQuery, args...).Scan(&total)
+
+	// Execute main query
+	rows, err := h.db.Pool.Query(context.Background(), baseQuery, args...)
+	if err != nil {
+		log.Printf("GetMyAuctions error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch auctions"})
+		return
+	}
+	defer rows.Close()
+
+	auctions := h.scanAuctions(rows)
+
+	// Add time remaining for each auction
+	for i := range auctions {
+		if auctions[i].EndTime != nil {
+			remaining := time.Until(*auctions[i].EndTime)
+			if remaining > 0 {
+				auctions[i].TimeRemaining = formatDuration(remaining)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, models.AuctionListResponse{
+		Auctions:   auctions,
+		Total:      total,
+		Page:       page,
+		Limit:      limit,
+		TotalPages: int(math.Ceil(float64(total) / float64(limit))),
+	})
 }
 
 // GetMyBids returns all bids for the current user
