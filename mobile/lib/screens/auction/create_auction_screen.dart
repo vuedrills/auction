@@ -203,9 +203,19 @@ class _CreateAuctionScreenState extends ConsumerState<CreateAuctionScreen> {
         context.go('/auction/${auction.id}');
       }
     } catch (e) {
+      String errorMessage = e.toString();
+      if (e is DioException) {
+        final data = e.response?.data;
+        if (data is Map && data.containsKey('error')) {
+          errorMessage = data['error'];
+        } else if (e.response?.statusMessage != null) {
+          errorMessage = 'Server Error: ${e.response?.statusCode} ${e.response?.statusMessage}';
+        }
+      }
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to publish: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Failed to publish: $errorMessage'), backgroundColor: AppColors.error),
         );
       }
     } finally {

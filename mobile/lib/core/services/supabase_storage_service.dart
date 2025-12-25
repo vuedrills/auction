@@ -84,31 +84,33 @@ class SupabaseStorageService {
       
       final contentType = _getContentType(ext);
       
+      print('DEBUG: Uploading to ${SupabaseConfig.storageUrl}/object/${SupabaseConfig.bucket}/$path');
+      
       final response = await _dio.post(
         '${SupabaseConfig.storageUrl}/object/${SupabaseConfig.bucket}/$path',
-        data: bytes,
+        data: Stream.fromIterable([bytes]), // Use stream for potentially large files
         options: Options(
+          validateStatus: (status) => true,
           headers: {
             'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
             'apikey': SupabaseConfig.anonKey,
             'Content-Type': contentType,
+            'Content-Length': bytes.length.toString(),
             'x-upsert': 'true',
           },
         ),
       );
       
+      print('DEBUG: Supabase Upload Status: ${response.statusCode}');
+      print('DEBUG: Supabase Response Body: ${response.data}');
+      
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SupabaseConfig.getPublicUrl(path);
       }
       
-      print('Upload failed with status: ${response.statusCode}, body: ${response.data}');
       return null;
     } catch (e) {
-      if (e is DioException) {
-        print('DioError uploading file: ${e.message}, response: ${e.response?.data}');
-      } else {
-        print('Error uploading file: $e');
-      }
+      print('DEBUG: Error in uploadFile: $e');
       return null;
     }
   }

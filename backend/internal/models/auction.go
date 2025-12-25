@@ -68,13 +68,13 @@ type Auction struct {
 // CreateAuctionRequest represents auction creation input
 type CreateAuctionRequest struct {
 	Title             string     `json:"title" binding:"required,min=5,max=200"`
-	Description       string     `json:"description" binding:"required,min=20"`
+	Description       string     `json:"description"`
 	StartingPrice     float64    `json:"starting_price" binding:"required,min=0.01"`
 	ReservePrice      *float64   `json:"reserve_price"`
 	BidIncrement      float64    `json:"bid_increment"`
 	CategoryID        uuid.UUID  `json:"category_id" binding:"required"`
 	SuburbID          *uuid.UUID `json:"suburb_id"`
-	Condition         string     `json:"condition" binding:"required,oneof=new like_new used fair poor"`
+	Condition         string     `json:"condition" binding:"required,oneof=new like_new used good fair poor"`
 	DurationHours     int        `json:"duration_hours"`
 	Images            []string   `json:"images" binding:"required,min=1,max=10"`
 	AllowOffers       bool       `json:"allow_offers"`
