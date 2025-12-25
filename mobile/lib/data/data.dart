@@ -5,6 +5,7 @@ export 'models/bid.dart';
 export 'models/category.dart';
 export 'models/features.dart'; // Auto-bid, Saved Searches, Promotions, Reputation
 export 'models/badge.dart';
+export 'models/store.dart';
 
 // Repositories
 export 'repositories/auth_repository.dart';
@@ -14,6 +15,7 @@ export 'repositories/chat_repository.dart';
 export 'repositories/notification_repository.dart';
 export 'repositories/features_repository.dart'; // Advanced features
 export 'repositories/badge_repository.dart';
+export 'repositories/store_repository.dart';
 
 // Providers
 export 'providers/auth_provider.dart';

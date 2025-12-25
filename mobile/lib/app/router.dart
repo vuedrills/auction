@@ -29,6 +29,8 @@ import '../screens/states/error_states_screen.dart';
 import '../screens/rating/rate_user_screen.dart';
 import '../screens/rating/user_reviews_screen.dart';
 import '../screens/profile/verification_screen.dart';
+import '../screens/store/create_store_screen.dart';
+import '../screens/store/storefront_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -131,6 +133,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/user/:id',
       builder: (_, state) => UserProfileScreen(userId: state.pathParameters['id'] ?? ''),
+    ),
+
+    // Store Routes
+    GoRoute(path: '/store/create', builder: (_, __) => const CreateStoreScreen()),
+    GoRoute(
+      path: '/store/:slug',
+      builder: (_, state) => StorefrontScreen(slug: state.pathParameters['slug'] ?? ''),
     ),
     GoRoute(
       path: '/rate/:userId',

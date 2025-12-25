@@ -106,6 +106,30 @@ class ProfileScreen extends ConsumerWidget {
           // Menu items
           SliverToBoxAdapter(
             child: Column(children: [
+              // Store Menu Item
+              Consumer(
+                builder: (context, ref, _) {
+                  final myStoreAsync = ref.watch(myStoreProvider);
+                  return myStoreAsync.when(
+                    data: (store) {
+                      if (store != null) {
+                        return _MenuItem(
+                          icon: Icons.store_mall_directory,
+                          title: 'Manage Store',
+                          onTap: () => context.push('/store/${store.slug}'),
+                        );
+                      }
+                      return _MenuItem(
+                        icon: Icons.add_business,
+                        title: 'Create Store',
+                        onTap: () => context.push('/store/create'),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  );
+                },
+              ),
               _MenuItem(
                 icon: Icons.gavel,
                 title: 'My Auctions',
