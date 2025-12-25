@@ -508,10 +508,16 @@ class WonItemsScreen extends ConsumerWidget {
               ]),
             );
           }
-          return ListView.builder(
+          return GridView.builder(
             padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.75,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
             itemCount: response.auctions.length,
-            itemBuilder: (_, i) => _WonItemCard(auction: response.auctions[i]),
+            itemBuilder: (_, i) => _AuctionGridCard(auction: response.auctions[i]),
           );
         },
       ),
@@ -629,13 +635,16 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                   Text('Save auctions to see them here', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
                 ]),
               )
-            : ListView.builder(
+            : GridView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: watchlistState.auctions.length,
-                itemBuilder: (_, i) => _WatchlistCard(
-                  auction: watchlistState.auctions[i],
-                  onRemove: () => ref.read(watchlistProvider.notifier).removeFromWatchlist(watchlistState.auctions[i].id),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
+                itemCount: watchlistState.auctions.length,
+                itemBuilder: (_, i) => _AuctionGridCard(auction: watchlistState.auctions[i]),
               ),
       ),
     );
