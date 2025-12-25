@@ -98,19 +98,22 @@ class UserProfileScreen extends ConsumerWidget {
                             label: 'Rating',
                           ),
                         ),
-                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(
+                          value: '${ratingsResponse.totalRatings}',
+                          label: 'Reviews',
+                        ),
                         _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
                       ]),
                       loading: () => Row(children: [
                         _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
                         _StatItem(value: '...', label: 'Rating'),
-                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(value: '...', label: 'Reviews'),
                         _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
                       ]),
                       error: (_, __) => Row(children: [
                         _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
                         _StatItem(value: '-', label: 'Rating'),
-                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(value: '-', label: 'Reviews'),
                         _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
                       ]),
                     );
@@ -119,7 +122,7 @@ class UserProfileScreen extends ConsumerWidget {
                   error: (_, __) => Row(children: [
                     _StatItem(value: '0', label: 'Auctions'),
                     _StatItem(value: '-', label: 'Rating'),
-                    _StatItem(value: '-', label: 'Response'),
+                    _StatItem(value: '-', label: 'Reviews'),
                     _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
                   ]),
                 ),
