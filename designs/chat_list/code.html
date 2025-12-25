@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Chat List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1a1e", // Slightly lighter than background-dark
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181112] dark:text-gray-100 overflow-hidden h-screen w-full flex flex-col">
+<!-- Top App Bar -->
+<header class="flex-none bg-surface-light dark:bg-surface-dark px-4 pt-12 pb-2 shadow-sm border-b border-gray-100 dark:border-gray-800 z-20">
+<div class="flex items-center justify-between">
+<h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Inbox</h1>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-white">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 mt-4 overflow-x-auto no-scrollbar pb-2">
+<!-- Active State -->
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary px-5 transition-transform active:scale-95 shadow-md shadow-primary/20">
+<p class="text-white text-sm font-semibold">All Chats</p>
+</button>
+<!-- Inactive State -->
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 border border-transparent dark:border-gray-700 px-5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+<p class="text-gray-600 dark:text-gray-300 text-sm font-medium">Buying</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 border border-transparent dark:border-gray-700 px-5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+<p class="text-gray-600 dark:text-gray-300 text-sm font-medium">Selling</p>
+</button>
+</div>
+</header>
+<!-- Chat List (Scrollable Area) -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<div class="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Item 1: Unread -->
+<div class="group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-4 active:bg-gray-50 dark:active:bg-gray-800/50 transition-colors cursor-pointer">
+<!-- Avatar -->
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-[56px] w-[56px] shadow-sm ring-2 ring-white dark:ring-gray-800" data-alt="Portrait of Sarah M smiling outdoors" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAbehUn8B3EMtItODpjrk-6DnDGVFd8yPm7344tY7IjPhqw9rarSyYuava5VmU4sIjCoMTrJailLSzPn9AUlJ-91DXYIsz1kdkTtdCkr3xeiisRO6eTe15oN9DAAeqKE6a1w7SNsxI3JKKa4TkWqz5Gndv4qPMc53_BKipka4HFQW3ZkQCm6n-mauaoc0LQuwFiGxbh2cvr-x7-P7ACMaBTkJ74OGJ-_IIv5-xgAy1R97hbW-Z--8xKp4ccrCqp732tCCzV6ZQjYERn");'></div>
+<!-- Online Status -->
+<div class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col min-w-0 gap-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-gray-900 dark:text-white text-base font-bold truncate">Sarah M.</h3>
+<span class="text-primary text-xs font-semibold whitespace-nowrap">10:42 AM</span>
+</div>
+<!-- Context Badge -->
+<div class="flex items-center gap-1.5 w-fit">
+<div class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+<span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Bulawayo</span>
+<span class="mx-1 text-gray-400 text-[10px]">→</span>
+<span class="text-[10px] font-medium text-gray-600 dark:text-gray-400">Furniture</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-gray-900 dark:text-gray-100 text-sm font-medium leading-snug truncate pr-2">Is the price negotiable? I really like the vintage style.</p>
+<!-- Unread Dot -->
+<div class="shrink-0 h-2.5 w-2.5 rounded-full bg-primary shadow-sm shadow-primary/40"></div>
+</div>
+</div>
+</div>
+<!-- Item 2: Read -->
+<div class="group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-4 active:bg-gray-50 dark:active:bg-gray-800/50 transition-colors cursor-pointer">
+<!-- Avatar -->
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-[56px] w-[56px] shadow-sm" data-alt="Portrait of David K in a casual shirt" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC2Kv3W9Rnefcew8-U3_736HOMYyT6GnKtJPYskVULfmfttEdT4SYXUEKZhUp1rSe_S7Dupp2bnmM-l1Br0xGGeVgpEyUicQQ1AiK_OOhn9YaCGscqA1uodqoG1Y3ir9LQhWhGpiHo9g7iqFAmWxeiQyK2vCujEE6Akz7ue0iL5VOi4xF5S4CueCZwMB3PAznfKYG61G6KP7O7mZoSH586oC82aMZ4RIRolqKk6cI-vHoczt64O11_9Shf2reNJtdw-hT0S6obo0iHx");'></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col min-w-0 gap-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-gray-900 dark:text-white text-base font-bold truncate">David K.</h3>
+<span class="text-gray-400 dark:text-gray-500 text-xs font-medium whitespace-nowrap">Yesterday</span>
+</div>
+<!-- Context Badge -->
+<div class="flex items-center gap-1.5 w-fit">
+<div class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+<span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Harare</span>
+<span class="mx-1 text-gray-400 text-[10px]">→</span>
+<span class="text-[10px] font-medium text-gray-600 dark:text-gray-400">Electronics</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug truncate pr-2">I can pick it up tomorrow evening around 6pm.</p>
+</div>
+</div>
+</div>
+<!-- Item 3: System/Business -->
+<div class="group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-4 active:bg-gray-50 dark:active:bg-gray-800/50 transition-colors cursor-pointer">
+<!-- Avatar -->
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-[56px] w-[56px] shadow-sm border-2 border-primary/20" data-alt="Logo of Local Auctioneer business" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFxb6xoWjkN4HqQHlX4oWnvD0Nryocqx4AZ0yTf3Og-QLGMgHUtkPwKyQW0ZW9ED6piIdmieXoFQJEwW7zVjnw9Z3iDS8qmAPC4EeXolM2-A48GkHSa76ct1uJdADX6nRI-vNHUrsZAUN-JGisL57EV2zGZcfV-A1mdFdsU9ZdlZuOFjxRoFizNB1jWW3oxTJEkQNorgEWrA3g4mlJWS7rtE0Y76LTzubT_avrnlF7ytE1K69_jnxWiSYvehq_3OIxcR0tmsweEeP6");'></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col min-w-0 gap-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-gray-900 dark:text-white text-base font-bold truncate">Local Auctioneer</h3>
+<span class="text-gray-400 dark:text-gray-500 text-xs font-medium whitespace-nowrap">Mon</span>
+</div>
+<!-- Context Badge -->
+<div class="flex items-center gap-1.5 w-fit">
+<div class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+<span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Mutare</span>
+<span class="mx-1 text-gray-400 text-[10px]">→</span>
+<span class="text-[10px] font-medium text-gray-600 dark:text-gray-400">Vehicles</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug truncate pr-2">Your bid was accepted! Please proceed to payment.</p>
+<span class="material-symbols-outlined text-primary text-[16px] font-bold">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Item 4: Filler -->
+<div class="group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-4 active:bg-gray-50 dark:active:bg-gray-800/50 transition-colors cursor-pointer">
+<!-- Avatar -->
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-[56px] w-[56px] shadow-sm" data-alt="Portrait of Michael T" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAZENjnfzYW1Pv29AdYMlyLwt94AwMUi0qJf7pY03pMmgkG9e6PI7LlCVAbUwqMFqWXCoN-Za4Y7eBYqQ9L56Zmbn9HYJ4TYB-7xykvIiWTTyikM5q6Dquvyti098FxNpv09fW_dDrgKOQgi1eEtOpx4dSYU84QEtIm6FW2APt5oWxQXGNdh1ynDoGlCbbugQt5mXN6-aLQH8tDUVlynAq2ZNQZHXtbZ_zaX56j13pnS-9Mbo5H_ViXL341iNggnyTGl3Ani3_D1sEh");'></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col min-w-0 gap-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-gray-900 dark:text-white text-base font-bold truncate">Michael T.</h3>
+<span class="text-gray-400 dark:text-gray-500 text-xs font-medium whitespace-nowrap">Mon</span>
+</div>
+<!-- Context Badge -->
+<div class="flex items-center gap-1.5 w-fit">
+<div class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+<span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Gweru</span>
+<span class="mx-1 text-gray-400 text-[10px]">→</span>
+<span class="text-[10px] font-medium text-gray-600 dark:text-gray-400">Tools</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug truncate pr-2">Thanks for the quick response.</p>
+</div>
+</div>
+</div>
+<!-- Item 5: Filler -->
+<div class="group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-4 active:bg-gray-50 dark:active:bg-gray-800/50 transition-colors cursor-pointer">
+<!-- Avatar -->
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-[56px] w-[56px] shadow-sm" data-alt="Portrait of Alice B" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD8SMO-BjR_P-QE9L0nr80Ys7ibu_h0j4lqr5SVQ9kwVBc2QOHqbtBbxkMnzLwnWpi7LtJ1p32SteorqpFuRqw0GC7IUcc7t9PNTs5VstMasBxKVDUPWdgqnfxtbHytepJrOPggyhrcHRgzj6JNE7WoWvb3D9V3iCP6PPZra5-Cagd8XyCd41vO-_0o2XCSDTyUgQXgGTOO5oxAnHKBDlmLMV90ffD5bMm0tg9swCBqOPmsbCoorNT05-3AHdijQVDb0QV6Jq15bAsR");'></div>
+</div>
+<!-- Content -->
+<div class="flex flex-1 flex-col min-w-0 gap-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-gray-900 dark:text-white text-base font-bold truncate">Alice B.</h3>
+<span class="text-gray-400 dark:text-gray-500 text-xs font-medium whitespace-nowrap">Sun</span>
+</div>
+<!-- Context Badge -->
+<div class="flex items-center gap-1.5 w-fit">
+<div class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+<span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Masvingo</span>
+<span class="mx-1 text-gray-400 text-[10px]">→</span>
+<span class="text-[10px] font-medium text-gray-600 dark:text-gray-400">Real Estate</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug truncate pr-2">When can I come to view the property?</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Space at bottom for safe area -->
+<div class="h-6 w-full"></div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="flex-none bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-5 pt-3 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.03)] z-30">
+<div class="flex justify-between items-center">
+<!-- Home -->
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined text-[26px] group-hover:scale-110 transition-transform">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<!-- Search -->
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined text-[26px] group-hover:scale-110 transition-transform">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</button>
+<!-- Post/Sell FAB -->
+<div class="-mt-8">
+<button class="flex items-center justify-center h-14 w-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 hover:bg-primary/90 transition-all hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+<!-- Chat (Active) -->
+<button class="flex flex-col items-center gap-1 text-primary group relative">
+<span class="material-symbols-outlined text-[26px] fill-current">chat</span>
+<span class="text-[10px] font-bold">Chat</span>
+<!-- Active Indicator Dot -->
+<span class="absolute -top-1 right-2 flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+</button>
+<!-- Profile -->
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined text-[26px] group-hover:scale-110 transition-transform">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+</nav>
+</body></html>

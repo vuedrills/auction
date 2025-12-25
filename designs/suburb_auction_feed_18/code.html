@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suburb Auction Feed - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "urgent": "#FF8322",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 transition-colors">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center flex-1 mx-2">
+<h2 class="text-[#181112] dark:text-white text-lg font-bold leading-tight tracking-tight flex items-center gap-1">
+                Surry Hills
+                <span class="material-symbols-outlined text-primary text-base fill-1" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</h2>
+<span class="text-[#89616a] dark:text-gray-400 text-xs font-medium tracking-wide uppercase">in Sydney Central</span>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+<div class="flex gap-3 px-4 pb-3 overflow-x-auto hide-scrollbar">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-[#181112] dark:bg-white px-4 transition-transform active:scale-95">
+<span class="text-white dark:text-[#181112] text-sm font-bold">All</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 transition-transform active:scale-95">
+<span class="text-[#181112] dark:text-gray-300 text-sm font-medium">Furniture</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 transition-transform active:scale-95">
+<span class="text-[#181112] dark:text-gray-300 text-sm font-medium">Electronics</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 px-4 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-primary text-base">timer</span>
+<span class="text-primary text-sm font-bold">Ending Soon</span>
+</button>
+</div>
+</header>
+<main class="flex-1 p-3 pb-24 grid grid-cols-2 gap-3 content-start">
+<article class="group relative flex flex-col rounded-xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-transparent dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
+<div class="relative w-full aspect-square bg-gray-200 dark:bg-gray-800 overflow-hidden">
+<div class="absolute top-2 left-2 z-10 flex items-center gap-1 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+<span class="block size-1.5 rounded-full bg-white animate-pulse"></span>
+                Live
+            </div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Close up of a shiny vintage chrome espresso machine on a wooden counter" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+<div class="absolute bottom-2 right-2 flex items-center gap-1 bg-black/70 backdrop-blur-md text-urgent px-2 py-1 rounded border border-white/10">
+<span class="material-symbols-outlined text-xs">hourglass_bottom</span>
+<span class="text-xs font-bold font-mono tracking-wide">04m 22s</span>
+</div>
+</div>
+<div class="p-3 flex flex-col gap-2 flex-1">
+<div class="flex-1">
+<div class="flex items-center gap-1 text-[10px] font-medium text-[#89616a] dark:text-gray-400 mb-0.5 truncate">
+                    Surry Hills <span class="text-gray-300 dark:text-gray-600">•</span> Appliances
+                </div>
+<h3 class="text-sm font-bold text-[#181112] dark:text-white leading-tight line-clamp-2">Vintage Espresso Machine</h3>
+</div>
+<div class="pt-2 border-t border-gray-100 dark:border-white/10 mt-auto">
+<div class="flex flex-col">
+<span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Current Bid</span>
+<div class="flex items-baseline gap-1">
+<span class="text-base font-bold text-primary">$120</span>
+<span class="text-[10px] text-gray-400 line-through decoration-gray-400">$250</span>
+</div>
+</div>
+<button class="w-full mt-2 flex items-center justify-center gap-1 bg-[#181112] dark:bg-white text-white dark:text-[#181112] py-1.5 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity active:scale-95">
+                    Bid Now
+                </button>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col rounded-xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-transparent dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
+<div class="relative w-full aspect-square bg-gray-200 dark:bg-gray-800 overflow-hidden">
+<div class="absolute top-2 left-2 z-10 bg-black/50 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded">
+                14 Bids
+            </div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Set of 4 mid-century modern wooden dining chairs arranged around a table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCw7UMiWr1UqIIJKSE-yHaqYpCdjs-YBa85U8ckiMLDTGWsX8-hgS43qfLZhSuye2yqGJ7PQ8bk3zcHvOZKjRdsLdrBAcHAGO3FBeVcVYqZV2hOiIwWB8Ce87FX7A74iSTAFjqDUWgGUWq61k4S4-eZ7rK7T0JvAHSJtz_kWjDXuqg5WB-Kf2Loc2SdJF2lIYd4HOlP7rBvGk2RV5czraJNfOnza3ANOcMJKTR6KoAA-u1DZkVqFnian5MztNPSd9DcepFswpgUftCI");'>
+</div>
+</div>
+<div class="p-3 flex flex-col gap-2 flex-1">
+<div class="flex-1">
+<div class="flex items-center gap-1 text-[10px] font-medium text-[#89616a] dark:text-gray-400 mb-0.5 truncate">
+                    Surry Hills <span class="text-gray-300 dark:text-gray-600">•</span> Furniture
+                </div>
+<h3 class="text-sm font-bold text-[#181112] dark:text-white leading-tight line-clamp-2">Set of 4 Dining Chairs</h3>
+<div class="flex items-center gap-1 text-urgent mt-1">
+<span class="material-symbols-outlined text-sm fill-1">schedule</span>
+<span class="text-xs font-bold">1h 10m</span>
+</div>
+</div>
+<div class="pt-2 border-t border-gray-100 dark:border-white/10 mt-auto">
+<div class="flex flex-col">
+<span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Current Bid</span>
+<span class="text-base font-bold text-[#181112] dark:text-white">$45</span>
+</div>
+<button class="w-full mt-2 flex items-center justify-center gap-1 bg-primary/10 dark:bg-primary/20 text-primary py-1.5 rounded-lg font-bold text-xs hover:bg-primary/20 transition-colors active:scale-95">
+                    View
+                </button>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col rounded-xl bg-white dark:bg-card-dark shadow-sm dark:shadow-none border border-transparent dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
+<div class="relative w-full aspect-square bg-gray-200 dark:bg-gray-800 overflow-hidden">
+<div class="absolute top-2 left-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+                New
+            </div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="A colorful kids mountain bike parked on grass in a park" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBxOAsV4eDZ3kxIMD625H-2etkTT7WZ3T1HpNLJrKNhXM63zAw7vRymwzWqOizFW_Yw_Kw6A8iexLp5qSoLvfT0OBgYFEqNSFzDPGtLMYDzoxUvGFC8VJIt8IAj72d47IaKbFj8eviyCiHASHPSOzmQu3EF9BwmR-EF-ZAN_tNKYgyAmN_KRWcobTIbn9E-IUTg72oBDx9Bk3TVHHr5XZ2X4HxLX9ztvON2GH6cxJafpprI-l560GyV2oOIx2Fd_VtmdE9bqqhyY9G1");'>
+</div>
+</div>
+<div class="p-3 flex flex-col gap-2 flex-1">
+<div class="flex-1">
+<div class="flex items-center gap-1 text-[10px] font-medium text-[#89616a] dark:text-gray-400 mb-0.5 truncate">
+                    Surry Hills <span class="text-gray-300 dark:text-gray-600">•</span> Outdoors
+                </div>
+<h3 class="text-sm font-bold text-[#181112] dark:text-white leading-tight line-clamp-2">Kids Mountain Bike</h3>
+<div class="flex items-center gap-1 text-urgent mt-1">
+<span class="material-symbols-outlined text-sm fill-1">schedule</span>
+<span class="text-xs font-bold">2d 4h</span>
+</div>
+</div>
+<div class="pt-2 border-t border-gray-100 dark:border-white/10 mt-auto">
+<div class="flex flex-col">
+<span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Starting Price</span>
+<span class="text-base font-bold text-[#181112] dark:text-white">$80</span>
+</div>
+<button class="w-full mt-2 flex items-center justify-center gap-1 bg-[#181112] dark:bg-white text-white dark:text-[#181112] py-1.5 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity active:scale-95">
+                    Bid Now
+                </button>
+</div>
+</div>
+</article>
+</main>
+<button class="fixed bottom-6 right-6 flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-[0_8px_20px_rgba(238,68,105,0.4)] hover:scale-105 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform">add</span>
+</button>
+
+</body></html>

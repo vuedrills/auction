@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass Settings</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ee2b68",
+              "background-light": "#f8f6f6",
+              "background-dark": "#221016",
+              "surface-light": "#ffffff",
+              "surface-dark": "#2d1b22", 
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen font-display text-[#181113] dark:text-gray-100 antialiased selection:bg-primary selection:text-white pb-10">
+<!-- Top App Bar -->
+<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md w-full flex flex-col gap-2 p-4 pb-2 border-b border-black/5 dark:border-white/5">
+<div class="flex items-center h-8 justify-between">
+<!-- Back button placeholder for context -->
+<button class="flex items-center text-primary dark:text-primary font-medium text-base">
+<span class="material-symbols-outlined -ml-1">chevron_left</span>
+                Back
+            </button>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-[#181113] dark:text-white">Settings</h1>
+</div>
+<!-- Main Content Container -->
+<div class="max-w-md mx-auto w-full flex flex-col gap-6 pt-4">
+<!-- Section: Identity & Location (Town First) -->
+<div class="px-4">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 flex items-center gap-4">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-16 w-16 border-2 border-primary/20" data-alt="User profile picture of a young man smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvYO4dOY7M_pnWfp5sSi9p2rHijX_KwvSeDOsv_utDK_1QTr87otsJpdvG1wGMj_0787KJ9CcVD6kIReroLd7lMddXeBbKA-0ZzPfdanJKzk_EmXIjQ48Wg86H4sb1zULe-cm433OiS7MomdEuUxEyxRiuQwrueAAYUOCJO8blj-t5yU6NZddYCGEYrueVMFm87P8bQuMrQie3PvjAX2utP7S3RDpAWmuxaIZrj6ml6yjIFg8wF2dHtCzvZ-5Lt_Vm8lOVuYKxdZ2X");'>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary rounded-full p-1 border-2 border-white dark:border-surface-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[10px] leading-none">verified</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<p class="text-lg font-bold leading-tight truncate dark:text-white">Jordan Smith</p>
+<p class="text-gray-500 dark:text-gray-400 text-sm truncate mb-1">jordan.smith@example.com</p>
+<!-- Town Badge -->
+<div class="flex items-center gap-1.5 self-start bg-primary/10 dark:bg-primary/20 px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[16px]">location_on</span>
+<span class="text-primary text-xs font-bold uppercase tracking-wide">Asheville, NC</span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<p class="mt-2 text-xs text-gray-400 dark:text-gray-500 px-1">
+<span class="material-symbols-outlined align-middle text-[14px]">info</span>
+                Home Town can only be changed once every 30 days.
+            </p>
+</div>
+<!-- Section: Account -->
+<div class="flex flex-col">
+<h3 class="px-6 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Account</h3>
+<div class="mx-4 bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Personal Info -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20 shrink-0 h-9 w-9 text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Personal Information</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+<!-- Payment Methods -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20 shrink-0 h-9 w-9 text-green-600 dark:text-green-400">
+<span class="material-symbols-outlined text-[20px]">credit_card</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Payment Methods</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+<!-- Auction History -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-900/20 shrink-0 h-9 w-9 text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Auction History</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Section: App Preferences -->
+<div class="flex flex-col">
+<h3 class="px-6 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Preferences</h3>
+<div class="mx-4 bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Notifications -->
+<div class="w-full flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-900/20 shrink-0 h-9 w-9 text-orange-600 dark:text-orange-400">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</div>
+<p class="text-base font-medium dark:text-gray-100">Push Notifications</p>
+</div>
+<!-- Toggle Switch State: Active -->
+<div class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-primary">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</div>
+</div>
+<!-- Privacy & Security -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-white/10 shrink-0 h-9 w-9 text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Privacy &amp; Security</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+<!-- Dark Mode -->
+<div class="w-full flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/20 shrink-0 h-9 w-9 text-indigo-600 dark:text-indigo-400">
+<span class="material-symbols-outlined text-[20px]">dark_mode</span>
+</div>
+<p class="text-base font-medium dark:text-gray-100">Dark Mode</p>
+</div>
+<!-- Toggle Switch State: Inactive -->
+<div class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-gray-200 dark:bg-gray-700">
+<span class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Support & Legal -->
+<div class="flex flex-col">
+<h3 class="px-6 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Support</h3>
+<div class="mx-4 bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Help Center -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-900/20 shrink-0 h-9 w-9 text-teal-600 dark:text-teal-400">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Help Center</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+<!-- Terms & Policies -->
+<button class="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-left">
+<div class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-white/10 shrink-0 h-9 w-9 text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex-1 truncate">
+<p class="text-base font-medium dark:text-gray-100">Terms &amp; Policies</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Logout Action -->
+<div class="mx-4 mt-2">
+<button class="w-full bg-surface-light dark:bg-surface-dark text-red-500 font-semibold py-3.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">logout</span>
+                Log Out
+            </button>
+</div>
+<!-- Footer Info -->
+<div class="flex flex-col items-center justify-center pb-8 pt-2">
+<p class="text-xs text-gray-400 font-medium">AirMass v1.0.2 (Build 290)</p>
+<p class="text-xs text-gray-300 dark:text-gray-600 mt-1">Made with ♥ in Asheville</p>
+</div>
+</div>
+</body></html>

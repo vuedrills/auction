@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Preferences - AirMass</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b68",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b22",
+                        "text-primary-light": "#181113",
+                        "text-primary-dark": "#ffffff",
+                        "text-secondary-light": "#89616e",
+                        "text-secondary-dark": "#ccb8be",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased min-h-screen">
+<div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-black/5 dark:border-white/10">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex items-center justify-center p-2 -ml-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<h1 class="text-text-primary-light dark:text-text-primary-dark text-lg font-bold leading-tight tracking-tight">Notifications</h1>
+<button class="text-primary text-base font-bold px-2 hover:opacity-80 transition-opacity">Save</button>
+</div>
+</header>
+<!-- Content Scroll Area -->
+<main class="flex-1 overflow-y-auto px-4 pb-12 pt-2 space-y-6">
+<!-- Global Control -->
+<div class="mt-2">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden">
+<div class="flex items-center gap-4 p-4 justify-between border-b border-gray-100 dark:border-white/5 last:border-0">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0 size-10">
+<span class="material-symbols-outlined text-[24px]">notifications_off</span>
+</div>
+<div class="flex flex-col">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Pause All</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-normal">Temporarily mute all alerts</p>
+</div>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Buying & Selling Section -->
+<section>
+<h3 class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-bold uppercase tracking-wider px-2 pb-2">Buying &amp; Selling</h3>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-white/5">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Outbid Alerts</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Instant push when you lose the lead</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Auction Outcomes</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Results for items you watched</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Messages</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Questions from buyers or sellers</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- My Town Section -->
+<section>
+<div class="flex items-center justify-between px-2 pb-2">
+<h3 class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-bold uppercase tracking-wider">My Town: Asheville</h3>
+<button class="text-primary text-xs font-bold hover:underline">Change</button>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-white/5">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between bg-primary/5">
+<div class="flex flex-col justify-center gap-0.5">
+<div class="flex items-center gap-2">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">New in Asheville</p>
+<span class="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">HOT</span>
+</div>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Daily summary of new local listings</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Community News</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Town hall updates &amp; event notices</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Trending Nearby</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Popular items within 10 miles</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- National Section -->
+<section>
+<h3 class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-bold uppercase tracking-wider px-2 pb-2">National &amp; Discovery</h3>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-white/5">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-500 text-lg">diamond</span>
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Rare Finds</p>
+</div>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">Curated national treasures</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 px-4 py-3.5 justify-between">
+<div class="flex flex-col justify-center gap-0.5">
+<p class="text-text-primary-light dark:text-text-primary-dark text-base font-medium leading-normal">Weekly Digest</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal">A summary of the week's best auctions</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[30px] w-[50px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-[26px] w-[26px] rounded-full bg-white shadow-sm transition-all duration-200"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Frequency Control -->
+<section>
+<h3 class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-bold uppercase tracking-wider px-2 pb-2">Digest Frequency</h3>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm p-4">
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal mb-3">How often do you want to receive non-urgent summaries?</p>
+<div class="flex bg-background-light dark:bg-background-dark p-1 rounded-lg">
+<button class="flex-1 py-1.5 px-3 rounded text-sm font-semibold text-text-primary-light dark:text-text-primary-dark hover:bg-white dark:hover:bg-white/10 transition-colors">Daily</button>
+<button class="flex-1 py-1.5 px-3 rounded text-sm font-semibold bg-white dark:bg-surface-dark text-primary shadow-sm ring-1 ring-black/5 dark:ring-white/10">Weekly</button>
+<button class="flex-1 py-1.5 px-3 rounded text-sm font-semibold text-text-primary-light dark:text-text-primary-dark hover:bg-white dark:hover:bg-white/10 transition-colors">Monthly</button>
+</div>
+</div>
+</section>
+<div class="h-6"></div>
+</main>
+</div>
+</body></html>

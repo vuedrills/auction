@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Review &amp; Publish Auction - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee456b",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 transition-colors">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h2 class="text-[#181112] dark:text-white text-lg font-bold leading-tight tracking-tight">Review Auction</h2>
+<div class="size-10"></div> 
+</div>
+</header>
+<main class="flex-1 p-4 pb-32 space-y-6">
+<div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'></div>
+<div class="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10">
+<span class="material-symbols-outlined text-base">photo_library</span>
+<span class="text-sm font-bold">1/4</span>
+</div>
+<div class="absolute top-3 right-3">
+<button class="flex items-center justify-center size-8 rounded-full bg-white/90 dark:bg-black/50 backdrop-blur text-primary hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</div>
+<section class="bg-white dark:bg-card-dark rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="flex justify-between items-start mb-2">
+<h1 class="text-2xl font-bold text-[#181112] dark:text-white leading-tight">Vintage Espresso Machine</h1>
+<button class="text-primary hover:text-primary/80 font-medium text-sm flex items-center gap-0.5 mt-1">
+                    Edit <span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                Beautifully restored 1980s espresso machine. Fully functional, includes original portafilter and tamper. Minor cosmetic wear consistent with age. Pick up only.
+            </p>
+</section>
+<section class="bg-white dark:bg-card-dark rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-[#181112] dark:text-white">Auction Details</h3>
+<button class="text-primary hover:text-primary/80 font-medium text-sm flex items-center gap-0.5">
+                    Edit <span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<div class="flex items-center justify-center size-10 rounded-full bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 shrink-0">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div class="flex-1">
+<span class="block text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-0.5">Location</span>
+<p class="text-[#181112] dark:text-white font-semibold">Surry Hills <span class="text-gray-400 font-normal ml-1">(Sydney Central)</span></p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="flex items-center justify-center size-10 rounded-full bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 shrink-0">
+<span class="material-symbols-outlined">category</span>
+</div>
+<div class="flex-1">
+<span class="block text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-0.5">Category</span>
+<p class="text-[#181112] dark:text-white font-semibold">Kitchen Appliances</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="flex items-center justify-center size-10 rounded-full bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 shrink-0">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div class="flex-1">
+<span class="block text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-0.5">Pricing</span>
+<div class="flex items-center gap-4">
+<div>
+<span class="text-xs text-gray-400 block">Starting Bid</span>
+<span class="text-[#181112] dark:text-white font-semibold">$120</span>
+</div>
+<div class="w-px h-8 bg-gray-100 dark:bg-white/10"></div>
+<div>
+<span class="text-xs text-gray-400 block">Reserve Price</span>
+<span class="text-[#181112] dark:text-white font-semibold">$200</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="flex items-center justify-center size-10 rounded-full bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 shrink-0">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div class="flex-1">
+<span class="block text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-0.5">Duration</span>
+<p class="text-[#181112] dark:text-white font-semibold">3 Days</p>
+<p class="text-xs text-gray-400 mt-1">Ends on Fri, 24 Oct at 6:00 PM</p>
+</div>
+</div>
+</div>
+</section>
+<section class="flex gap-3 px-1">
+<div class="flex items-start pt-1">
+<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary/25 size-5 cursor-pointer" type="checkbox"/>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 leading-snug">
+                I agree to the <a class="text-primary hover:underline font-medium" href="#">Terms of Service</a> and confirm that this item is located in <span class="font-bold text-gray-700 dark:text-gray-300">Surry Hills</span>.
+            </p>
+</section>
+</main>
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-gray-100 dark:border-white/5 z-50 safe-area-bottom">
+<div class="flex flex-col gap-3 max-w-md mx-auto">
+<button class="w-full bg-[#ee456b] hover:bg-[#d63d5e] text-white font-bold text-lg py-3.5 px-6 rounded-xl shadow-[0_4px_14px_rgba(238,69,107,0.3)] hover:shadow-[0_6px_20px_rgba(238,69,107,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span>Publish Auction</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 font-semibold py-3 px-6 rounded-xl transition-colors">
+                Back to Edit
+            </button>
+</div>
+</div>
+
+</body></html>

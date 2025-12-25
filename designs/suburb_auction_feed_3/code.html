@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Auction - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#EE456B",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }[type='text']:focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus {
+            --tw-ring-color: #EE456B;
+            border-color: #EE456B;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(800px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 transition-colors">
+<div class="flex items-center justify-between px-4 py-3">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-[#181112] dark:text-white">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h2 class="text-[#181112] dark:text-white text-lg font-bold leading-tight tracking-tight">
+                New Auction
+            </h2>
+<button class="flex h-10 px-2 items-center justify-center rounded-full text-primary font-bold text-sm hover:opacity-80 transition-opacity">
+                Drafts
+            </button>
+</div>
+</header>
+<main class="flex-1 p-4 pb-32 max-w-lg mx-auto w-full space-y-6">
+<section>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<button class="shrink-0 size-24 rounded-2xl border-2 border-dashed border-gray-300 dark:border-white/20 bg-gray-50 dark:bg-white/5 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-2xl">add_a_photo</span>
+<span class="text-[10px] font-bold uppercase tracking-wide">Add Photo</span>
+</button>
+<div class="shrink-0 size-24 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-300 dark:text-white/10">
+<span class="material-symbols-outlined text-3xl">image</span>
+</div>
+<div class="shrink-0 size-24 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-300 dark:text-white/10">
+<span class="material-symbols-outlined text-3xl">image</span>
+</div>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-2 px-1">First photo will be the main cover image.</p>
+</section>
+<section class="space-y-4">
+<div>
+<label class="block text-sm font-bold text-[#181112] dark:text-gray-200 mb-1.5" for="title">Item Title</label>
+<input class="w-full rounded-xl bg-white dark:bg-card-dark border-gray-200 dark:border-white/10 text-[#181112] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 transition-shadow py-3 px-4" id="title" placeholder="e.g. Vintage Espresso Machine" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-bold text-[#181112] dark:text-gray-200 mb-1.5" for="description">Description</label>
+<textarea class="w-full rounded-xl bg-white dark:bg-card-dark border-gray-200 dark:border-white/10 text-[#181112] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 transition-shadow py-3 px-4 resize-none" id="description" placeholder="Describe the condition, age, and any flaws..." rows="3"></textarea>
+</div>
+</section>
+<hr class="border-gray-100 dark:border-white/5"/>
+<section class="space-y-4">
+<div>
+<label class="block text-sm font-bold text-[#181112] dark:text-gray-200 mb-1.5 flex items-center justify-between" for="suburb">
+<span>Listing Location</span>
+<span class="text-xs font-normal text-primary bg-primary/10 px-2 py-0.5 rounded-full">Sydney Central</span>
+</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-xl bg-white dark:bg-card-dark border-gray-200 dark:border-white/10 text-[#181112] dark:text-white focus:ring-2 focus:ring-primary/20 transition-shadow py-3 px-4 pr-10" id="suburb">
+<option>Surry Hills</option>
+<option>Redfern</option>
+<option>Waterloo</option>
+<option>Paddington</option>
+<option>Darlinghurst</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+<span class="material-symbols-outlined text-xl">expand_more</span>
+</div>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 px-1">You can only post auctions in suburbs within your home town.</p>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div>
+<label class="block text-sm font-bold text-[#181112] dark:text-gray-200 mb-1.5" for="category">Category</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-xl bg-white dark:bg-card-dark border-gray-200 dark:border-white/10 text-[#181112] dark:text-white focus:ring-2 focus:ring-primary/20 transition-shadow py-3 px-4 pr-10" id="category">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="furniture">Furniture</option>
+<option value="electronics">Electronics</option>
+<option value="clothing">Clothing &amp; Fashion</option>
+<option value="art">Art &amp; Collectibles</option>
+<option value="sports">Sports &amp; Outdoors</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+<span class="material-symbols-outlined text-xl">category</span>
+</div>
+</div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
+<div class="bg-white dark:bg-blue-500/20 p-1.5 rounded-full text-blue-600 dark:text-blue-400 shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-lg block">timer</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-blue-900 dark:text-blue-100">Auto-Duration</h4>
+<p class="text-xs text-blue-700 dark:text-blue-300 mt-0.5 leading-relaxed">
+                            Based on your category, this auction will run for <strong class="text-blue-800 dark:text-blue-100">3 days</strong> ending on <span class="font-mono">Sunday at 6pm</span>.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<hr class="border-gray-100 dark:border-white/5"/>
+<section class="space-y-4">
+<div>
+<label class="block text-sm font-bold text-[#181112] dark:text-gray-200 mb-1.5" for="price">Starting Price</label>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+<span class="text-gray-500 font-bold">$</span>
+</div>
+<input class="w-full rounded-xl bg-white dark:bg-card-dark border-gray-200 dark:border-white/10 text-[#181112] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 transition-shadow py-3 pl-8 pr-4 text-lg font-bold font-mono" id="price" placeholder="0.00" type="number"/>
+<div class="absolute inset-y-0 right-0 flex items-center pr-4">
+<span class="text-xs font-medium text-gray-400 uppercase">AUD</span>
+</div>
+</div>
+<div class="mt-2 flex items-center gap-2">
+<div class="relative flex items-start">
+<div class="flex h-5 items-center">
+<input aria-describedby="no-reserve-description" class="size-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-white/10 dark:bg-white/5" id="no-reserve" name="no-reserve" type="checkbox"/>
+</div>
+<div class="ml-2 text-sm">
+<label class="font-medium text-[#181112] dark:text-gray-200" for="no-reserve">No Reserve Price</label>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1f0e12] border-t border-gray-100 dark:border-white/5 p-4 z-50 safe-area-bottom">
+<div class="max-w-lg mx-auto flex items-center justify-between gap-4">
+<div class="flex flex-col">
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Listing Fee</span>
+<span class="text-sm font-bold text-[#181112] dark:text-white">Free</span>
+</div>
+<button class="flex-1 bg-primary text-white font-bold text-base py-3.5 px-6 rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span>Publish Auction</span>
+<span class="material-symbols-outlined text-xl">arrow_forward</span>
+</button>
+</div>
+</div>
+
+</body></html>

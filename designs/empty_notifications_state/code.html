@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Notifications</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-4 pt-12 pb-4 bg-background-light dark:bg-background-dark z-10 sticky top-0">
+<!-- Spacer for visual balance since back button is removed for main tab -->
+<div class="w-12 h-12"></div>
+<h2 class="text-lg font-bold leading-tight tracking-tight text-center flex-1">Notifications</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-slate-900 dark:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content: Empty State -->
+<main class="flex-1 flex flex-col items-center justify-center px-6 pb-20 overflow-y-auto">
+<div class="w-full flex flex-col items-center gap-8">
+<!-- Illustration -->
+<div class="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
+<!-- Decorative background blob -->
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-3xl scale-75"></div>
+<div class="relative w-full h-full bg-center bg-contain bg-no-repeat z-10" data-alt="Minimalist vector illustration of a quiet town square with a small clock tower and sleeping birds" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDU9WzJ8qoyWf4qvNU0dBWqs1Pr1LCi_aXjUzTyHG8CZGWn2xKr3z3VEKpt2ikrScasRmpmRM--1DNPCDiEb5xoE4fJiIRNMo8sak88a20ypSDPsXCSSLFHc6F0UvbhuCMYl1_q_pVu4ezsCQFCcsBxj1hjlfnSF6PQt7OYoqXagVu17rYMgyriTyDZIR8sKAmM91T0vfjF7oQ-29H8M6toYbTWZX3GZstm9NSskwT9bnH6O1Z969x32hfUb-Jrk0zFqD0RlnI6098y'); opacity: 0.9;">
+<!-- Simulating an illustration with an icon overlay for the purpose of this code generation since we can't generate real vectors -->
+<div class="absolute inset-0 flex items-center justify-center flex-col text-primary/40">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 0, 'wght' 200;">location_city</span>
+<span class="material-symbols-outlined text-4xl -mt-4 animate-bounce" style="animation-duration: 3s;">bedtime</span>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col items-center gap-3 text-center max-w-xs">
+<h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        All Quiet on the<br/>Home Front
+                    </h3>
+<p class="text-slate-500 dark:text-slate-400 text-base font-medium leading-relaxed">
+                        Your inbox is empty, but the market is buzzing. Check out the latest auctions happening right now in <span class="text-primary font-bold">Springfield</span>.
+                    </p>
+</div>
+<!-- CTA Button -->
+<button class="w-full max-w-[240px] h-12 rounded-xl bg-primary hover:bg-primary/90 active:scale-95 transition-all text-white font-bold text-base shadow-lg shadow-primary/20 flex items-center justify-center gap-2 mt-2">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+<span>Explore My Town</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="border-t border-slate-100 dark:border-white/10 bg-background-light dark:bg-background-dark px-2 py-2 pb-6">
+<div class="flex items-end justify-around">
+<!-- Home -->
+<a class="flex flex-1 flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:-translate-y-0.5 transition-transform">home</span>
+<span class="text-[10px] font-bold tracking-wide">Home</span>
+</a>
+<!-- Search -->
+<a class="flex flex-1 flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:-translate-y-0.5 transition-transform">search</span>
+<span class="text-[10px] font-bold tracking-wide">Search</span>
+</a>
+<!-- Notifications (Active) -->
+<a class="flex flex-1 flex-col items-center gap-1 p-2 text-primary" href="#">
+<div class="relative">
+<span class="material-symbols-outlined material-symbols-filled">notifications</span>
+<!-- Active Indicator Dot (Optional but nice for "Active" state) -->
+<span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</div>
+<span class="text-[10px] font-bold tracking-wide">Notifications</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-1 flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:-translate-y-0.5 transition-transform">person</span>
+<span class="text-[10px] font-bold tracking-wide">Profile</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

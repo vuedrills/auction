@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar Hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-display selection:bg-primary selection:text-white p-4">
+<!-- Mobile Container (Phone Frame) -->
+<div class="relative flex h-[850px] w-full max-w-[400px] flex-col bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden rounded-[2.5rem] ring-8 ring-gray-900/5 dark:ring-white/5">
+<!-- Top Navigation -->
+<div class="absolute top-0 left-0 w-full z-20 flex items-center justify-end p-6 pt-8 bg-gradient-to-b from-background-light/90 dark:from-background-dark/90 to-transparent">
+<button class="flex items-center justify-center rounded-full px-3 py-1 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group">
+<span class="text-[#89616a] dark:text-gray-400 text-sm font-bold tracking-wide group-hover:text-primary transition-colors">Skip</span>
+</button>
+</div>
+<!-- Carousel Container -->
+<div class="flex-1 flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-full" id="onboarding-carousel">
+<!-- Slide 1: Town Focus -->
+<div class="min-w-full h-full snap-center flex flex-col relative px-6 pt-20 pb-10" id="slide-1">
+<div class="flex-1 flex flex-col justify-center items-center gap-6">
+<!-- Hero Image -->
+<div class="w-full aspect-[4/5] relative rounded-3xl overflow-hidden shadow-lg bg-gray-200">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105" data-alt="Top down view of a cozy neighborhood town map with houses" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByDHLfL4X0_kRrcWymkKhapzimHjd0XC6SqmFREECZbqT2QF1h0F5lBxAmDStVuRoOSLArkjQPm-A-EQP4IaaKdMOhh5zxVUwiQPuBWnRm0lJcOBW7jau49LDAbJSlYI9UtIwQkSyHbpajYog0BlepjkZikkHzkVq8iQhdh1mJ-HcKf1Y6J_lI7k6hQuT4V0qhHSvH2vq3a5ULWirMMg34vDRgHpHrAcyI_VB8723Z-xbdUF3npAzfJeQil-pZbdlV7IclEiZ83m1B');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark/60 via-transparent to-transparent"></div>
+<!-- Illustration Overlay: Map Pin -->
+<div class="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/50 flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-xl text-primary">
+<span class="material-symbols-outlined text-2xl">location_on</span>
+</div>
+<div class="pr-2">
+<p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Location</p>
+<p class="text-sm font-bold text-gray-900">Fairview Town</p>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-3 mt-4">
+<h2 class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">Auctions start <br/>at <span class="text-primary">home</span>.</h2>
+<p class="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed max-w-[280px] mx-auto">
+                            Browse and create listings exclusive to your local town. Connect with neighbors in real-time.
+                        </p>
+</div>
+</div>
+<!-- Action Area -->
+<div class="w-full mt-8 flex flex-col items-center gap-6">
+<a class="w-full" href="#slide-2">
+<button class="w-full flex items-center justify-center gap-2 h-14 bg-primary hover:bg-primary/90 active:scale-[0.98] text-white text-lg font-bold rounded-2xl transition-all shadow-lg shadow-primary/30">
+<span>Next</span>
+<span class="material-symbols-outlined text-[20px] font-bold">arrow_forward</span>
+</button>
+</a>
+<!-- Static Indicators for visual context (Slide 1 active) -->
+<div class="flex gap-2">
+<div class="h-2 w-8 rounded-full bg-primary transition-all"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+</div>
+</div>
+</div>
+<!-- Slide 2: Suburb Power -->
+<div class="min-w-full h-full snap-center flex flex-col relative px-6 pt-20 pb-10" id="slide-2">
+<div class="flex-1 flex flex-col justify-center items-center gap-6">
+<!-- Hero Image -->
+<div class="w-full aspect-[4/5] relative rounded-3xl overflow-hidden shadow-lg bg-gray-200">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Urban city landscape showing connected buildings and infrastructure" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3p6FnxPx7pyijnm-EFnKAjidBY5asIrRxY1AQaoH1dHq6lmfXvB8WRXHyAgxbzHq_vTIdSmAo5AqqpLGEKSPy1w0nRzyua-5l_SI_STQvkY2pm2onnCmSohqwafw6DCGY7Tt8-qZs5do_eda3w1wrmsF9SSz5yiamj_FIkbNJNG5gr77U3HcEm2pbSNXZ9p9B99OMzBidQwFVDpjQHf4s7VwK7b-GiuqSrCU7Gym9JCs7FcKv-AoyxhPu9u0pYXafIQpX8jvELCZW');"></div>
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent mix-blend-overlay"></div>
+<!-- Illustration Overlay: Connected Nodes -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32">
+<div class="relative w-full h-full">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg z-10">
+<span class="material-symbols-outlined text-primary">home_work</span>
+</div>
+<div class="absolute bottom-0 left-0 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-gray-400 text-sm">home</span>
+</div>
+<div class="absolute bottom-0 right-0 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-gray-400 text-sm">home</span>
+</div>
+<!-- Connectors -->
+<div class="absolute top-8 left-1/2 -translate-x-1/2 w-0.5 h-10 bg-white shadow-sm -rotate-12 origin-top"></div>
+<div class="absolute top-8 left-1/2 -translate-x-1/2 w-0.5 h-10 bg-white shadow-sm rotate-12 origin-top"></div>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-3 mt-4">
+<h2 class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">Suburbs run <br/>the <span class="text-primary">show</span>.</h2>
+<p class="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed max-w-[280px] mx-auto">
+                            Every suburb has its own independent auction block. No noise, just local gems.
+                        </p>
+</div>
+</div>
+<!-- Action Area -->
+<div class="w-full mt-8 flex flex-col items-center gap-6">
+<a class="w-full" href="#slide-3">
+<button class="w-full flex items-center justify-center gap-2 h-14 bg-primary/10 hover:bg-primary/20 active:bg-primary/30 text-primary text-lg font-bold rounded-2xl transition-all">
+<span>Next</span>
+<span class="material-symbols-outlined text-[20px] font-bold">arrow_forward</span>
+</button>
+</a>
+<!-- Indicators (Slide 2 active) -->
+<div class="flex gap-2">
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-8 rounded-full bg-primary transition-all"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+</div>
+</div>
+</div>
+<!-- Slide 3: National View -->
+<div class="min-w-full h-full snap-center flex flex-col relative px-6 pt-20 pb-10" id="slide-3">
+<div class="flex-1 flex flex-col justify-center items-center gap-6">
+<!-- Hero Image -->
+<div class="w-full aspect-[4/5] relative rounded-3xl overflow-hidden shadow-lg bg-gray-900" data-location="USA" style="https://lh3.googleusercontent.com/aida-public/AB6AXuCqIDu26Zr-H6ltk9n4aDXUUbPpPD-7XDIYsKs32yG2ZsP3gVFErKFb6S3U2k6x-vDewyK6iE1kvcDUdQcrvmDc-4uAAYGwu8RBU-MBvyVoBRFu9lmiZrCSBjxb1hGd4YjlV0GGikCHcb2S7yBb2LN6WTktxt7aONkaBwtaGvRHn4HQjAnYfuosr0rbsp3VvweIK5uo3CenteIMBsSZX4kX53_YJUZMd5W0GwZMtMAQi71f_dLmG25VCWdQeF3xQBS_gHnzAe2VRev3">
+<div class="absolute inset-0 bg-cover bg-center opacity-80" data-alt="Abstract view of earth from space showing connected network lights" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBqXIWEn5ekVG71dZ5v9nUVUUYnc6Z1xEUUvm-mm8rH_WN6CGtO1_dEbJV23rIGM-hF5kcjifSLDvajP92LNIbA9l9BgJv7cOh6RqM6lPIaDJd2-XK_sFBKME5sCnaV8M8upcM9-u4ysj_8UxFTzWZhTT9XrcCFRltmOq1wb58UNOCUlZmJnUoUZNVoSVqhVhaY_dVnStWMP5-PsBJUBD_04fzOOEGoW1dKG8ThxMwoLY6BVjhqnybZrc7jcLL3Azuh_dqYJPKbl0fP');"></div>
+<!-- Pulsing Dots Overlay -->
+<div class="absolute top-1/3 left-1/4 h-3 w-3 rounded-full bg-primary animate-ping"></div>
+<div class="absolute top-1/3 left-1/4 h-3 w-3 rounded-full bg-white"></div>
+<div class="absolute bottom-1/3 right-1/3 h-2 w-2 rounded-full bg-primary animate-ping delay-75"></div>
+<div class="absolute bottom-1/3 right-1/3 h-2 w-2 rounded-full bg-white"></div>
+<div class="absolute top-1/2 right-1/4 h-2 w-2 rounded-full bg-primary animate-ping delay-150"></div>
+<div class="absolute top-1/2 right-1/4 h-2 w-2 rounded-full bg-white"></div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-3 mt-4">
+<h2 class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">See the <br/>bigger <span class="text-primary">picture</span>.</h2>
+<p class="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed max-w-[280px] mx-auto">
+                            Zoom out to the National View to see trending auctions across every town in the country.
+                        </p>
+</div>
+</div>
+<!-- Action Area -->
+<div class="w-full mt-8 flex flex-col items-center gap-6">
+<a class="w-full" href="#slide-4">
+<button class="w-full flex items-center justify-center gap-2 h-14 bg-primary/10 hover:bg-primary/20 active:bg-primary/30 text-primary text-lg font-bold rounded-2xl transition-all">
+<span>Next</span>
+<span class="material-symbols-outlined text-[20px] font-bold">arrow_forward</span>
+</button>
+</a>
+<!-- Indicators (Slide 3 active) -->
+<div class="flex gap-2">
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-8 rounded-full bg-primary transition-all"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+</div>
+</div>
+</div>
+<!-- Slide 4: Fair System -->
+<div class="min-w-full h-full snap-center flex flex-col relative px-6 pt-20 pb-10" id="slide-4">
+<div class="flex-1 flex flex-col justify-center items-center gap-6">
+<!-- Hero Image -->
+<div class="w-full aspect-[4/5] relative rounded-3xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+<!-- Abstract List Illustration -->
+<div class="absolute inset-0 flex flex-col p-6 gap-3 bg-background-light dark:bg-background-dark" data-alt="Abstract illustration of a list of scheduled items">
+<div class="h-16 w-full rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center px-4 gap-3 opacity-50 scale-95">
+<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700"></div>
+<div class="flex-1 h-2 rounded bg-gray-100 dark:bg-gray-700"></div>
+</div>
+<!-- Active Item -->
+<div class="h-20 w-full rounded-xl bg-white dark:bg-gray-800 shadow-lg border-l-4 border-l-primary flex items-center px-4 gap-3 scale-105 z-10">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">gavel</span>
+</div>
+<div class="flex-1">
+<div class="h-3 w-20 rounded bg-gray-800 dark:bg-gray-200 mb-2"></div>
+<div class="h-2 w-full rounded bg-gray-100 dark:bg-gray-700"></div>
+</div>
+<div class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">LIVE</div>
+</div>
+<div class="h-16 w-full rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center px-4 gap-3 opacity-50 scale-95">
+<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700"></div>
+<div class="flex-1 h-2 rounded bg-gray-100 dark:bg-gray-700"></div>
+</div>
+<div class="h-16 w-full rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center px-4 gap-3 opacity-30 scale-90">
+<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700"></div>
+<div class="flex-1 h-2 rounded bg-gray-100 dark:bg-gray-700"></div>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-3 mt-4">
+<h2 class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">Fair slots <br/>for <span class="text-primary">everyone</span>.</h2>
+<p class="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed max-w-[280px] mx-auto">
+                            Our slot-based system ensures every item gets its moment in the spotlight. No crowding.
+                        </p>
+</div>
+</div>
+<!-- Action Area -->
+<div class="w-full mt-8 flex flex-col items-center gap-6">
+<button class="w-full flex items-center justify-center gap-2 h-14 bg-primary hover:bg-primary/90 active:scale-[0.98] text-white text-lg font-bold rounded-2xl transition-all shadow-lg shadow-primary/30">
+<span>Join Your Town</span>
+<span class="material-symbols-outlined text-[20px] font-bold">rocket_launch</span>
+</button>
+<!-- Indicators (Slide 4 active) -->
+<div class="flex gap-2">
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-2 rounded-full bg-gray-300 dark:bg-white/10"></div>
+<div class="h-2 w-8 rounded-full bg-primary transition-all"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

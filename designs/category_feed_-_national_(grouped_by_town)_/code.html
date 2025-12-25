@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Category Feed</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b20",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen font-display text-gray-900 dark:text-gray-100 pb-24 relative selection:bg-primary/30">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
+<div class="flex items-center justify-between p-4">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Electronics</h2>
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 px-4 pb-4 overflow-x-auto no-scrollbar">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-4 shadow-sm shadow-primary/20 transition-transform active:scale-95">
+<span class="text-xs font-bold leading-normal">Ending Soon</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 px-4 transition-colors hover:bg-gray-50 dark:hover:bg-white/20">
+<span class="text-gray-700 dark:text-gray-200 text-xs font-bold leading-normal">Newest</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 px-4 transition-colors hover:bg-gray-50 dark:hover:bg-white/20">
+<span class="text-gray-700 dark:text-gray-200 text-xs font-bold leading-normal">Nearest</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 px-4 transition-colors hover:bg-gray-50 dark:hover:bg-white/20">
+<span class="text-gray-700 dark:text-gray-200 text-xs font-bold leading-normal">Price: Low to High</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex flex-col gap-6 pt-4">
+<!-- Town Group 1: User's Home Town (Austin) -->
+<section class="flex flex-col gap-3">
+<div class="px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary fill-1">location_on</span>
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Your Town: Austin <span class="text-primary font-medium text-base ml-1">(12 Live)</span></h3>
+</div>
+<button class="text-primary text-sm font-bold hover:underline">See All</button>
+</div>
+<!-- Horizontal Scroll Container -->
+<div class="flex gap-4 overflow-x-auto px-4 pb-4 no-scrollbar snap-x snap-mandatory">
+<!-- Card 1 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Modern iPhone displaying colorful abstract wallpaper" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB_ocGsMpR1R1jKYD_8jqOeVRj-G2vo0t9gV4BdXVv45SwMeq3iT3odAoZo9plNJz-Y8Zqd5xq9mp12Wn3n9FNDovWml7Q13ylVq6RefzC-oHziKi3aeoBKPW8oMXAERBcNqEL1IDfiSezVn4nVU4G8lrInjakFnWdMwcD2XGTB0YqSEXe9Bk98E_vJiYENIZgwUZT37ZJ9TKNEZ6V1McX6LJ2RaCvoxBWAelevJQbB7t_31isP9XRkGbGzRVU_BYovO1F8GYIwh1HU");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 12m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">iPhone 13 Pro 128GB</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Hyde Park
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$450</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="High performance gaming laptop with RGB keyboard" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhaoDi6sy3lzo1KnhHXjo641pwxMYP7grPsIZg9pyI4fOM6qIPz6cHQrX7F__t_Dr7UhwFbsBbRGQZpE-ujVD-4WZhVCXtdgHnJZ96EYhDspTTi4KsHRmvXPJizQJMmXO1_1eVJUatoilEkKNsFsIjWN-qbVzQTKf4i_3SYS3cYcfE6SnazZwd8h6iRqPXC7ej-Bk7kWaTNktbLR5kj4xWN2KBKukFhZOHurqnNJ9xeEGOWCisBPba4HTxPVVRp156jp_3JrApNlZF");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 2h 45m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">Alienware M15 R6</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Downtown
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$1,250</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Smart watch with black band on wooden surface" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXvGXTw2UWeRdtIwty_nWLiNxZM_-zUAML3KDwvb8XD1FafA7jhkmzKcZex5i6rHYgDDYIy9prN6xwbYSiUqQPRNw-X0PAaFXClpkqef1tPkKZ2Ltwd7oqGiKSoNhHm7weqUr3fNwvHpiV7q5kZ0saa57G9X-Gx5lrdknV2SK66ktJxB-9f_Ir0BziuZOWG8hoOlU5l5siQNENQA7G6QEu2RmKeCFkPzpmr1N25gRZ0BJUL2o3sgRBHxWLeefpYZJR2jA8MWK6tppE");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 4h 10m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">Apple Watch Series 7</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> South Congress
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$220</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="h-px w-full bg-gray-100 dark:bg-gray-800"></div>
+<!-- Town Group 2: Dallas -->
+<section class="flex flex-col gap-3">
+<div class="px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<!-- Different icon for non-home towns -->
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500">location_city</span>
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Dallas <span class="text-gray-500 dark:text-gray-400 font-medium text-base ml-1">(45 Live)</span></h3>
+</div>
+<button class="text-primary text-sm font-bold hover:underline">See All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto px-4 pb-4 no-scrollbar snap-x snap-mandatory">
+<!-- Card 1 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Minimalist computer monitor setup on desk" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9a5orWP6AtCicbR-bXPYtm-5TDJVNTftKdVa55Ap22TzvxQ7o8N0a6ecrB16x97QKGoJfDZotTqEzYT8zREX_QZrTNr86Oa9o6GYAdZv6XH0E02pxaNzxUcmUeUqRuYGJCZ6oW2UtGvGNqoKLiVwoakx3lTf7Xn40Q8xW6BQzGHxaYvoQYFRZ1jI2qIcebD_uejzYlGY2H-RsJ2k6F0_CHkpOugUXpWHU6Rv2CZItnfkrOgGAu1QoG6Zjm_HebXe8Jgu_gv4AuvFx");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-primary/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px]">local_fire_department</span> Hot
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">LG 27" 4K Monitor</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Deep Ellum
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$180</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Retro circuit board and electronic components" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCYiHksvvn5C_Od2SPIIXbmFkap_q2k4TCze6E2WfW1BJ0cURctS-b6f7u1m1c8udJwz4l5IlJ1YRBsgpyFQzFfPu8sHcfPNyINKpKy8gWB2Zrv-dVM1TY6hdXnzsMdiyJQDA25qin9o5Oy9aSBqJA4mrI9WEVeohp6LBDLDm0S3GUgqjucVFGKSNpjYCZg7a1xNOgFFcKDctsX_isyzPaOx4IZ-jSof13Q_BcsKekUDDwy-9Ept2zn8vhYZZSfovTqOGJ4Ipu0fu4d");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 58m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">Vintage Synthesizer</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Bishop Arts
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$850</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Playstation 5 console controller close up" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA2SHpUxrJzeeQKYj3wOOk0krj0n4gpc4f9YiFU0RDmDwpPBtPF7FTab4aGGq485b1p4AGyfQO1bTKeYhjcflCE7zw7Kp_oYCI2KbJAcZrocqiS1O9chW1mjC41Q_Z9v0hvsoZvAanwRzxdIcvc-gNPLNRTDLv6b2zz8mEEAaiWf8LgKLO1pxB6irZ0qFpmRLxZ7n0AWuLV_B_HOaqfS2Ofo85LDBgAemSPRrQXVhn2NaVJAZ_xENruSGFRa0svlKTCfXfyi56-_O1f");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 1d 2h
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">PS5 DualSense Controller</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Uptown
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$45</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="h-px w-full bg-gray-100 dark:bg-gray-800"></div>
+<!-- Town Group 3: Houston -->
+<section class="flex flex-col gap-3 pb-8">
+<div class="px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500">location_city</span>
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Houston <span class="text-gray-500 dark:text-gray-400 font-medium text-base ml-1">(30 Live)</span></h3>
+</div>
+<button class="text-primary text-sm font-bold hover:underline">See All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto px-4 pb-4 no-scrollbar snap-x snap-mandatory">
+<!-- Card 1 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Professional DSLR camera lens on dark background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQo4ykDtpRHMJ4vjDHiooJ5C7Gb93EBZTTTFTWD4Tl0p3Z3mY62TVF9JNagvC1eJNwwcLBPghDjyFZ6I-UGT72Z7N5pnF_ilU6gBbX3HFdZC8Igo_e6HwxKrnS0nYqkDgX6ClTyxZPlKjGwWjs3PlLl7yalxmjYDedytK1H6Lkh6NXnsOsQeZVcJitEqalYhwGMUgBuaoaURnF5h6_9RyJfBCPd1IbmaBxvTJAxzfg6omLP3pSih7lGDcYkRUT-sjijizMQkNQ-l_8");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 35m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">Sony 24-70mm GM Lens</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> Montrose
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$1,100</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-start flex-none w-[240px] flex flex-col gap-3 rounded-2xl bg-white dark:bg-surface-dark p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800 transition-transform hover:scale-[1.02]">
+<div class="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden bg-cover bg-center group" data-alt="Virtual reality headset on a stand" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDDpG9DcaPrH1DkFrnKSRbt4bpEczgilCm0iSTFReNTLf18TtQtqCy1zG2pVzbq0JlvwGINh5E-Hk2bMAG3zEToN5SxAD1UQZ-mfvvBeGza4rFyNah19fNNv61d9XPIW4Sr2Qnov_4j2Q2kSeI5xgErooB4nsvNV7bJkVdc96DHvPWhAfx_zkPgoWD7TtlA2DbAPaTlTxOcJIB7lXvtZ2TWv_MEtVeReQvurDpV29g74khU-WUSELe0FKZveYQtGSgl6CRDoRsC4M8w");'>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm border border-white/10">
+<span class="material-symbols-outlined text-[12px]">timer</span> 6h 20m
+                         </div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-snug line-clamp-1">Oculus Quest 2</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share_location</span> The Heights
+                        </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+<p class="text-primary text-base font-extrabold">$180</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm shadow-primary/30">Bid</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<div class="fixed bottom-24 right-4 z-40">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_8px_16px_rgba(238,68,105,0.4)] hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 z-50 w-full bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-safe">
+<div class="flex justify-around items-center h-16">
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-primary">
+<span class="material-symbols-outlined filled">home</span>
+<span class="text-[10px] font-bold">Feed</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-symbols-outlined">gavel</span>
+<span class="text-[10px] font-medium">My Bids</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 w-full h-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<!-- Safe Area Spacer for iPhone home bar -->
+<div class="h-[env(safe-area-inset-bottom)] w-full bg-surface-light dark:bg-surface-dark"></div>
+</nav>
+</body></html>

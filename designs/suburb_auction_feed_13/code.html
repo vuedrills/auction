@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Overview - AirMass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "primary-dark": "#d63657",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2f1a1f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(238, 68, 105, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 font-display min-h-screen relative flex flex-col overflow-hidden selection:bg-primary selection:text-white">
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+<div class="absolute -top-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute top-[20%] -left-20 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
+</div>
+<header class="relative z-20 px-6 pt-6 pb-2 flex items-center justify-between">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold">Profile</h1>
+<button class="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col p-6 relative z-10 w-full max-w-md mx-auto overflow-y-auto hide-scrollbar">
+<div class="flex flex-col items-center mb-8">
+<div class="relative mb-4">
+<div class="w-24 h-24 rounded-full p-1 bg-white dark:bg-card-dark shadow-glow ring-1 ring-gray-100 dark:ring-white/10">
+<img alt="Profile Picture" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6YNqTtC1SejHLKkhwqcxAy0NKWaRXb8MulXc72LBvRHMo-Fj50QkqbFmnTtI4Z9ZyI-KNm_6iVDA8Pr4IqNc4Wx-FrRDqJ4BqADKHiFDdz3NRAaP-f9rl4dxXS30L0EPh2aJAg8PQa279DthyWuwqUJd5GEViWvpJUKpUznKC1twLY-cRzR0F2W7Td72mHWJvKHIkSHXq_j8xzC7P6eksIei4qh2f53HxxkaLca2thMn3RQAAcbfqjK-qb_7rTI_DuSasG6Tya1Um"/>
+</div>
+<div class="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-4 border-background-light dark:border-background-dark"></div>
+</div>
+<h2 class="text-2xl font-bold text-[#181112] dark:text-white mb-1">Sarah Jenkins</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Member since 2021</p>
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-card-dark rounded-full shadow-sm border border-primary/20">
+<div class="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+</div>
+<div class="flex flex-col leading-none">
+<span class="text-[10px] uppercase font-bold text-gray-400 tracking-wide">Home Town</span>
+<span class="font-bold text-[#181112] dark:text-white">Surry Hills</span>
+</div>
+<span class="material-symbols-outlined text-green-500 text-[18px] ml-1" title="Verified Resident">verified</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-8">
+<div class="bg-white dark:bg-card-dark p-3 rounded-2xl border border-gray-100 dark:border-white/5 text-center shadow-sm">
+<span class="block text-xl font-bold text-[#181112] dark:text-white">12</span>
+<span class="text-xs text-gray-500 font-medium">Active</span>
+</div>
+<div class="bg-white dark:bg-card-dark p-3 rounded-2xl border border-gray-100 dark:border-white/5 text-center shadow-sm">
+<span class="block text-xl font-bold text-[#181112] dark:text-white">48</span>
+<span class="text-xs text-gray-500 font-medium">Sold</span>
+</div>
+<div class="bg-white dark:bg-card-dark p-3 rounded-2xl border border-gray-100 dark:border-white/5 text-center shadow-sm">
+<span class="block text-xl font-bold text-[#181112] dark:text-white">4.9</span>
+<span class="text-xs text-gray-500 font-medium">Rating</span>
+</div>
+</div>
+<div class="flex p-1 bg-gray-200/50 dark:bg-white/5 rounded-xl mb-6">
+<button class="flex-1 py-2.5 px-3 rounded-lg bg-white dark:bg-card-dark shadow-sm text-xs font-bold text-primary transition-all">
+                My Auctions
+            </button>
+<button class="flex-1 py-2.5 px-3 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#181112] dark:hover:text-white text-xs font-bold transition-all">
+                My Bids
+            </button>
+<button class="flex-1 py-2.5 px-3 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#181112] dark:hover:text-white text-xs font-bold transition-all">
+                Won Items
+            </button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-sm font-bold text-[#181112] dark:text-white">Active Listings in Surry Hills</h3>
+<span class="text-xs text-primary font-medium">View All</span>
+</div>
+<div class="group relative bg-white dark:bg-card-dark rounded-2xl p-3 shadow-soft border border-gray-100 dark:border-white/5 flex gap-4 transition-transform active:scale-[0.98]">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<div class="w-full h-full bg-center bg-cover transform group-hover:scale-110 transition-transform duration-500" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRx57q0RwXHCQ0as7zZ8jyZBBJhCCjF_Nd6RXc7U_2g4xWJ7fJ0W9ur4eiB3cSWioX6lN7ae86DJJc3sMvcbQMjXCHQqcL5hv1PmPi1KRIga6IQ1fTQnSqZjdHAwSWjQY-FdUObrpdwwDtNeG_2eNc31ihjzLMBHhkwsRt6CTnBjz0livcvZ091h_G2IipK71TDvzEGA2Q2p6J3kk11xETmWl0anX-Iq3mHxkqECuPwbkarvqw_L00q1ABu2bnQyxLjcpXOZXzXHRZ");'></div>
+<div class="absolute top-1.5 left-1.5 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                        Live
+                    </div>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1 min-w-0">
+<div>
+<h4 class="font-bold text-[#181112] dark:text-white text-sm truncate leading-tight mb-1">Vintage Espresso Machine</h4>
+<p class="text-xs text-gray-500 line-clamp-1">Excellent condition, italian import.</p>
+</div>
+<div class="flex items-end justify-between mt-2">
+<div>
+<span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Current Bid</span>
+<div class="text-primary font-bold text-lg leading-none">$145</div>
+</div>
+<div class="text-right">
+<span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Ends In</span>
+<div class="text-[#181112] dark:text-white font-bold text-sm flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span> 2h 4m
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<div class="group relative bg-white dark:bg-card-dark rounded-2xl p-3 shadow-soft border border-gray-100 dark:border-white/5 flex gap-4 transition-transform active:scale-[0.98]">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<img alt="Lamp" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhmZCobxsmr5YVoGGuHOClNvDbKYLQ3M40b8JQyhtPmiKWyp-C-b_4JsjXNuZWESHN2t0RdHrObp6IY1VI0eQcTqstJTY9v2pYzzefZ68zpcMHI-CpC9hpkBigPxz7rn9qqJBU4rUIPNk0wlQyIZMWhHZ-no2b2bw35WEG7pK8S12LITrop2KwxhSzOHnT2OQAsHFrnQ7x9NR9RTItmYXKLOAzrtJycS24U4iG8jKNm4ZxZTD0QQjOFJmvF8Z0u_QSAqnCBrrcr7q-"/>
+<div class="absolute top-1.5 left-1.5 bg-red-500/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">local_fire_department</span>
+                        Hot
+                    </div>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1 min-w-0">
+<div>
+<h4 class="font-bold text-[#181112] dark:text-white text-sm truncate leading-tight mb-1">Mid-Century Brass Lamp</h4>
+<p class="text-xs text-gray-500 line-clamp-1">Original wiring, minor patina.</p>
+</div>
+<div class="flex items-end justify-between mt-2">
+<div>
+<span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Current Bid</span>
+<div class="text-primary font-bold text-lg leading-none">$85</div>
+</div>
+<div class="text-right">
+<span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Ends In</span>
+<div class="text-[#181112] dark:text-white font-bold text-sm flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span> 45m
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<div class="group relative bg-white dark:bg-card-dark rounded-2xl p-3 shadow-soft border border-gray-100 dark:border-white/5 flex gap-4 transition-transform active:scale-[0.98] opacity-60 grayscale-[50%]">
+<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
+<img alt="Chair" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVg0d_ljXZtZEFP0lAxXDlcOy5uPsWnefQvQiQSa98M4dxz-mMNeOm9MwFmXDJw5SNa2aqxi6U_qdoVM32UZVRYcmNQQ7Efq98S1SMUIlReweY7BJeTW3M2uCjodC-Ps53b6Nzsnu65i6clZr3pw9-HBVZC6bZTe93Yn6qWDfXzy3w8W9P1FCIDRnKpCPdkVA7IqI2O_xaJQqEgr5wNqzGjliIXxKHpDPx5bfiJ0axex9he7b4CcCMB1fpDbtpxHi2KC5GKN0IDSvp"/>
+<div class="absolute top-1.5 left-1.5 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white">
+                        Draft
+                    </div>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1 min-w-0">
+<div>
+<h4 class="font-bold text-[#181112] dark:text-white text-sm truncate leading-tight mb-1">Eames Style Chair</h4>
+<p class="text-xs text-gray-500 line-clamp-1">Needs reupholstering.</p>
+</div>
+<div class="flex items-center justify-between mt-2">
+<button class="text-xs font-bold text-primary border border-primary/20 bg-primary/5 px-3 py-1.5 rounded-lg w-full">
+                            Resume Editing
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 right-6 z-30">
+<button class="bg-[#181112] dark:bg-white text-white dark:text-[#181112] w-14 h-14 rounded-full shadow-lg shadow-black/20 flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</main>
+
+</body></html>

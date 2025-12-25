@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AirMass - Empty Suburb State</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee4469",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221014",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-gray-900 font-display">
+<!-- Mobile Wrapper -->
+<div class="relative flex h-auto min-h-screen w-full max-w-md mx-auto flex-col bg-background-light dark:bg-background-dark shadow-2xl overflow-x-hidden">
+<!-- TopAppBar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-4 pb-2 justify-between border-b border-gray-100 dark:border-gray-800">
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full active:bg-gray-200 dark:active:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Silver Lake</h2>
+</div>
+<!-- EmptyState Main Content -->
+<div class="flex flex-col flex-1 px-6 py-8 justify-center min-h-[50vh]">
+<div class="flex flex-col items-center gap-6">
+<!-- Illustration -->
+<div class="w-full max-w-[280px] aspect-square rounded-full bg-gradient-to-tr from-orange-50 to-pink-50 dark:from-gray-800 dark:to-gray-800 flex items-center justify-center mb-2 shadow-inner">
+<div class="bg-center bg-no-repeat bg-contain w-full h-full rounded-full opacity-90" data-alt="Illustration of a quiet peaceful suburban house with trees" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxnoYCIh7_-rBknI-k5Cnku4F3DQD10FVqFFRrJar_uwhXrwTpGqlejm-rWHkmnKZuuOND4viEhs1wNbso2oq-MV-AOE7J3O0W8IGYCKetaBUyL6-6WUUuglIa0zb9fQdIjzkp_HuKnMAsDydSBxlRnYVpYUbzV9qv2fHG12Zvz-YPpUeE9F48FuQIIO6PKHdTC8qFZovskLRtEec2lFEXRiY4oajPbORW-GM1Iz1bD3hr6swaBlAjFHCbBCdIxYlBs3X3JLODFwWS"); mask-image: radial-gradient(circle, black 60%, transparent 100%); -webkit-mask-image: radial-gradient(circle, black 60%, transparent 100%);'>
+</div>
+</div>
+<div class="flex max-w-[480px] flex-col items-center gap-3">
+<h3 class="text-slate-900 dark:text-white text-2xl font-bold leading-tight tracking-tight text-center">
+                        Nothing on the block... yet.
+                    </h3>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed text-center px-4">
+                        It's pretty quiet in Silver Lake right now. Why not kick things off with the first auction?
+                    </p>
+</div>
+<!-- Primary Action -->
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-[0.98] transition-all mt-4">
+<span class="mr-2 material-symbols-outlined text-[20px]">gavel</span>
+<span class="truncate">Create an Auction</span>
+</button>
+</div>
+</div>
+<!-- Secondary Action -->
+<div class="flex px-6 pb-2">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 text-primary dark:text-primary-300 text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
+<span class="truncate">See what's selling in Echo Park</span>
+</button>
+</div>
+<div class="w-full h-px bg-slate-100 dark:bg-slate-800 my-4 mx-6 max-w-[calc(100%-48px)]"></div>
+<!-- HeadlineText -->
+<div class="flex items-center justify-between px-6 pt-2 pb-1">
+<h3 class="text-slate-900 dark:text-white tracking-tight text-xl font-bold leading-tight">Trending Nearby</h3>
+<button class="text-primary text-sm font-bold flex items-center">
+                View all <span class="material-symbols-outlined text-[16px] ml-1">chevron_right</span>
+</button>
+</div>
+<!-- Carousel -->
+<div class="flex overflow-y-auto overflow-x-auto pb-8 pt-2 px-6 [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden snap-x snap-mandatory">
+<div class="flex items-stretch gap-4">
+<!-- Card 1 -->
+<div class="flex flex-col gap-3 w-40 shrink-0 snap-start group cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-[4/5] bg-cover rounded-xl shadow-sm relative overflow-hidden group-hover:shadow-md transition-shadow" data-alt="Mid-century modern vintage green desk lamp on a wooden table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDNrVFkJwI0DvUJEZFZh6kaqyRTArC17BCzkVCOz2y3YM0gSdqY3Et8SggXVA9MdHzIrVu6r7ZiLzENrG5X4YUBKtBgCPyWtP23lGupY1mqwcWXbf7yuCn3Mj9Q26GFHC96xy91HARkpZD0iEWMghtZsPCMVTel4qri7GvIYUJ2zMMrlhPk6v0kww-rOLIueY0cmZ_-9eRv8fdVzUCqZhtzuHBaanYa0-Xxm2tQp2bjdWAh4rdh79Km6IjVH7Jf8iygscDifXsCOsNR");'>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-bold">
+                            $45
+                         </div>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-normal truncate">Vintage Lamp</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal flex items-center mt-0.5">
+<span class="material-symbols-outlined text-[12px] mr-1">location_on</span> Echo Park
+                        </p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col gap-3 w-40 shrink-0 snap-start group cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-[4/5] bg-cover rounded-xl shadow-sm relative overflow-hidden group-hover:shadow-md transition-shadow" data-alt="Red mountain bike leaning against a wall" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAI2Jbrs_ljNHPOBJheOFkeBJGHQGfVVGkZAtKZ4_wl_Pn0pCtpZlsf8f8G_EmRZi20ySU4-0fLuhPdpMuDm8PTbjpxePYYlkZbZ3nzzFOs5gRbTmOuf7y67z9cnGkKLSnwk6yd0sGU1ssDFdGl99-3gz8RC8qOTFvxzjBYhG6g-xljd6BtwjO9DNSbJsiG8aKVHKdd739X8fB1ctVw0KyUq3wB0XBsublqLPe7jHvWgYOQf8Wob2d76gOus1qZWm4LUuEpOWqj5upI");'>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-bold">
+                            $120
+                         </div>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-normal truncate">Mountain Bike</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal flex items-center mt-0.5">
+<span class="material-symbols-outlined text-[12px] mr-1">location_on</span> Los Feliz
+                        </p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col gap-3 w-40 shrink-0 snap-start group cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-[4/5] bg-cover rounded-xl shadow-sm relative overflow-hidden group-hover:shadow-md transition-shadow" data-alt="White Eames molded plastic chair" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBa2PHG7NeXV_MdiA18HG2yqTfuAh7NusOzyUwPt_uLka_C5aLn64w6Fc3DpUfFrfZEmy-m-OzFrgsbKo0RTm37l6T7BIcfsLW1Vquf5RPlldJxUTWrtJp43dSS4gLcRIL1GsudQ0s3CM9cERLiXHtgAbChqpuExp9Bpxaz9Si7aXrhvRK1-QqUtBZGJ3_5A0xZis4GMyNuIrSieBO_g4yE2We1r7H3ziq6mGlXQNL4ea9ddYN8G8Bpeta4h5f7VABp3cKlUU89bRn7");'>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-bold">
+                            $250
+                         </div>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-normal truncate">Eames Chair</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal flex items-center mt-0.5">
+<span class="material-symbols-outlined text-[12px] mr-1">location_on</span> Atwater
+                        </p>
+</div>
+</div>
+<!-- Spacer for scrolling padding -->
+<div class="w-2 shrink-0"></div>
+</div>
+</div>
+<div class="h-10"></div>
+</div>
+</body></html>
