@@ -19,7 +19,7 @@ class ProfileScreen extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 120,
             pinned: true,
             backgroundColor: AppColors.surfaceLight,
             flexibleSpace: FlexibleSpaceBar(
@@ -28,49 +28,69 @@ class ProfileScreen extends ConsumerWidget {
                   gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.7)]),
                 ),
                 child: SafeArea(
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    // Avatar
-                    Container(
-                      width: 80, height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                      child: user?.avatarUrl != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(17),
-                            child: CachedNetworkImage(
-                              imageUrl: user!.avatarUrl!,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => const Icon(Icons.person, size: 40, color: AppColors.primary),
-                              errorWidget: (_, __, ___) => const Icon(Icons.person, size: 40, color: AppColors.primary),
-                            ),
-                          )
-                        : const Icon(Icons.person, size: 40, color: AppColors.primary),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      user?.fullName ?? 'Guest User',
-                      style: AppTypography.headlineMedium.copyWith(color: Colors.white),
-                    ),
-                    Text(
-                      user != null ? 'Member since ${_formatDate(user.createdAt)}' : '',
-                      style: AppTypography.bodySmall.copyWith(color: Colors.white70),
-                    ),
-                    if (user?.homeTown != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.location_on, size: 14, color: Colors.white70),
-                            const SizedBox(width: 4),
-                            Text(user!.homeTown!.name, style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-                          ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Left side - User info
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user?.fullName ?? 'Guest User',
+                                style: AppTypography.headlineMedium.copyWith(color: Colors.white),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                user != null ? 'Member since ${_formatDate(user.createdAt)}' : '',
+                                style: AppTypography.bodySmall.copyWith(color: Colors.white70),
+                              ),
+                              if (user?.homeTown != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on, size: 14, color: Colors.white70),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      user!.homeTown!.name,
+                                      style: AppTypography.labelSmall.copyWith(color: Colors.white70),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                      ),
-                  ]),
+                        const SizedBox(width: 16),
+                        // Right side - Avatar
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white, width: 3),
+                          ),
+                          child: user?.avatarUrl != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(13),
+                                  child: CachedNetworkImage(
+                                    imageUrl: user!.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    placeholder: (_, __) => const Icon(Icons.person, size: 35, color: AppColors.primary),
+                                    errorWidget: (_, __, ___) => const Icon(Icons.person, size: 35, color: AppColors.primary),
+                                  ),
+                                )
+                              : const Icon(Icons.person, size: 35, color: AppColors.primary),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
