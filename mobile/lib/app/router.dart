@@ -28,7 +28,7 @@ import '../screens/legal/legal_screens.dart';
 import '../screens/states/error_states_screen.dart';
 import '../screens/rating/rate_user_screen.dart';
 import '../screens/rating/user_reviews_screen.dart';
-
+import '../screens/profile/verification_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -125,6 +125,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/profile/bids', builder: (_, __) => const BidHistoryScreen()),
     GoRoute(path: '/profile/won', builder: (_, __) => const WonItemsScreen()),
     GoRoute(path: '/profile/watchlist', builder: (_, __) => const WatchlistScreen()),
+    GoRoute(path: '/profile/verification', builder: (_, __) => const VerificationScreen()),
     
     // User profiles (other users)
     GoRoute(

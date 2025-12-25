@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
+import '../../widgets/common/badge_widgets.dart';
 
 /// Profile Screen - Connected to Backend
 class ProfileScreen extends ConsumerWidget {
@@ -99,6 +100,9 @@ class ProfileScreen extends ConsumerWidget {
           // Stats
           SliverToBoxAdapter(child: _buildStatsSection(ref)),
           
+          // Badges Section
+          SliverToBoxAdapter(child: _buildBadgesSection(ref, context)),
+          
           // Menu items
           SliverToBoxAdapter(
             child: Column(children: [
@@ -184,6 +188,29 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const _StatItem(value: '4.8', label: 'Rating'),
       ]),
+    );
+  }
+
+  Widget _buildBadgesSection(WidgetRef ref, BuildContext context) {
+    final badgesAsync = ref.watch(myBadgesProvider);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: badgesAsync.when(
+        data: (badges) => BadgeShowcase(
+          badges: badges,
+          onGetVerified: () => context.push('/profile/verification'),
+        ),
+        loading: () => Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
     );
   }
 
