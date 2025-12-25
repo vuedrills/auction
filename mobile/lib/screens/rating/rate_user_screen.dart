@@ -159,8 +159,13 @@ class _RateUserScreenState extends ConsumerState<RateUserScreen> with SingleTick
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = 'Error: $e';
+        if (e.toString().contains('500') || e.toString().contains('duplicate')) {
+          errorMessage = 'You have already rated this user for this auction.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(errorMessage), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -254,14 +259,6 @@ class _RateUserScreenState extends ConsumerState<RateUserScreen> with SingleTick
                 child: Column(
                   children: [
                     _buildStarRating('Overall Rating', _rating, (v) => setState(() => _rating = v), isLarge: true),
-                    const SizedBox(height: 24),
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    _buildStarRating('Communication', _communicationRating, (v) => setState(() => _communicationRating = v)),
-                    const SizedBox(height: 16),
-                    _buildStarRating('Item Accuracy', _accuracyRating, (v) => setState(() => _accuracyRating = v)),
-                    const SizedBox(height: 16),
-                    _buildStarRating('Responsiveness', _speedRating, (v) => setState(() => _speedRating = v)),
                   ],
                 ),
               ),

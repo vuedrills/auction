@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/repositories/notification_repository.dart';
 import '../../data/repositories/chat_repository.dart';
+import '../../data/repositories/auction_repository.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 /// Notification Inbox Screen - Connected to Backend
@@ -179,6 +180,7 @@ class _NotificationsTab extends ConsumerWidget {
                 notification: todayNotifications[index],
                 onTap: () => _handleNotificationTap(context, ref, todayNotifications[index]),
                 onMarkRead: () => ref.read(notificationsProvider.notifier).markAsRead(todayNotifications[index].id),
+                onMessage: () => _handleMessageTap(context, ref, todayNotifications[index]),
               ),
               childCount: todayNotifications.length,
             ),
@@ -193,6 +195,7 @@ class _NotificationsTab extends ConsumerWidget {
                 notification: yesterdayNotifications[index],
                 onTap: () => _handleNotificationTap(context, ref, yesterdayNotifications[index]),
                 onMarkRead: () => ref.read(notificationsProvider.notifier).markAsRead(yesterdayNotifications[index].id),
+                onMessage: () => _handleMessageTap(context, ref, yesterdayNotifications[index]),
               ),
               childCount: yesterdayNotifications.length,
             ),
@@ -207,6 +210,7 @@ class _NotificationsTab extends ConsumerWidget {
                 notification: olderNotifications[index],
                 onTap: () => _handleNotificationTap(context, ref, olderNotifications[index]),
                 onMarkRead: () => ref.read(notificationsProvider.notifier).markAsRead(olderNotifications[index].id),
+                onMessage: () => _handleMessageTap(context, ref, olderNotifications[index]),
               ),
               childCount: olderNotifications.length,
             ),
@@ -285,6 +289,65 @@ class _NotificationsTab extends ConsumerWidget {
     // For other notifications with auction, go to auction detail
     if (notification.auctionId != null) {
       context.push('/auction/${notification.auctionId}');
+    }
+  }
+
+  static Future<void> _handleMessageTap(BuildContext context, WidgetRef ref, AppNotification notification) async {
+    // Only for won/sold
+    if (notification.type != NotificationType.auctionWon && notification.type != NotificationType.auctionSold) return;
+
+    if (notification.chatId != null) {
+      context.push('/chats/${notification.chatId}');
+      return;
+    }
+    
+    // Check if we already have a chat loaded with this auctionId
+    final chatsAsync = ref.read(chatsProvider);
+    String? existingChatId;
+    
+    chatsAsync.whenData((chats) {
+        final matchingChat = chats.where((c) => c.auctionId == notification.auctionId).firstOrNull;
+        if (matchingChat != null) {
+          existingChatId = matchingChat.id;
+        }
+    });
+
+    if (existingChatId != null) {
+       context.push('/chats/$existingChatId');
+       return;
+    }
+
+    // Need to create/fetch chat from backend
+    try {
+        if (notification.auctionId == null) return;
+        
+        // We'll try to start a chat. 
+        // Note: startChat usually requires a message. We'll send an initial handshake if it's new.
+        // However, if the chat already exists in backend but not loaded in frontend list (e.g. pagination), 
+        // the backend logic for 'startChat' usually handles returning the existing thread without creating duplicates.
+        // We'll verify this assumption by calling it.
+        final initialMessage = notification.type == NotificationType.auctionWon 
+            ? "Hi, I won this auction!" 
+            : "Hi, I'm the seller for this auction.";
+            
+        final chatThread = await ref.read(chatRepositoryProvider).startChat(
+           notification.auctionId!, 
+           initialMessage
+        );
+        
+        // Refresh chats list to include this new one
+        ref.read(chatsProvider.notifier).load();
+        
+        if (context.mounted) {
+           context.push('/chats/${chatThread.id}');
+        }
+    } catch (e) {
+        print('Error starting chat: $e');
+        if (context.mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not open chat: $e'), backgroundColor: AppColors.error),
+           );
+        }
     }
   }
 }
@@ -434,11 +497,13 @@ class _NotificationCard extends StatelessWidget {
   final AppNotification notification;
   final VoidCallback onTap;
   final VoidCallback onMarkRead;
+  final VoidCallback? onMessage;
 
   const _NotificationCard({
     required this.notification,
     required this.onTap,
     required this.onMarkRead,
+    this.onMessage,
   });
 
   @override
@@ -520,16 +585,35 @@ class _NotificationCard extends StatelessWidget {
             ]),
             if (notification.type == NotificationType.auctionWon || notification.type == NotificationType.auctionSold) ...[
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: onTap,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: notification.type == NotificationType.auctionWon ? AppColors.success : AppColors.primary, 
-                  minimumSize: const Size.fromHeight(36)
-                ),
-                child: Text(
-                  notification.type == NotificationType.auctionWon ? 'Rate Seller' : 'Rate Buyer', 
-                  style: AppTypography.labelMedium.copyWith(color: Colors.white)
-                ),
+              Row(
+                children: [
+                   Expanded(
+                    child: ElevatedButton(
+                      onPressed: onTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: notification.type == NotificationType.auctionWon ? AppColors.success : AppColors.primary, 
+                        minimumSize: const Size.fromHeight(36)
+                      ),
+                      child: Text(
+                        notification.type == NotificationType.auctionWon ? 'Rate Seller' : 'Rate Buyer', 
+                        style: AppTypography.labelMedium.copyWith(color: Colors.white)
+                      ),
+                    ),
+                   ),
+                   if (onMessage != null) ...[
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: onMessage,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(36),
+                            side: BorderSide(color: AppColors.primary),
+                          ),
+                          child: Text('Message', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
+                        ),
+                      ),
+                   ],
+                ],
               ),
             ] else if (notification.isUrgent && notification.auctionId != null) ...[
               const SizedBox(height: 12),
