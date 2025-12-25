@@ -132,7 +132,7 @@ class StorefrontScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: AppButton(
-                            text: 'WhatsApp',
+                            label: 'WhatsApp',
                             icon: Icons.chat,
                             backgroundColor: const Color(0xFF25D366),
                             onPressed: () {
@@ -165,7 +165,7 @@ class StorefrontScreen extends ConsumerWidget {
             ),
             
             // Products Header
-            SliverPinnedHeader(
+            SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 color: Colors.grey[50],
@@ -243,7 +243,7 @@ class _ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to detail
+        context.push('/product/${product.id}');
       },
       child: Container(
         decoration: BoxDecoration(

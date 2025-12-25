@@ -113,10 +113,20 @@ class ProfileScreen extends ConsumerWidget {
                   return myStoreAsync.when(
                     data: (store) {
                       if (store != null) {
-                        return _MenuItem(
-                          icon: Icons.store_mall_directory,
-                          title: 'Manage Store',
-                          onTap: () => context.push('/store/${store.slug}'),
+                        return Column(
+                          children: [
+                            _MenuItem(
+                              icon: Icons.storefront,
+                              title: 'View My Store',
+                              onTap: () => context.push('/store/${store.slug}'),
+                            ),
+                            _MenuItem(
+                              icon: Icons.inventory_2,
+                              title: 'Manage Products',
+                              onTap: () => context.push('/store/manage/products'),
+                            ),
+                            const Divider(height: 1),
+                          ],
                         );
                       }
                       return _MenuItem(

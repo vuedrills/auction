@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../profile/profile_screen.dart';
 import 'national_auctions_screen.dart';
 import '../notification/notification_inbox_screen.dart';
+import '../../widgets/store/featured_stores_list.dart';
 
 /// Home Screen - Wrapper with bottom navigation
 class HomeScreen extends ConsumerStatefulWidget {
@@ -92,6 +93,14 @@ class MyTownTabContent extends ConsumerWidget {
           
           // Category Chips
           const SliverToBoxAdapter(child: _CategoryChips()),
+
+          // Featured Stores
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: FeaturedStoresList(),
+            ),
+          ),
           
           // Ending Soon Section
           SliverToBoxAdapter(child: _buildSectionHeader(
