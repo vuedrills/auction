@@ -146,16 +146,18 @@ class MyAuctionsScreen extends ConsumerStatefulWidget {
 
 class _MyAuctionsScreenState extends ConsumerState<MyAuctionsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(myAuctionsProvider.notifier).loadAuctions(refresh: true);
     });
     _tabController.addListener(() {
-      final status = ['active', 'ended', null][_tabController.index];
+      setState(() => _currentTabIndex = _tabController.index);
+      final status = ['active', 'ended'][_tabController.index];
       ref.read(myAuctionsProvider.notifier).setStatusFilter(status);
     });
   }
@@ -166,29 +168,116 @@ class _MyAuctionsScreenState extends ConsumerState<MyAuctionsScreen> with Single
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
-        title: Text('My Auctions', style: AppTypography.titleLarge),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondaryLight,
-          indicatorColor: AppColors.primary,
-          tabs: const [Tab(text: 'Active'), Tab(text: 'Ended'), Tab(text: 'Drafts')],
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => ref.read(myAuctionsProvider.notifier).refresh(),
-        child: auctionState.isLoading && auctionState.auctions.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : auctionState.auctions.isEmpty
-            ? _buildEmptyState(_tabController.index)
-            : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: auctionState.auctions.length,
-                itemBuilder: (_, i) => _MyAuctionCard(auction: auctionState.auctions[i]),
+      body: Column(
+        children: [
+          Container(
+            color: AppColors.surfaceLight,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  // AppBar
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => context.pop(),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('My Auctions', style: AppTypography.titleLarge),
+                      ],
+                    ),
+                  ),
+                  // Custom Tab Bar (same style as notifications)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _tabController.animateTo(0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _currentTabIndex == 0 ? Colors.white : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: _currentTabIndex == 0
+                                      ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Active',
+                                    style: AppTypography.titleSmall.copyWith(
+                                      color: _currentTabIndex == 0 ? AppColors.textPrimaryLight : Colors.grey,
+                                      fontWeight: _currentTabIndex == 0 ? FontWeight.w600 : FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _tabController.animateTo(1),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _currentTabIndex == 1 ? Colors.white : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: _currentTabIndex == 1
+                                      ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Ended',
+                                    style: AppTypography.titleSmall.copyWith(
+                                      color: _currentTabIndex == 1 ? AppColors.textPrimaryLight : Colors.grey,
+                                      fontWeight: _currentTabIndex == 1 ? FontWeight.w600 : FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
+          // Tab Content
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => ref.read(myAuctionsProvider.notifier).refresh(),
+              child: auctionState.isLoading && auctionState.auctions.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : auctionState.auctions.isEmpty
+                      ? _buildEmptyState(_tabController.index)
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                          itemCount: auctionState.auctions.length,
+                          itemBuilder: (_, i) => _AuctionGridCard(auction: auctionState.auctions[i]),
+                        ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/create-auction'),
@@ -200,8 +289,8 @@ class _MyAuctionsScreenState extends ConsumerState<MyAuctionsScreen> with Single
   }
 
   Widget _buildEmptyState(int tabIndex) {
-    final icons = [Icons.gavel_outlined, Icons.check_circle_outline, Icons.drafts_outlined];
-    final labels = ['No active auctions', 'No ended auctions', 'No drafts'];
+    final icons = [Icons.gavel_outlined, Icons.check_circle_outline];
+    final labels = ['No active auctions', 'No ended auctions'];
     return Center(
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(icons[tabIndex], size: 64, color: Colors.grey.shade300),
@@ -623,6 +712,146 @@ class _WatchlistCard extends StatelessWidget {
             Icon(Icons.chevron_right, color: AppColors.textSecondaryLight),
             const SizedBox(width: 8),
           ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Grid Auction Card - Same style as home screen
+class _AuctionGridCard extends StatelessWidget {
+  final Auction auction;
+  const _AuctionGridCard({required this.auction});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/auction/${auction.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (auction.primaryImage != null)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        child: CachedNetworkImage(
+                          imageUrl: auction.primaryImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Center(child: Icon(Icons.image, color: Colors.grey.shade400)),
+                          errorWidget: (_, __, ___) => Center(child: Icon(Icons.broken_image, color: Colors.grey.shade400)),
+                        ),
+                      )
+                    else
+                      Center(child: Icon(Icons.image_rounded, size: 40, color: Colors.grey.shade400)),
+                    if (auction.status.value == 'active')
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'LIVE',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      auction.title,
+                      style: AppTypography.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            auction.suburb?.name ?? auction.town?.name ?? '',
+                            style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+                          ),
+                        ),
+                        if (auction.totalBids > 0)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.gavel_rounded, size: 10, color: AppColors.textSecondaryLight),
+                              const SizedBox(width: 2),
+                              Text(
+                                '${auction.totalBids}',
+                                style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\$${auction.displayPrice.toStringAsFixed(0)}',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          auction.timeRemaining ?? '',
+                          style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
