@@ -4,15 +4,20 @@ import (
 	"log"
 	"os"
 
+	"context"
+
 	"github.com/airmass/backend/internal/config"
 	"github.com/airmass/backend/internal/database"
 	"github.com/airmass/backend/internal/router"
 	"github.com/airmass/backend/internal/websocket"
+	"github.com/airmass/backend/internal/worker"
 	"github.com/airmass/backend/pkg/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
@@ -42,6 +47,10 @@ func main() {
 	// Initialize WebSocket hub
 	hub := websocket.NewHub()
 	go hub.Run()
+
+	// Initialize and start background workers
+	auctionWorker := worker.NewAuctionWorker(db, hub)
+	go auctionWorker.Start(ctx)
 
 	// Setup router
 	r := router.SetupRouter(db, jwtService, hub)

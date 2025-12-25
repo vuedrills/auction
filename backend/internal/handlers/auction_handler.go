@@ -418,20 +418,15 @@ func (h *AuctionHandler) CreateAuction(c *gin.Context) {
 	}
 
 	h.db.Pool.QueryRow(context.Background(),
-		"SELECT COUNT(*) FROM auctions WHERE category_id = $1 AND town_id = $2 AND status IN ('active', 'ending_soon', 'pending')",
-		req.CategoryID, townID,
+		"SELECT COUNT(*) FROM auctions WHERE category_id = $1 AND town_id = $2 AND status IN ('active', 'ending_soon')",
 	).Scan(&currentActive)
 
+	status := "active"
+	message := "Auction published successfully!"
+
 	if currentActive >= maxActive {
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "Category is full in your town",
-			"code":  "CATEGORY_FULL",
-			"data": gin.H{
-				"max_active":     maxActive,
-				"current_active": currentActive,
-			},
-		})
-		return
+		status = "pending"
+		message = "Category is full. Your auction has been added to the waiting list and will go live automatically."
 	}
 
 	// Calculate TIERED bid increment based on starting price
@@ -453,10 +448,10 @@ func (h *AuctionHandler) CreateAuction(c *gin.Context) {
 			seller_id, category_id, town_id, suburb_id, status, condition,
 			start_time, end_time, original_end_time, images, allow_offers,
 			pickup_location, shipping_available
-		) VALUES ($1, $2, $3, $3, $4, $5, $6, $7, $8, $9, 'active', $10, $11, $12, $12, $13, $14, $15, $16)
+		) VALUES ($1, $2, $3, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14, $15, $16, $17)
 		RETURNING id`,
 		req.Title, req.Description, req.StartingPrice, req.ReservePrice, bidIncrement,
-		userID, req.CategoryID, townID, req.SuburbID, req.Condition,
+		userID, req.CategoryID, townID, req.SuburbID, status, req.Condition,
 		startTime, endTime, req.Images, req.AllowOffers, req.PickupLocation, req.ShippingAvailable,
 	).Scan(&auctionID)
 	if err != nil {
@@ -464,16 +459,19 @@ func (h *AuctionHandler) CreateAuction(c *gin.Context) {
 		return
 	}
 
-	// Broadcast to town subscribers
-	h.hub.BroadcastToTown(townID, websocket.MessageTypeAuctionUpdate, gin.H{
-		"action":     "new_auction",
-		"auction_id": auctionID,
-		"title":      req.Title,
-	})
+	// Broadcast to town subscribers if active
+	if status == "active" {
+		h.hub.BroadcastToTown(townID, websocket.MessageTypeAuctionUpdate, gin.H{
+			"action":     "new_auction",
+			"auction_id": auctionID,
+			"title":      req.Title,
+		})
+	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"id":      auctionID,
-		"message": "Auction created successfully",
+		"status":  status,
+		"message": message,
 	})
 }
 
