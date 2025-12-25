@@ -94,12 +94,6 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            actions: [
-              IconButton(
-                onPressed: () => context.push('/settings'),
-                icon: const Icon(Icons.settings, color: Colors.white),
-              ),
-            ],
           ),
           
           // Stats
