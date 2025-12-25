@@ -24,6 +24,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 	featuresHandler := handlers.NewFeaturesHandler(db, hub)
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
 	chatHandler := handlers.NewChatHandler(db, hub)
+	badgeHandler := handlers.NewBadgeHandler(db)
 	wsHandler := websocket.NewHandler(hub, jwtService)
 
 	// Health check
@@ -66,10 +67,16 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 
 			// Public Profile (NEW)
 			users.GET("/:userId", authHandler.GetUserProfile)
+			users.GET("/:userId/badges", badgeHandler.GetUserBadges)
 
 			// Notification Preferences
 			users.GET("/me/notification-preferences", middleware.Auth(jwtService), notificationHandler.GetPreferences)
 			users.PUT("/me/notification-preferences", middleware.Auth(jwtService), notificationHandler.UpdatePreferences)
+
+			// Badges & Verification
+			users.GET("/me/badges", middleware.Auth(jwtService), badgeHandler.GetMyBadges)
+			users.POST("/me/verification", middleware.Auth(jwtService), badgeHandler.SubmitVerification)
+			users.GET("/me/verification-status", middleware.Auth(jwtService), badgeHandler.GetMyVerificationStatus)
 		}
 
 		// Notifications
@@ -112,6 +119,12 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 			categories.GET("", categoryHandler.GetCategories)
 			categories.GET("/:id", categoryHandler.GetCategory)
 			categories.GET("/:id/slots/:townId", categoryHandler.GetCategorySlots)
+		}
+
+		// Badges
+		badges := api.Group("/badges")
+		{
+			badges.GET("", badgeHandler.GetBadges)
 		}
 
 		// Auctions
