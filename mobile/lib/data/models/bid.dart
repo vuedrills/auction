@@ -29,16 +29,18 @@ class Bid {
 
   factory Bid.fromJson(Map<String, dynamic> json) {
     return Bid(
-      id: json['id'] as String,
-      auctionId: json['auction_id'] as String,
-      bidderId: json['bidder_id'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      id: json['id'] as String? ?? '',
+      auctionId: json['auction_id'] as String? ?? '',
+      bidderId: json['bidder_id'] as String? ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       isWinning: json['is_winning'] as bool? ?? false,
       isAutoBid: json['is_auto_bid'] as bool? ?? false,
       maxAutoBid: json['max_auto_bid'] != null 
           ? (json['max_auto_bid'] as num).toDouble() 
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       bidder: json['bidder'] != null 
           ? User.fromJson(json['bidder'] as Map<String, dynamic>) 
           : null,
