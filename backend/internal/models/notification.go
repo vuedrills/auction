@@ -38,6 +38,7 @@ type Notification struct {
 
 	// Joined fields
 	RelatedAuction *Auction `json:"related_auction,omitempty"`
+	HasRated       bool     `json:"has_rated"`
 }
 
 // NotificationListResponse represents paginated notifications
