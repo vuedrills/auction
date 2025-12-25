@@ -358,6 +358,9 @@ class _BidHistoryCard extends StatelessWidget {
 
   String _formatTime(DateTime time) {
     final diff = DateTime.now().difference(time);
+    
+    // Handle negative or very small durations (time sync issues or just now)
+    if (diff.inSeconds < 60 || diff.isNegative) return 'just now';
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
