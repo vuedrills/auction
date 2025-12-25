@@ -70,12 +70,38 @@ class UserProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
                 child: userAuctionsAsync.when(
-                  data: (response) => Row(children: [
-                    _StatItem(value: '${response.auctions.length}', label: 'Auctions'),
-                    _StatItem(value: '4.8', label: 'Rating'),
-                    _StatItem(value: '89%', label: 'Response'),
-                    _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
-                  ]),
+                  data: (auctionResponse) {
+                    final ratingsAsync = ref.watch(userRatingsProvider(userId));
+                    
+                    return ratingsAsync.when(
+                      data: (ratingsResponse) => Row(children: [
+                        _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
+                        GestureDetector(
+                          onTap: () => context.push('/user/$userId/reviews'),
+                          child: _StatItem(
+                            value: ratingsResponse.totalRatings > 0
+                                ? ratingsResponse.average.toStringAsFixed(1)
+                                : '-',
+                            label: 'Rating',
+                          ),
+                        ),
+                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
+                      ]),
+                      loading: () => Row(children: [
+                        _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
+                        _StatItem(value: '...', label: 'Rating'),
+                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
+                      ]),
+                      error: (_, __) => Row(children: [
+                        _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
+                        _StatItem(value: '-', label: 'Rating'),
+                        _StatItem(value: '89%', label: 'Response'),
+                        _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
+                      ]),
+                    );
+                  },
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (_, __) => Row(children: [
                     _StatItem(value: '0', label: 'Auctions'),
@@ -83,6 +109,32 @@ class UserProfileScreen extends ConsumerWidget {
                     _StatItem(value: '-', label: 'Response'),
                     _StatItem(value: _memberDuration(user.createdAt), label: 'Member'),
                   ]),
+                ),
+              ),
+            ),
+            // See Reviews Button
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final ratingsAsync = ref.watch(userRatingsProvider(userId));
+                    return ratingsAsync.whenOrNull(
+                      data: (response) {
+                        if (response.totalRatings == 0) return const SizedBox.shrink();
+                        return OutlinedButton.icon(
+                          onPressed: () => context.push('/user/$userId/reviews'),
+                          icon: const Icon(Icons.rate_review),
+                          label: Text('See ${response.totalRatings} ${response.totalRatings == 1 ? 'Review' : 'Reviews'}'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            side: BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        );
+                      },
+                    ) ?? const SizedBox.shrink();
+                  },
                 ),
               ),
             ),

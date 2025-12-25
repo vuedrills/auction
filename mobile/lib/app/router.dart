@@ -27,6 +27,8 @@ import '../screens/user/user_screens.dart';
 import '../screens/legal/legal_screens.dart';
 import '../screens/states/error_states_screen.dart';
 import '../screens/rating/rate_user_screen.dart';
+import '../screens/rating/user_reviews_screen.dart';
+
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -135,6 +137,10 @@ final appRouter = GoRouter(
         userId: state.pathParameters['userId'] ?? '',
         auctionId: state.uri.queryParameters['auctionId'],
       ),
+    ),
+    GoRoute(
+      path: '/user/:id/reviews',
+      builder: (_, state) => UserReviewsScreen(userId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(path: '/waiting-list', builder: (_, __) => const WaitingListScreen()),
     
