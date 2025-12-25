@@ -174,8 +174,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   void initState() {
     super.initState();
     // Mark messages as read when opening chat
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(chatRepositoryProvider).markAsRead(widget.chatId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(chatRepositoryProvider).markAsRead(widget.chatId);
+      // Update the chat list to reflect unread count is now 0
+      final chatsNotifier = ref.read(chatsProvider.notifier);
+      await chatsNotifier.markChatAsRead(widget.chatId);
     });
   }
 

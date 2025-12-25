@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 
-/// About AirMass Screen
+/// About Trabab Screen
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
@@ -13,7 +13,7 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.backgroundLight,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
-        title: Text('About AirMass', style: AppTypography.titleLarge),
+        title: Text('About Trabab', style: AppTypography.titleLarge),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -30,7 +30,7 @@ class AboutScreen extends StatelessWidget {
               child: const Icon(Icons.gavel, size: 48, color: Colors.white),
             ),
             const SizedBox(height: 24),
-            Text('AirMass', style: AppTypography.displaySmall),
+            Text('Trabab', style: AppTypography.displaySmall),
             Text('Your Town. Your Auctions.', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
             const SizedBox(height: 8),
             Text('Version 1.0.2', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
@@ -45,7 +45,7 @@ class AboutScreen extends StatelessWidget {
                   Text('Our Mission', style: AppTypography.titleMedium),
                   const SizedBox(height: 8),
                   Text(
-                    'AirMass connects communities through local auctions. We believe in the power of neighborhood commerce - buying and selling from people you can trust, right in your own town.',
+                    'Trabab connects communities through local auctions. We believe in the power of neighborhood commerce - buying and selling from people you can trust, right in your own town.',
                     style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight, height: 1.6),
                   ),
                 ],
@@ -170,12 +170,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
             _Section(title: '2. How We Use Your Information', content: 'We use your information to provide and improve our services, process transactions, communicate with you, and ensure the security of our platform.'),
             _Section(title: '3. Information Sharing', content: 'We may share your information with other users as necessary for transactions, with service providers who assist our operations, and as required by law.'),
             _Section(title: '4. Data Security', content: 'We implement appropriate security measures to protect your personal information. However, no method of transmission over the internet is 100% secure.'),
-            _Section(title: '5. Your Rights', content: 'You have the right to access, correct, or delete your personal information. Contact us at privacy@airmass.com for any requests.'),
+            _Section(title: '5. Your Rights', content: 'You have the right to access, correct, or delete your personal information. Contact us at privacy@trabab.com for any requests.'),
             _Section(title: '6. Changes to This Policy', content: 'We may update this policy from time to time. We will notify you of any material changes through the app or via email.'),
             const SizedBox(height: 24),
             Text('Contact Us', style: AppTypography.titleMedium),
             const SizedBox(height: 8),
-            Text('If you have questions about this policy, please contact us at privacy@airmass.com', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+            Text('If you have questions about this policy, please contact us at privacy@trabab.com', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
           ],
         ),
       ),
@@ -221,12 +221,12 @@ class TermsOfServiceScreen extends StatelessWidget {
           children: [
             Text('Effective: December 2024', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
             const SizedBox(height: 24),
-            _Section(title: '1. Acceptance of Terms', content: 'By accessing or using AirMass, you agree to be bound by these Terms of Service and all applicable laws and regulations.'),
+            _Section(title: '1. Acceptance of Terms', content: 'By accessing or using Trabab, you agree to be bound by these Terms of Service and all applicable laws and regulations.'),
             _Section(title: '2. User Accounts', content: 'You must create an account to use certain features. You are responsible for maintaining the confidentiality of your account and password.'),
-            _Section(title: '3. Auction Rules', content: 'All bids are binding. Sellers must accurately describe items. Buyers must complete payment for won auctions. AirMass is not responsible for the quality of items sold.'),
-            _Section(title: '4. Prohibited Activities', content: 'You may not use AirMass for illegal activities, fraud, or to sell prohibited items. Violations may result in account suspension.'),
-            _Section(title: '5. Fees and Payments', content: 'AirMass may charge fees for certain services. Payment terms and any applicable fees will be clearly disclosed before you incur them.'),
-            _Section(title: '6. Limitation of Liability', content: 'AirMass is provided "as is" without warranties. We are not liable for any damages arising from your use of the platform.'),
+            _Section(title: '3. Auction Rules', content: 'All bids are binding. Sellers must accurately describe items. Buyers must complete payment for won auctions. Trabab is not responsible for the quality of items sold.'),
+            _Section(title: '4. Prohibited Activities', content: 'You may not use Trabab for illegal activities, fraud, or to sell prohibited items. Violations may result in account suspension.'),
+            _Section(title: '5. Fees and Payments', content: 'Trabab may charge fees for certain services. Payment terms and any applicable fees will be clearly disclosed before you incur them.'),
+            _Section(title: '6. Limitation of Liability', content: 'Trabab is provided "as is" without warranties. We are not liable for any damages arising from your use of the platform.'),
             _Section(title: '7. Dispute Resolution', content: 'Any disputes will be resolved through arbitration in accordance with Zimbabwe law.'),
           ],
         ),

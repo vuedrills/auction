@@ -171,7 +171,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   
                   // Typography
                   Text(
-                    'AirMass',
+                    'Trabab',
                     style: AppTypography.displayLarge.copyWith(
                       color: AppColors.textPrimaryLight,
                       letterSpacing: -1,

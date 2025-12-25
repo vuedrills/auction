@@ -40,6 +40,9 @@ class AppNotification {
   final DateTime createdAt;
   final Map<String, dynamic>? data;
   
+  // Helper getter for chat_id from data
+  String? get chatId => data?['chat_id'] as String?;
+  
   AppNotification({
     required this.id,
     required this.type,

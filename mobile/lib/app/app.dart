@@ -23,7 +23,7 @@ class AirMassApp extends ConsumerWidget {
 
     return NotificationManager(
       child: MaterialApp.router(
-        title: 'AirMass',
+        title: 'Trabab',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
