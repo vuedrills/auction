@@ -1031,18 +1031,20 @@ func (h *AuctionHandler) GetMyBids(c *gin.Context) {
 func (h *AuctionHandler) GetWonAuctions(c *gin.Context) {
 	userID, _ := middleware.GetUserID(c)
 
-	// Reuse existing GetAuctions query logic but filter by winner_id
-	// For simplicity in this fix, we'll write a direct query
+	// Query matches the column order expected by scanAuctions
 	rows, err := h.db.Pool.Query(context.Background(), `
 		SELECT a.id, a.title, a.description, a.starting_price, a.current_price, a.bid_increment,
 		a.seller_id, a.category_id, a.town_id, a.suburb_id, a.status, a.condition,
 		a.start_time, a.end_time, a.total_bids, a.views, a.images,
 		a.is_featured, a.created_at,
-		u.username as seller_username,
-		t.name as town_name
+		u.username, u.avatar_url,
+		c.name, c.icon,
+		t.name, s.name
 		FROM auctions a
 		LEFT JOIN users u ON a.seller_id = u.id
+		LEFT JOIN categories c ON a.category_id = c.id
 		LEFT JOIN towns t ON a.town_id = t.id
+		LEFT JOIN suburbs s ON a.suburb_id = s.id
 		WHERE a.winner_id = $1
 		ORDER BY a.end_time DESC
 	`, userID)
