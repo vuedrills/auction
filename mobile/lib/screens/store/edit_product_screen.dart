@@ -84,7 +84,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
       final newUrls = <String>[];
       
       for (var file in _newImages) {
-        final url = await storage.uploadAuctionImage(File(file.path)); // Reusing auction bucket
+        final url = await storage.uploadFile(File(file.path), 'auctions'); // Reusing auction bucket
         if (url != null) newUrls.add(url);
       }
 
