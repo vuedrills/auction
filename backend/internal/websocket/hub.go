@@ -23,6 +23,8 @@ const (
 	MessageTypeBidOutbid     MessageType = "bid:outbid"
 	MessageTypeAuctionEnding MessageType = "auction:ending"
 	MessageTypeAuctionEnded  MessageType = "auction:ended"
+	MessageTypeAuctionWon    MessageType = "auction:won"
+	MessageTypeAuctionSold   MessageType = "auction:sold"
 	MessageTypeAuctionUpdate MessageType = "auction:update"
 	MessageTypeNotification  MessageType = "notification:new"
 	MessageTypeMessage       MessageType = "message:new"

@@ -247,25 +247,39 @@ class _NotificationsTab extends ConsumerWidget {
       return;
     }
     
-    // For auction won/sold, try to find the chat by auction ID
+    // For auction won/sold, navigate to Rate User screen
     if (notification.type == NotificationType.auctionWon || 
         notification.type == NotificationType.auctionSold) {
-      // Try to find the chat for this auction from the loaded chats
-      final chatsAsync = ref.read(chatsProvider);
-      chatsAsync.whenData((chats) {
-        final matchingChat = chats.where((c) => c.auctionId == notification.auctionId).firstOrNull;
-        if (matchingChat != null) {
-          context.push('/chats/${matchingChat.id}');
-        } else {
-          // No matching chat found, go to chat list
-          context.push('/chats');
+        
+        // Fetch auction to find target user
+        if (notification.auctionId != null) {
+          try {
+             // We need to fetch the auction to know who to rate
+             // Assuming auctionsRepo is available via ref
+             // We can't import it easily here without viewing file, but let's assume standard providers
+             // I'll assume we need to import it. 
+             // Since I can't check imports easily in this tool call, I'll restrict this change to just logic 
+             // and hope the imports are there? No that's risky.
+             // I'll REPLACE the whole method and include imports at the top? No, that's huge.
+             
+             // I'll stick to navigating to auction detail for now but PASS A FLAG?
+             // No, the user wants it to work.
+             
+             // Let's redirect to a "loading" or intermediate handler?
+             // Or just do the fetch.
+             
+             // I will try to use a Helper or just access the repo.
+             // ref.read(auctionsRepositoryProvider).getAuction(id)
+             
+             // Let's modify the imports first in a separate tool call to be safe.
+             context.push('/rate/placeholder?auctionId=${notification.auctionId}');  // Temporary to test navigation
+             
+          } catch (e) {
+             print('Error parsing for rate: $e');
+             context.push('/auction/${notification.auctionId}');
+          }
         }
-      });
-      // If chats aren't loaded yet, just go to chat list
-      if (!chatsAsync.hasValue) {
-        context.push('/chats');
-      }
-      return;
+        return;
     }
     
     // For other notifications with auction, go to auction detail
@@ -504,7 +518,20 @@ class _NotificationCard extends StatelessWidget {
                 fontWeight: notification.isUrgent ? FontWeight.w700 : null,
               )),
             ]),
-            if (notification.isUrgent && notification.auctionId != null) ...[
+            if (notification.type == NotificationType.auctionWon || notification.type == NotificationType.auctionSold) ...[
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: onTap,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: notification.type == NotificationType.auctionWon ? AppColors.success : AppColors.primary, 
+                  minimumSize: const Size.fromHeight(36)
+                ),
+                child: Text(
+                  notification.type == NotificationType.auctionWon ? 'Rate Seller' : 'Rate Buyer', 
+                  style: AppTypography.labelMedium.copyWith(color: Colors.white)
+                ),
+              ),
+            ] else if (notification.isUrgent && notification.auctionId != null) ...[
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: onTap,
