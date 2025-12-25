@@ -138,10 +138,12 @@ class Auction {
 
   factory Auction.fromJson(Map<String, dynamic> json) {
     return Auction(
-      id: json['id'] as String,
-      title: json['title'] as String,
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? 'Auction',
       description: json['description'] as String?,
-      startingPrice: (json['starting_price'] as num).toDouble(),
+      startingPrice: json['starting_price'] != null 
+          ? (json['starting_price'] as num).toDouble()
+          : 0.0,
       currentPrice: json['current_price'] != null 
           ? (json['current_price'] as num).toDouble() 
           : null,
@@ -149,10 +151,10 @@ class Auction {
           ? (json['reserve_price'] as num).toDouble() 
           : null,
       bidIncrement: (json['bid_increment'] as num?)?.toDouble() ?? 1.0,
-      sellerId: json['seller_id'] as String,
+      sellerId: json['seller_id'] as String? ?? '',
       winnerId: json['winner_id'] as String?,
-      categoryId: json['category_id'] as String,
-      townId: json['town_id'] as String,
+      categoryId: json['category_id'] as String? ?? '',
+      townId: json['town_id'] as String? ?? '',
       suburbId: json['suburb_id'] as String?,
       status: AuctionStatusX.fromString(json['status'] as String? ?? 'active'),
       condition: json['condition'] as String? ?? 'used',
@@ -175,8 +177,12 @@ class Auction {
       allowOffers: json['allow_offers'] as bool? ?? false,
       pickupLocation: json['pickup_location'] as String?,
       shippingAvailable: json['shipping_available'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
       seller: json['seller'] != null 
           ? User.fromJson(json['seller'] as Map<String, dynamic>) 
           : null,
