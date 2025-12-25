@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/common/badge_widgets.dart';
 
 /// User Profile Screen (Other User) - Connected to Backend
 class UserProfileScreen extends ConsumerWidget {
@@ -128,6 +129,58 @@ class UserProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            // Badges section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final badgesAsync = ref.watch(userBadgesProvider(userId));
+                    return badgesAsync.when(
+                      data: (badges) {
+                        if (badges.isEmpty) return const SizedBox.shrink();
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified, color: AppColors.primary, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text('Badges', style: AppTypography.titleSmall),
+                                  const Spacer(),
+                                  Text(
+                                    '${badges.length} earned',
+                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: badges.map((ub) {
+                                  if (ub.badge == null) return const SizedBox.shrink();
+                                  return BadgeChip(badge: ub.badge!, showLabel: true);
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
             // See Reviews Button
             SliverToBoxAdapter(
               child: Padding(
