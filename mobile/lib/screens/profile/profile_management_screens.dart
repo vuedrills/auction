@@ -335,7 +335,7 @@ class _BidHistoryCard extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Auction', style: AppTypography.titleSmall),
+              Text(bid.auction?.title ?? 'Auction', style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
               Text('Your bid: \$${bid.amount.toStringAsFixed(2)}', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
             ])),
             _BidStatusBadge(isWinning: bid.isWinning),
