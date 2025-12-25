@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/dio_client.dart';
+import '../../core/network/websocket_service.dart';
 
 /// Notification repository provider
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
@@ -7,7 +9,7 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
 });
 
 /// Notification type
-enum NotificationType { outbid, auctionEnding, auctionWon, newAuction, watchlist, message, system }
+enum NotificationType { outbid, auctionEnding, auctionWon, auctionSold, newAuction, watchlist, message, system }
 
 extension NotificationTypeX on NotificationType {
   static NotificationType fromString(String value) {
@@ -15,6 +17,7 @@ extension NotificationTypeX on NotificationType {
       case 'outbid': return NotificationType.outbid;
       case 'auction_ending': return NotificationType.auctionEnding;
       case 'auction_won': return NotificationType.auctionWon;
+      case 'auction_sold': return NotificationType.auctionSold;
       case 'new_auction': return NotificationType.newAuction;
       case 'watchlist': return NotificationType.watchlist;
       case 'message': return NotificationType.message;
@@ -128,8 +131,42 @@ class NotificationRepository {
 /// Notification providers
 class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotification>>> {
   final NotificationRepository _repository;
+  StreamSubscription? _wsSubscription;
   
-  NotificationsNotifier(this._repository) : super(const AsyncValue.loading());
+  NotificationsNotifier(this._repository, {Stream<dynamic>? notificationStream}) : super(const AsyncValue.loading()) {
+    if (notificationStream != null) {
+      _wsSubscription = notificationStream.listen(_handleWsNotification);
+    }
+  }
+  
+  @override
+  void dispose() {
+    _wsSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _handleWsNotification(dynamic message) {
+    // message is likely a Map or a class with data
+    final data = message.data ?? {};
+    final typeStr = data['type'] as String? ?? 'system';
+    
+    final newNotif = AppNotification(
+      id: DateTime.now().toIso8601String(), // Temporary ID for real-time
+      type: NotificationTypeX.fromString(typeStr),
+      title: data['title'] as String? ?? 'New Notification',
+      body: data['body'] as String? ?? '',
+      auctionId: data['auction_id'] as String? ?? message.auctionId,
+      isRead: false,
+      isUrgent: true,
+      createdAt: DateTime.now(),
+      data: data,
+    );
+
+    state.whenData((notifications) {
+      // Avoid duplicates if possible (though temp ID makes it hard, usually we refresh anyway)
+      state = AsyncValue.data([newNotif, ...notifications]);
+    });
+  }
   
   Future<void> load({bool refresh = false}) async {
     if (!refresh) state = const AsyncValue.loading();
@@ -179,7 +216,11 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotificatio
 }
 
 final notificationsProvider = StateNotifierProvider<NotificationsNotifier, AsyncValue<List<AppNotification>>>((ref) {
-  final notifier = NotificationsNotifier(ref.read(notificationRepositoryProvider));
+  final wsService = ref.watch(wsServiceProvider);
+  final notifier = NotificationsNotifier(
+    ref.read(notificationRepositoryProvider),
+    notificationStream: wsService.notifications,
+  );
   notifier.load();
   return notifier;
 });

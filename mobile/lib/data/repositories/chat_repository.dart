@@ -29,15 +29,17 @@ class ChatMessage {
   });
   
   factory ChatMessage.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
-    final senderId = json['sender_id'] as String;
+    final senderId = (json['sender_id'] as String?) ?? '';
     return ChatMessage(
-      id: json['id'] as String,
-      chatId: json['chat_id'] as String,
+      id: (json['id'] as String?) ?? '',
+      chatId: (json['chat_id'] as String?) ?? '',
       senderId: senderId,
       content: json['content'] as String? ?? '',
       imageUrl: json['image_url'] as String?,
       isRead: json['is_read'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String) 
+          : DateTime.now(),
       isMe: currentUserId != null && senderId == currentUserId,
     );
   }
@@ -71,18 +73,20 @@ class ChatThread {
   
   factory ChatThread.fromJson(Map<String, dynamic> json) {
     return ChatThread(
-      id: json['id'] as String,
-      auctionId: json['auction_id'] as String,
+      id: (json['id'] as String?) ?? '',
+      auctionId: (json['auction_id'] as String?) ?? '',
       auctionTitle: json['auction_title'] as String? ?? '',
       auctionImage: json['auction_image'] as String?,
-      participantId: json['participant_id'] as String,
+      participantId: (json['participant_id'] as String?) ?? '',
       participantName: json['participant_name'] as String? ?? 'User',
       participantAvatar: json['participant_avatar'] as String?,
-      lastMessage: json['last_message'] != null 
+      lastMessage: (json['last_message'] != null && json['last_message']['content'] != null)
           ? ChatMessage.fromJson(json['last_message'] as Map<String, dynamic>)
           : null,
       unreadCount: json['unread_count'] as int? ?? 0,
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at'] as String) 
+          : DateTime.now(),
     );
   }
 }

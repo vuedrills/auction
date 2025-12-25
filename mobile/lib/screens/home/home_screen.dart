@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
+import '../../data/repositories/notification_repository.dart';
 import '../../widgets/navigation/bottom_nav_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../profile/profile_screen.dart';
@@ -40,6 +41,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
+    
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: IndexedStack(
@@ -54,6 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTabSelected: _onTabSelected,
+        notificationBadgeCount: unreadCount,
       ),
       extendBody: true,
     );

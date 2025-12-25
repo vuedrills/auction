@@ -161,8 +161,7 @@ class WebSocketService {
     
     try {
       final token = await _storage.getToken();
-      final wsUrl = ApiConfig.baseUrl.replaceFirst('http', 'ws');
-      final uri = Uri.parse('$wsUrl/ws${token != null ? "?token=$token" : ""}');
+      final uri = Uri.parse('${ApiConfig.wsUrl}${token != null ? "?token=$token" : ""}');
       
       _channel = WebSocketChannel.connect(uri);
       

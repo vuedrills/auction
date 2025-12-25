@@ -84,6 +84,19 @@ func (h *ChatHandler) GetChats(c *gin.Context) {
 			img = auctionImages[0]
 		}
 
+		var lastMsgObj interface{}
+		if lastMsg != nil {
+			lastMsgObj = gin.H{
+				"content":    lastMsg,
+				"created_at": lastMsgAt,
+			}
+		}
+
+		updatedAt := time.Now()
+		if lastMsgAt != nil {
+			updatedAt = *lastMsgAt
+		}
+
 		chats = append(chats, gin.H{
 			"id":                 id,
 			"auction_id":         auctionID,
@@ -92,12 +105,9 @@ func (h *ChatHandler) GetChats(c *gin.Context) {
 			"participant_id":     otherID,
 			"participant_name":   otherName,
 			"participant_avatar": otherAvatar,
-			"last_message": gin.H{
-				"content":    lastMsg,
-				"created_at": lastMsgAt,
-			},
-			"unread_count": unread,
-			"updated_at":   lastMsgAt,
+			"last_message":       lastMsgObj,
+			"unread_count":       unread,
+			"updated_at":         updatedAt,
 		})
 	}
 

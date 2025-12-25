@@ -97,6 +97,7 @@ class NotificationDetailScreen extends ConsumerWidget {
     switch (type) {
       case NotificationType.outbid: return Icons.gavel;
       case NotificationType.auctionWon: return Icons.emoji_events;
+      case NotificationType.auctionSold: return Icons.sell;
       case NotificationType.auctionEnding: return Icons.timer;
       case NotificationType.newAuction: return Icons.fiber_new;
       case NotificationType.watchlist: return Icons.bookmark;
@@ -109,6 +110,7 @@ class NotificationDetailScreen extends ConsumerWidget {
     switch (type) {
       case NotificationType.outbid: return AppColors.warning;
       case NotificationType.auctionWon: return AppColors.success;
+      case NotificationType.auctionSold: return AppColors.success;
       case NotificationType.auctionEnding: return AppColors.secondary;
       case NotificationType.newAuction: return AppColors.primary;
       case NotificationType.watchlist: return AppColors.info;
