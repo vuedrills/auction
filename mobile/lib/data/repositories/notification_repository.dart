@@ -41,7 +41,12 @@ class AppNotification {
   final Map<String, dynamic>? data;
   
   // Helper getter for chat_id from data
-  String? get chatId => data?['chat_id'] as String?;
+  // Handle both String and other types (UUID might come as different formats)
+  String? get chatId {
+    final value = data?['chat_id'];
+    if (value == null) return null;
+    return value.toString();
+  }
   
   AppNotification({
     required this.id,

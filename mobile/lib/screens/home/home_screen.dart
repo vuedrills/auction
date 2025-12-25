@@ -606,7 +606,23 @@ class _AuctionCard extends StatelessWidget {
                   children: [
                     Text(auction.title, style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
-                    Text(auction.suburb?.name ?? auction.town?.name ?? '', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(auction.suburb?.name ?? auction.town?.name ?? '', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                        ),
+                        // Only show bid count when there's at least 1 bid
+                        if (auction.totalBids > 0)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.gavel_rounded, size: 10, color: AppColors.textSecondaryLight),
+                              const SizedBox(width: 2),
+                              Text('${auction.totalBids}', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                            ],
+                          ),
+                      ],
+                    ),
                     const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
