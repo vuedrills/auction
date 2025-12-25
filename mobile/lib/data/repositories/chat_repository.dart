@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/dio_client.dart';
+import '../../core/network/websocket_service.dart';
 
 /// Chat repository provider
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
@@ -139,16 +141,135 @@ class ChatRepository {
   }
 }
 
+/// Managing the list of chat threads with real-time updates
+class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
+  final ChatRepository _repository;
+  StreamSubscription? _subscription;
+
+  ChatsNotifier(this._repository, {Stream<WsMessage>? messageStream}) : super(const AsyncValue.loading()) {
+    if (messageStream != null) {
+      _subscription = messageStream.listen(_handleNewMessage);
+    }
+  }
+
+  Future<void> load() async {
+    try {
+      final chats = await _repository.getChats();
+      state = AsyncValue.data(chats);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  void _handleNewMessage(WsMessage wsMsg) {
+    if (wsMsg.type != WsMessageType.messageNew || wsMsg.data == null) return;
+    
+    final newMsg = ChatMessage.fromJson(wsMsg.data!);
+    
+    state.whenData((chats) {
+      final chatIndex = chats.indexWhere((c) => c.id == newMsg.chatId);
+      if (chatIndex != -1) {
+        final existingChat = chats[chatIndex];
+        final updatedChat = ChatThread(
+          id: existingChat.id,
+          auctionId: existingChat.auctionId,
+          auctionTitle: existingChat.auctionTitle,
+          auctionImage: existingChat.auctionImage,
+          participantId: existingChat.participantId,
+          participantName: existingChat.participantName,
+          participantAvatar: existingChat.participantAvatar,
+          lastMessage: newMsg,
+          unreadCount: existingChat.unreadCount + 1,
+          updatedAt: newMsg.createdAt,
+        );
+        
+        // Move updated chat to top
+        final List<ChatThread> newList = List.from(chats);
+        newList.removeAt(chatIndex);
+        newList.insert(0, updatedChat);
+        state = AsyncValue.data(newList);
+      } else {
+        // If chat is new, reload all for simplicity
+        load();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+}
+
+/// Managing messages for a specific chat with real-time updates
+class ChatMessagesNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> {
+  final ChatRepository _repository;
+  final String chatId;
+  final String? currentUserId;
+  StreamSubscription? _subscription;
+
+  ChatMessagesNotifier(this._repository, {required this.chatId, this.currentUserId, Stream<WsMessage>? messageStream}) 
+      : super(const AsyncValue.loading()) {
+    if (messageStream != null) {
+      _subscription = messageStream.listen(_handleNewMessage);
+    }
+  }
+
+  Future<void> load() async {
+    try {
+      final messages = await _repository.getMessages(chatId, currentUserId: currentUserId);
+      state = AsyncValue.data(messages);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  void _handleNewMessage(WsMessage wsMsg) {
+    if (wsMsg.type != WsMessageType.messageNew || wsMsg.data == null) return;
+    
+    final newMsg = ChatMessage.fromJson(wsMsg.data!, currentUserId: currentUserId);
+    if (newMsg.chatId != chatId) return;
+
+    state.whenData((messages) {
+      // Avoid duplicates
+      if (messages.any((m) => m.id == newMsg.id)) return;
+      
+      // Messages are descending in state (handled by ListView reverse builder and ordering logic)
+      // Actually our repository returns them descending (newest first)
+      // We want to add it to the start of the list if it's newest
+      state = AsyncValue.data([newMsg, ...messages]);
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+}
+
 /// Chat providers
-final chatsProvider = FutureProvider<List<ChatThread>>((ref) async {
-  final repository = ref.read(chatRepositoryProvider);
-  return repository.getChats();
+final chatsProvider = StateNotifierProvider<ChatsNotifier, AsyncValue<List<ChatThread>>>((ref) {
+  final wsService = ref.watch(wsServiceProvider);
+  final notifier = ChatsNotifier(
+    ref.read(chatRepositoryProvider),
+    messageStream: wsService.messages,
+  );
+  notifier.load();
+  return notifier;
 });
 
-/// Chat messages provider with current user ID for isMe
-final chatMessagesProvider = FutureProvider.family<List<ChatMessage>, ({String chatId, String? userId})>((ref, params) async {
-  final repository = ref.read(chatRepositoryProvider);
-  return repository.getMessages(params.chatId, currentUserId: params.userId);
+final chatMessagesProvider = StateNotifierProvider.family<ChatMessagesNotifier, AsyncValue<List<ChatMessage>>, ({String chatId, String? userId})>((ref, params) {
+  final wsService = ref.watch(wsServiceProvider);
+  final notifier = ChatMessagesNotifier(
+    ref.read(chatRepositoryProvider),
+    chatId: params.chatId,
+    currentUserId: params.userId,
+    messageStream: wsService.messages,
+  );
+  notifier.load();
+  return notifier;
 });
 
 /// Unread chat count

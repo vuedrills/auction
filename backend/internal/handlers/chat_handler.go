@@ -188,14 +188,44 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
-	// Update conversation last message and unread count
-	// This logic is complex (needs to increment unread count for the OTHER user)
-	// Simplified for now: just update last_message stuff
-	h.db.Pool.Exec(context.Background(), `
-		UPDATE conversations 
-		SET last_message_preview = $2, last_message_at = $3
-		WHERE id = $1
-	`, chatID, req.Content, createdAt)
+	// Fetch other participant to broadcast
+	var p1, p2 uuid.UUID
+	err = h.db.Pool.QueryRow(context.Background(), "SELECT participant_1, participant_2 FROM conversations WHERE id = $1", chatID).Scan(&p1, &p2)
+	if err == nil {
+		otherID := p1
+		if p1 == userID {
+			otherID = p2
+		}
+
+		// Update conversation last message and unread count
+		h.db.Pool.Exec(context.Background(), `
+			UPDATE conversations 
+			SET last_message_preview = $2, last_message_at = $3
+			WHERE id = $1
+		`, chatID, req.Content, createdAt)
+
+		// Broadcast to sender (marked as read since they sent it)
+		h.hub.BroadcastToUser(userID, websocket.MessageTypeMessage, gin.H{
+			"id":         msgID,
+			"chat_id":    chatID,
+			"sender_id":  userID,
+			"content":    req.Content,
+			"image_url":  req.ImageURL,
+			"is_read":    true,
+			"created_at": createdAt,
+		})
+
+		// Broadcast to recipient (marked as unread)
+		h.hub.BroadcastToUser(otherID, websocket.MessageTypeMessage, gin.H{
+			"id":         msgID,
+			"chat_id":    chatID,
+			"sender_id":  userID,
+			"content":    req.Content,
+			"image_url":  req.ImageURL,
+			"is_read":    false,
+			"created_at": createdAt,
+		})
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":         msgID,

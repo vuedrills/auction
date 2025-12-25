@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../network/websocket_service.dart';
+import '../../data/providers/websocket_provider.dart';
 import './push_notification_service.dart';
 
 /// Wraps the app to listen for global WebSocket notifications and show Snackbars
@@ -21,6 +22,11 @@ class _NotificationManagerState extends ConsumerState<NotificationManager> {
   @override
   void initState() {
     super.initState();
+    
+    // Connect WebSocket globally for real-time updates (chat, notifications, etc.)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(wsManagerProvider.notifier).connect();
+    });
     
     // Initialize push notifications
     WidgetsBinding.instance.addPostFrameCallback((_) {
