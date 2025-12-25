@@ -61,7 +61,7 @@ class _ChatListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.push('/chat/${chat.id}'),
+      onTap: () => context.push('/chats/${chat.id}'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -250,7 +250,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: messages.length,
                 itemBuilder: (_, i) {
-                  final msg = messages[messages.length - 1 - i];
+                  final msg = messages[i];
                   return _MessageBubble(message: msg);
                 },
               ),

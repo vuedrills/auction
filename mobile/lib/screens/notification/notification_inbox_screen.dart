@@ -166,6 +166,15 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
 
   void _handleNotificationTap(AppNotification notification) {
     ref.read(notificationsProvider.notifier).markAsRead(notification.id);
+    
+    // For auction won/sold, navigate to chats to message the other party
+    if (notification.type == NotificationType.auctionWon || 
+        notification.type == NotificationType.auctionSold) {
+      context.push('/chats');
+      return;
+    }
+    
+    // For other notifications with auction, go to auction detail
     if (notification.auctionId != null) {
       context.push('/auction/${notification.auctionId}');
     }
@@ -206,7 +215,11 @@ class _NotificationCard extends StatelessWidget {
         color = AppColors.warning;
         break;
       case NotificationType.auctionWon:
-        icon = Icons.check_circle;
+        icon = Icons.emoji_events;
+        color = AppColors.success;
+        break;
+      case NotificationType.auctionSold:
+        icon = Icons.sell;
         color = AppColors.success;
         break;
       case NotificationType.newAuction:

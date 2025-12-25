@@ -6,19 +6,22 @@ import (
 	"time"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/services"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/google/uuid"
 )
 
 type AuctionWorker struct {
-	db  *database.DB
-	hub *websocket.Hub
+	db              *database.DB
+	hub             *websocket.Hub
+	notificationSvc *services.NotificationService
 }
 
 func NewAuctionWorker(db *database.DB, hub *websocket.Hub) *AuctionWorker {
 	return &AuctionWorker{
-		db:  db,
-		hub: hub,
+		db:              db,
+		hub:             hub,
+		notificationSvc: services.NewNotificationService(db, hub),
 	}
 }
 
@@ -52,30 +55,78 @@ func (w *AuctionWorker) processAuctions() {
 }
 
 func (w *AuctionWorker) endExpiredAuctions(ctx context.Context) {
-	rows, err := w.db.Pool.Query(ctx,
-		"SELECT id, title, town_id, category_id FROM auctions WHERE status IN ('active', 'ending_soon') AND end_time <= NOW()")
+	rows, err := w.db.Pool.Query(ctx, `
+		SELECT id, title, seller_id, town_id, category_id 
+		FROM auctions 
+		WHERE status IN ('active', 'ending_soon') AND end_time <= NOW()
+	`)
 	if err != nil {
 		return
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var id uuid.UUID
+		var auctionID, sellerID, townID, categoryID uuid.UUID
 		var title string
-		var townID, categoryID uuid.UUID
-		if err := rows.Scan(&id, &title, &townID, &categoryID); err != nil {
+		if err := rows.Scan(&auctionID, &title, &sellerID, &townID, &categoryID); err != nil {
 			continue
 		}
 
-		// Update status to 'ended'
-		w.db.Pool.Exec(ctx, "UPDATE auctions SET status = 'ended' WHERE id = $1", id)
+		// Find highest bidder
+		var winnerID uuid.UUID
+		var winnerName string
+		var finalAmount float64
+		err := w.db.Pool.QueryRow(ctx, `
+			SELECT b.bidder_id, u.full_name, b.amount
+			FROM bids b
+			JOIN users u ON u.id = b.bidder_id
+			WHERE b.auction_id = $1
+			ORDER BY b.amount DESC
+			LIMIT 1
+		`, auctionID).Scan(&winnerID, &winnerName, &finalAmount)
 
-		log.Printf("Auction ended: %s (%s)", title, id)
+		if err != nil {
+			// No bids - just end the auction
+			w.db.Pool.Exec(ctx, "UPDATE auctions SET status = 'ended' WHERE id = $1", auctionID)
 
-		// Broadcast update
+			// Notify seller that auction ended with no bids
+			w.notificationSvc.SendAuctionEndedNotification(ctx, sellerID, auctionID, title)
+
+			log.Printf("⏰ Auction ended with no bids: %s (%s)", title, auctionID)
+		} else {
+			// Update auction with winner
+			_, err = w.db.Pool.Exec(ctx, `
+				UPDATE auctions 
+				SET status = 'ended', winner_id = $1, final_amount = $2 
+				WHERE id = $3
+			`, winnerID, finalAmount, auctionID)
+
+			if err != nil {
+				log.Printf("Error updating auction winner: %v", err)
+				continue
+			}
+
+			// Create conversation between winner and seller first
+			conversationID, err := w.notificationSvc.CreateConversation(ctx, auctionID, sellerID, winnerID)
+			if err != nil {
+				log.Printf("Error creating conversation: %v", err)
+			} else {
+				log.Printf("💬 Created conversation %s for auction %s", conversationID, auctionID)
+			}
+
+			// Send notification to winner
+			w.notificationSvc.SendAuctionWonNotification(ctx, winnerID, auctionID, conversationID, title, finalAmount)
+
+			// Send notification to seller
+			w.notificationSvc.SendAuctionSoldNotification(ctx, sellerID, auctionID, conversationID, title, winnerName, finalAmount)
+
+			log.Printf("🏆 Auction won: %s (%s) by %s for R%.2f", title, auctionID, winnerName, finalAmount)
+		}
+
+		// Broadcast update to town
 		w.hub.BroadcastToTown(townID, websocket.MessageTypeAuctionUpdate, map[string]interface{}{
 			"action":     "auction_ended",
-			"auction_id": id,
+			"auction_id": auctionID,
 			"title":      title,
 		})
 	}

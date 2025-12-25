@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme.dart';
+import '../core/services/notification_manager.dart';
 
 /// Main AirMass App widget
 class AirMassApp extends ConsumerWidget {
@@ -20,13 +21,15 @@ class AirMassApp extends ConsumerWidget {
       ),
     );
 
-    return MaterialApp.router(
-      title: 'AirMass',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.light,
-      routerConfig: appRouter,
+    return NotificationManager(
+      child: MaterialApp.router(
+        title: 'AirMass',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.light,
+        routerConfig: appRouter,
+      ),
     );
   }
 }

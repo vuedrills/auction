@@ -6,11 +6,13 @@ import '../../app/theme.dart';
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTabSelected;
+  final int notificationBadgeCount;
 
   const BottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTabSelected,
+    this.notificationBadgeCount = 0,
   });
 
   @override
@@ -59,7 +61,7 @@ class BottomNavBar extends StatelessWidget {
                 label: 'Inbox',
                 isSelected: currentIndex == 3,
                 onTap: () => onTabSelected(3),
-                badgeCount: 3,
+                badgeCount: notificationBadgeCount,
               ),
               _NavItem(
                 icon: Icons.person_rounded,
