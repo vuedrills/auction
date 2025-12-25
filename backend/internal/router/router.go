@@ -25,6 +25,8 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
 	chatHandler := handlers.NewChatHandler(db, hub)
 	badgeHandler := handlers.NewBadgeHandler(db)
+	storeHandler := handlers.NewStoreHandler(db)
+	productHandler := handlers.NewProductHandler(db)
 	wsHandler := websocket.NewHandler(hub, jwtService)
 
 	// Health check
@@ -126,6 +128,40 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 		{
 			badges.GET("", badgeHandler.GetBadges)
 		}
+
+		// Stores (Seller Storefronts)
+		stores := api.Group("/stores")
+		{
+			stores.GET("", storeHandler.GetStores)
+			stores.GET("/categories", storeHandler.GetStoreCategories)
+			stores.GET("/featured", storeHandler.GetFeaturedStores)
+			stores.GET("/nearby", middleware.Auth(jwtService), storeHandler.GetNearbyStores)
+			stores.GET("/:slug", middleware.OptionalAuth(jwtService), storeHandler.GetStore)
+			stores.GET("/:slug/products", productHandler.GetStoreProducts)
+
+			// My store management (authenticated)
+			stores.POST("", middleware.Auth(jwtService), storeHandler.CreateStore)
+			stores.GET("/me", middleware.Auth(jwtService), storeHandler.GetMyStore)
+			stores.PUT("/me", middleware.Auth(jwtService), storeHandler.UpdateMyStore)
+			stores.GET("/me/products", middleware.Auth(jwtService), productHandler.GetMyProducts)
+			stores.POST("/me/products", middleware.Auth(jwtService), productHandler.CreateProduct)
+
+			// Follow system
+			stores.POST("/:id/follow", middleware.Auth(jwtService), storeHandler.FollowStore)
+			stores.DELETE("/:id/follow", middleware.Auth(jwtService), storeHandler.UnfollowStore)
+		}
+
+		// Products
+		products := api.Group("/products")
+		{
+			products.GET("/search", productHandler.SearchProducts)
+			products.GET("/:id", productHandler.GetProduct)
+			products.PUT("/:id", middleware.Auth(jwtService), productHandler.UpdateProduct)
+			products.DELETE("/:id", middleware.Auth(jwtService), productHandler.DeleteProduct)
+		}
+
+		// Following stores
+		api.GET("/users/me/following-stores", middleware.Auth(jwtService), storeHandler.GetFollowingStores)
 
 		// Auctions
 		auctions := api.Group("/auctions")
