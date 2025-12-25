@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 // StoreCategory represents a store category for browsing
@@ -20,32 +19,32 @@ type StoreCategory struct {
 
 // Store represents a seller's storefront
 type Store struct {
-	ID                     uuid.UUID      `json:"id"`
-	UserID                 uuid.UUID      `json:"user_id"`
-	StoreName              string         `json:"store_name"`
-	Slug                   string         `json:"slug"`
-	Tagline                *string        `json:"tagline,omitempty"`
-	About                  *string        `json:"about,omitempty"`
-	LogoURL                *string        `json:"logo_url,omitempty"`
-	CoverURL               *string        `json:"cover_url,omitempty"`
-	CategoryID             *uuid.UUID     `json:"category_id,omitempty"`
-	WhatsApp               *string        `json:"whatsapp,omitempty"`
-	Phone                  *string        `json:"phone,omitempty"`
-	DeliveryOptions        pq.StringArray `json:"delivery_options"`
-	DeliveryRadiusKm       *int           `json:"delivery_radius_km,omitempty"`
-	OperatingHours         *string        `json:"operating_hours,omitempty"` // JSON string
-	TownID                 *uuid.UUID     `json:"town_id,omitempty"`
-	SuburbID               *uuid.UUID     `json:"suburb_id,omitempty"`
-	IsActive               bool           `json:"is_active"`
-	IsVerified             bool           `json:"is_verified"`
-	IsFeatured             bool           `json:"is_featured"`
-	TotalProducts          int            `json:"total_products"`
-	TotalSales             int            `json:"total_sales"`
-	FollowerCount          int            `json:"follower_count"`
-	AvgResponseTimeMinutes *int           `json:"avg_response_time_minutes,omitempty"`
-	Views                  int            `json:"views"`
-	CreatedAt              time.Time      `json:"created_at"`
-	UpdatedAt              time.Time      `json:"updated_at"`
+	ID                     uuid.UUID  `json:"id"`
+	UserID                 uuid.UUID  `json:"user_id"`
+	StoreName              string     `json:"store_name"`
+	Slug                   string     `json:"slug"`
+	Tagline                *string    `json:"tagline,omitempty"`
+	About                  *string    `json:"about,omitempty"`
+	LogoURL                *string    `json:"logo_url,omitempty"`
+	CoverURL               *string    `json:"cover_url,omitempty"`
+	CategoryID             *uuid.UUID `json:"category_id,omitempty"`
+	WhatsApp               *string    `json:"whatsapp,omitempty"`
+	Phone                  *string    `json:"phone,omitempty"`
+	DeliveryOptions        []string   `json:"delivery_options"`
+	DeliveryRadiusKm       *int       `json:"delivery_radius_km,omitempty"`
+	OperatingHours         *string    `json:"operating_hours,omitempty"` // JSON string
+	TownID                 *uuid.UUID `json:"town_id,omitempty"`
+	SuburbID               *uuid.UUID `json:"suburb_id,omitempty"`
+	IsActive               bool       `json:"is_active"`
+	IsVerified             bool       `json:"is_verified"`
+	IsFeatured             bool       `json:"is_featured"`
+	TotalProducts          int        `json:"total_products"`
+	TotalSales             int        `json:"total_sales"`
+	FollowerCount          int        `json:"follower_count"`
+	AvgResponseTimeMinutes *int       `json:"avg_response_time_minutes,omitempty"`
+	Views                  int        `json:"views"`
+	CreatedAt              time.Time  `json:"created_at"`
+	UpdatedAt              time.Time  `json:"updated_at"`
 
 	// Joined fields
 	Owner         *User          `json:"owner,omitempty"`
@@ -58,23 +57,23 @@ type Store struct {
 
 // Product represents a fixed-price product in a store
 type Product struct {
-	ID             uuid.UUID      `json:"id"`
-	StoreID        uuid.UUID      `json:"store_id"`
-	Title          string         `json:"title"`
-	Description    *string        `json:"description,omitempty"`
-	Price          float64        `json:"price"`
-	CompareAtPrice *float64       `json:"compare_at_price,omitempty"`
-	PricingType    string         `json:"pricing_type"` // fixed, negotiable, service
-	CategoryID     *uuid.UUID     `json:"category_id,omitempty"`
-	Condition      string         `json:"condition"` // new, used, refurbished
-	Images         pq.StringArray `json:"images"`
-	StockQuantity  int            `json:"stock_quantity"`
-	IsAvailable    bool           `json:"is_available"`
-	IsFeatured     bool           `json:"is_featured"`
-	Views          int            `json:"views"`
-	Enquiries      int            `json:"enquiries"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
+	ID             uuid.UUID  `json:"id"`
+	StoreID        uuid.UUID  `json:"store_id"`
+	Title          string     `json:"title"`
+	Description    *string    `json:"description,omitempty"`
+	Price          float64    `json:"price"`
+	CompareAtPrice *float64   `json:"compare_at_price,omitempty"`
+	PricingType    string     `json:"pricing_type"` // fixed, negotiable, service
+	CategoryID     *uuid.UUID `json:"category_id,omitempty"`
+	Condition      string     `json:"condition"` // new, used, refurbished
+	Images         []string   `json:"images"`
+	StockQuantity  int        `json:"stock_quantity"`
+	IsAvailable    bool       `json:"is_available"`
+	IsFeatured     bool       `json:"is_featured"`
+	Views          int        `json:"views"`
+	Enquiries      int        `json:"enquiries"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 
 	// Joined fields
 	Store    *Store    `json:"store,omitempty"`
