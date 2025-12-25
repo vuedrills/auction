@@ -142,9 +142,9 @@ final appRouter = GoRouter(
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
     
     // Chat
-    GoRoute(path: '/chat', builder: (_, __) => const ChatListScreen()),
+    GoRoute(path: '/chats', builder: (_, __) => const ChatListScreen()),
     GoRoute(
-      path: '/chat/:id',
+      path: '/chats/:id',
       builder: (_, state) => ChatDetailScreen(chatId: state.pathParameters['id'] ?? ''),
     ),
     

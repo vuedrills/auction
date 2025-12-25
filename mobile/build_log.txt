@@ -1,0 +1,30 @@
+Launching lib/main.dart on iPhone 16 Pro in debug mode...
+Running Xcode build...                                          
+Xcode build done.                                            7.3s
+Failed to build iOS app
+Error output from Xcode build:
+↳
+    --- xcodebuild: WARNING: Using the first of multiple matching destinations:
+    { platform:iOS Simulator, arch:arm64, id:5DE4F2A8-27F0-4453-8ACC-B5D133B36865, OS:18.6, name:iPhone 16 Pro }
+    { platform:iOS Simulator, arch:x86_64, id:5DE4F2A8-27F0-4453-8ACC-B5D133B36865, OS:18.6, name:iPhone 16 Pro }
+    ** BUILD FAILED **
+
+
+Xcode's output:
+↳
+    Writing result bundle at path:
+    	/var/folders/nf/84qy3whn08g80gllx81rlx2m0000gn/T/flutter_tools.vYNmeR/flutter_ios_build_temp_dirnuyOLf/temporary_xcresult_bundle
+
+    lib/app/app.dart:23:12: Error: The method 'NotificationManager' isn't defined for the type 'AirMassApp'.
+     - 'AirMassApp' is from 'package:airmass_mobile/app/app.dart' ('lib/app/app.dart').
+    Try correcting the name to the name of an existing method, or defining a method named 'NotificationManager'.
+        return NotificationManager(
+               ^^^^^^^^^^^^^^^^^^^
+    Target kernel_snapshot_program failed: Exception
+    Failed to package /Users/taps/Development/property/trabab/mobile.
+    Command PhaseScriptExecution failed with a nonzero exit code
+    note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+    note: Run script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+
+Could not build the application for the simulator.
+Error launching application on iPhone 16 Pro.
