@@ -75,10 +75,10 @@ class _ChatListItem extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  backgroundImage: chat.participantAvatar != null
+                  backgroundImage: (chat.participantAvatar != null && chat.participantAvatar!.isNotEmpty)
                     ? CachedNetworkImageProvider(chat.participantAvatar!)
                     : null,
-                  child: chat.participantAvatar == null
+                  child: (chat.participantAvatar == null || chat.participantAvatar!.isEmpty)
                     ? Text(chat.participantName[0].toUpperCase(), style: AppTypography.headlineSmall.copyWith(color: AppColors.primary))
                     : null,
                 ),
@@ -218,23 +218,52 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         title: messagesAsync.when(
           loading: () => const Text('Loading...'),
           error: (_, __) => const Text('Chat'),
-          data: (messages) => Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                child: Text('U', style: TextStyle(color: AppColors.primary)),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Chat', style: AppTypography.titleSmall),
-                  Text('${messages.length} messages', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
-                ],
-              ),
-            ],
-          ),
+          data: (messages) {
+            // Find chat thread info from chatsProvider safely
+            final chatsAsync = ref.watch(chatsProvider);
+            final chat = chatsAsync.maybeWhen(
+              data: (list) {
+                try {
+                  return list.firstWhere((c) => c.id == widget.chatId);
+                } catch (_) {
+                  return null;
+                }
+              },
+              orElse: () => null,
+            );
+
+            final hasAvatar = chat?.participantAvatar != null && chat!.participantAvatar!.isNotEmpty;
+
+            return Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  backgroundImage: hasAvatar
+                      ? CachedNetworkImageProvider(chat.participantAvatar!)
+                      : null,
+                  child: !hasAvatar
+                      ? Text(chat?.participantName[0].toUpperCase() ?? '?', style: TextStyle(color: AppColors.primary, fontSize: 14))
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(chat?.participantName ?? 'Chat', style: AppTypography.titleSmall),
+                      Text(
+                        chat?.auctionTitle ?? '${messages.length} messages',
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
@@ -247,16 +276,20 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             child: messagesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error: $e')),
-              data: (messages) => ListView.builder(
-                controller: _scrollController,
-                reverse: true,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: messages.length,
-                itemBuilder: (_, i) {
-                  final msg = messages[i];
-                  return _MessageBubble(message: msg);
-                },
-              ),
+              data: (messages) {
+                return ListView.builder(
+                  controller: _scrollController,
+                  reverse: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: messages.length,
+                  itemBuilder: (_, i) {
+                    final msg = messages[i];
+                    return _MessageBubble(
+                      message: msg,
+                    );
+                  },
+                );
+              },
             ),
           ),
           
@@ -324,53 +357,70 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: message.isMe ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(message.isMe ? 16 : 4),
-            bottomRight: Radius.circular(message.isMe ? 4 : 16),
-          ),
-        ),
-        child: Column(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              message.content,
-              style: AppTypography.bodyMedium.copyWith(
-                color: message.isMe ? Colors.white : AppColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _formatTime(message.createdAt),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: message.isMe ? Colors.white70 : AppColors.textSecondaryLight,
+            Flexible(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: message.isMe ? AppColors.primary : Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(16),
+                    topRight: const Radius.circular(16),
+                    bottomLeft: Radius.circular(message.isMe ? 16 : 4),
+                    bottomRight: Radius.circular(message.isMe ? 4 : 16),
                   ),
+                  boxShadow: [
+                    if (!message.isMe)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                  ],
                 ),
-                if (message.isMe) ...[
-                  const SizedBox(width: 4),
-                  Icon(
-                    message.isRead ? Icons.done_all : Icons.done,
-                    size: 14,
-                    color: message.isRead ? Colors.white : Colors.white70,
-                  ),
-                ],
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      message.content,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: message.isMe ? Colors.white : AppColors.textPrimaryLight,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _formatTime(message.createdAt),
+                          style: AppTypography.labelSmall.copyWith(
+                            color: message.isMe ? Colors.white70 : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                        if (message.isMe) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            message.isRead ? Icons.done_all : Icons.done,
+                            size: 14,
+                            color: message.isRead ? Colors.white : Colors.white70,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 

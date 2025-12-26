@@ -268,9 +268,19 @@ class ProfileScreen extends ConsumerWidget {
     );
     
     if (confirmed == true) {
-      await ref.read(authProvider.notifier).logout();
-      if (context.mounted) {
-        context.go('/login');
+      print('DEBUG: Logout confirmed, calling ref.read(authProvider.notifier).logout()');
+      try {
+        await ref.read(authProvider.notifier).logout();
+        print('DEBUG: logout() returned, checking context.mounted');
+        if (context.mounted) {
+          context.go('/login');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Logout failed: $e'), backgroundColor: AppColors.error),
+          );
+        }
       }
     }
   }

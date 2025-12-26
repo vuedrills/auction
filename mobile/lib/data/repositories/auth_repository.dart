@@ -62,7 +62,7 @@ class AuthRepository {
   
   /// Logout
   Future<void> logout() async {
-    await _storage.deleteToken();
+    await _storage.clearAll();
   }
   
   /// Get current user
@@ -103,6 +103,11 @@ class AuthRepository {
   /// Forgot password
   Future<void> forgotPassword(String email) async {
     await _client.post('/auth/forgot-password', data: {'email': email});
+  }
+  
+  /// Request verification email
+  Future<void> sendVerificationEmail() async {
+    await _client.post('/auth/send-verification');
   }
   
   /// Verify email

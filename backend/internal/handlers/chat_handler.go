@@ -29,9 +29,9 @@ func (h *ChatHandler) GetChats(c *gin.Context) {
 	rows, err := h.db.Pool.Query(context.Background(), `
 		SELECT c.id, c.auction_id, c.participant_1, c.participant_2, 
 			   c.last_message_preview, c.last_message_at, c.unread_count_1, c.unread_count_2,
-			   a.title, a.images,
-			   u1.username, u1.avatar_url,
-			   u2.username, u2.avatar_url
+			   COALESCE(a.title, ''), a.images,
+			   COALESCE(NULLIF(u1.full_name, ''), u1.username, 'Unknown'), u1.avatar_url,
+			   COALESCE(NULLIF(u2.full_name, ''), u2.username, 'Unknown'), u2.avatar_url
 		FROM conversations c
 		LEFT JOIN auctions a ON c.auction_id = a.id
 		LEFT JOIN users u1 ON c.participant_1 = u1.id
@@ -197,12 +197,14 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 			otherID = p2
 		}
 
-		// Update conversation last message and unread count
+		// Update conversation last message and increment recipient's unread count
 		h.db.Pool.Exec(context.Background(), `
 			UPDATE conversations 
-			SET last_message_preview = $2, last_message_at = $3
+			SET last_message_preview = $2, last_message_at = $3,
+				unread_count_1 = CASE WHEN participant_1 = $4 THEN unread_count_1 + 1 ELSE unread_count_1 END,
+				unread_count_2 = CASE WHEN participant_2 = $4 THEN unread_count_2 + 1 ELSE unread_count_2 END
 			WHERE id = $1
-		`, chatID, req.Content, createdAt)
+		`, chatID, req.Content, createdAt, otherID)
 
 		// Broadcast to sender (marked as read since they sent it)
 		h.hub.BroadcastToUser(userID, websocket.MessageTypeMessage, gin.H{
@@ -238,7 +240,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 	})
 }
 
-// StartChat creates a new chat or returns existing one
+// StartChat creates a new chat or returns existing one (Auction context)
 func (h *ChatHandler) StartChat(c *gin.Context) {
 	userID, _ := middleware.GetUserID(c)
 	auctionID, err := uuid.Parse(c.Param("id")) // auction ID
@@ -281,14 +283,68 @@ func (h *ChatHandler) StartChat(c *gin.Context) {
 		}
 	}
 
-	// If there's a message, send it (reuse SendMessage logic essentially, or just skip for now to keep simple)
-	// The mobile app calls StartChat with a message, expected to return the Thread.
-
-	// Return the simplified thread object (would need another query to get details, or just return ID for now)
 	c.JSON(http.StatusOK, gin.H{
 		"id":         chatID,
 		"auction_id": auctionID,
-		// Skipping full details for speed, app might refetch or tolerate partial
+	})
+}
+
+// StartChatWithUser creates a new chat or returns existing one for an auction
+func (h *ChatHandler) StartChatWithUser(c *gin.Context) {
+	userID, _ := middleware.GetUserID(c)
+
+	var req struct {
+		TargetUserID string `json:"target_user_id" binding:"required"`
+		AuctionID    string `json:"auction_id" binding:"required"` // Now required - all chats must be auction-related
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	targetID, err := uuid.Parse(req.TargetUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid target user ID"})
+		return
+	}
+
+	if targetID == userID {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot chat with yourself"})
+		return
+	}
+
+	auctionID, err := uuid.Parse(req.AuctionID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	var chatID uuid.UUID
+
+	// Check for existing auction conversation
+	queryErr := h.db.Pool.QueryRow(context.Background(), `
+		SELECT id FROM conversations 
+		WHERE auction_id = $1 AND ((participant_1 = $2 AND participant_2 = $3) OR (participant_1 = $3 AND participant_2 = $2))
+	`, auctionID, userID, targetID).Scan(&chatID)
+
+	if queryErr != nil {
+		// Create new conversation for this auction
+		insertErr := h.db.Pool.QueryRow(context.Background(), `
+			INSERT INTO conversations (auction_id, participant_1, participant_2, created_at, last_message_at)
+			VALUES ($1, $2, $3, $4, $4)
+			RETURNING id
+		`, auctionID, userID, targetID, time.Now()).Scan(&chatID)
+
+		if insertErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create chat"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":         chatID,
+		"auction_id": auctionID,
 	})
 }
 
@@ -302,10 +358,10 @@ func (h *ChatHandler) MarkAsRead(c *gin.Context) {
 
 	// Get conversation participants to determine which unread count to reset
 	var p1, p2 uuid.UUID
-	err = h.db.Pool.QueryRow(context.Background(), 
+	err = h.db.Pool.QueryRow(context.Background(),
 		"SELECT participant_1, participant_2 FROM conversations WHERE id = $1", chatID).
 		Scan(&p1, &p2)
-	
+
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Chat not found"})
 		return
@@ -325,6 +381,24 @@ func (h *ChatHandler) MarkAsRead(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark as read"})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *ChatHandler) MarkAllAsRead(c *gin.Context) {
+	userID, _ := middleware.GetUserID(c)
+
+	_, err := h.db.Pool.Exec(context.Background(), `
+		UPDATE conversations 
+		SET unread_count_1 = CASE WHEN participant_1 = $1 THEN 0 ELSE unread_count_1 END,
+			unread_count_2 = CASE WHEN participant_2 = $1 THEN 0 ELSE unread_count_2 END
+		WHERE participant_1 = $1 OR participant_2 = $1
+	`, userID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark all as read"})
 		return
 	}
 

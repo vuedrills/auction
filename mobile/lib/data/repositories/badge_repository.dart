@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/badge.dart';
 import '../../core/network/dio_client.dart';
+import '../providers/auth_provider.dart';
 
 /// Badge repository provider
 final badgeRepositoryProvider = Provider<BadgeRepository>((ref) {
@@ -64,11 +65,13 @@ final userBadgesProvider = FutureProvider.family<List<UserBadge>, String>((ref, 
 });
 
 final myBadgesProvider = FutureProvider<List<UserBadge>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(badgeRepositoryProvider);
   return repository.getMyBadges();
 });
 
 final verificationStatusProvider = FutureProvider<VerificationStatus>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(badgeRepositoryProvider);
   return repository.getVerificationStatus();
 });

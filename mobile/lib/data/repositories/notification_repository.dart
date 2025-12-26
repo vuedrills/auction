@@ -157,16 +157,37 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<AppNotificatio
   }
 
   void _handleWsNotification(dynamic message) {
-    // message is likely a Map or a class with data
+    // message is a WsMessage with type and data
+    final wsType = message.type as String? ?? '';
     final data = message.data ?? {};
-    final typeStr = data['type'] as String? ?? 'system';
+    
+    // Map WebSocket message type to notification type
+    NotificationType notifType;
+    switch (wsType) {
+      case 'auction:won':
+        notifType = NotificationType.auctionWon;
+        break;
+      case 'auction:sold':
+        notifType = NotificationType.auctionSold;
+        break;
+      case 'bid:outbid':
+        notifType = NotificationType.outbid;
+        break;
+      case 'auction:ending':
+        notifType = NotificationType.auctionEnding;
+        break;
+      default:
+        // Fallback to checking data['type'] for legacy or generic notifications
+        final typeStr = data['type'] as String? ?? 'system';
+        notifType = NotificationTypeX.fromString(typeStr);
+    }
     
     final newNotif = AppNotification(
       id: DateTime.now().toIso8601String(), // Temporary ID for real-time
-      type: NotificationTypeX.fromString(typeStr),
+      type: notifType,
       title: data['title'] as String? ?? 'New Notification',
       body: data['body'] as String? ?? '',
-      auctionId: data['auction_id'] as String? ?? message.auctionId,
+      auctionId: data['auction_id']?.toString() ?? message.auctionId,
       isRead: false,
       isUrgent: true,
       hasRated: false, // Default false for new

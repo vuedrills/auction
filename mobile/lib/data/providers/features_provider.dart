@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/features.dart';
 import '../repositories/features_repository.dart';
+import 'auth_provider.dart';
 
 // =============================================================================
 // AUTO-BID PROVIDERS
@@ -8,6 +9,7 @@ import '../repositories/features_repository.dart';
 
 /// Get user's auto-bids
 final myAutoBidsProvider = FutureProvider<List<AutoBid>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(featuresRepositoryProvider);
   return repository.getMyAutoBids();
 });
@@ -52,6 +54,7 @@ final autoBidNotifierProvider = StateNotifierProvider<AutoBidNotifier, AsyncValu
 
 /// Get user's saved searches
 final savedSearchesProvider = FutureProvider<List<SavedSearch>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(featuresRepositoryProvider);
   return repository.getMySavedSearches();
 });

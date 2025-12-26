@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import '../../core/network/dio_client.dart';
 import '../data.dart';
 import '../models/store.dart';
+import '../providers/auth_provider.dart';
 
 /// Repository for handling store and product related operations
 class StoreRepository {
@@ -157,11 +158,20 @@ class StoreRepository {
       return PaginatedResponse(
         items: products,
         totalCount: response.data['total_count'] ?? 0,
-        page: response.data['page'] ?? page,
-        limit: 20,
+        page: response.data['page'] ?? 1,
+        limit: response.data['limit'] ?? 20,
       );
     } catch (e) {
-      throw _handleError(e);
+      rethrow;
+    }
+  }
+
+  /// Delete my store
+  Future<void> deleteStore() async {
+    try {
+      await _client.delete('/stores/me');
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -332,11 +342,13 @@ final storeProductsProvider = FutureProvider.family<PaginatedResponse<Product>, 
 
 // My store provider
 final myStoreProvider = FutureProvider<Store?>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   return ref.watch(storeRepositoryProvider).getMyStore();
 });
 
 // My products provider
 final myProductsProvider = FutureProvider<List<Product>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   return ref.watch(storeRepositoryProvider).getMyProducts();
 });
 

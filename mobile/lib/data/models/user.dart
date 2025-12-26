@@ -15,6 +15,7 @@ class User {
   final DateTime updatedAt;
   final Town? homeTown;
   final Suburb? homeSuburb;
+  final String? storeSlug;
   
   // Reputation fields
   final double rating;
@@ -48,6 +49,7 @@ class User {
     this.isTrustedSeller = false,
     this.badges = const [],
     this.memberSince,
+    this.storeSlug,
   });
 
   /// Calculate star rating display (e.g., "4.5")
@@ -92,6 +94,7 @@ class User {
       memberSince: json['member_since'] != null 
           ? DateTime.parse(json['member_since'] as String) 
           : null,
+      storeSlug: json['store_slug'] as String?,
     );
   }
 
@@ -117,6 +120,7 @@ class User {
       'is_trusted_seller': isTrustedSeller,
       'badges': badges,
       'member_since': memberSince?.toIso8601String(),
+      'store_slug': storeSlug,
     };
   }
 }

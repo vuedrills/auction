@@ -56,7 +56,7 @@ func main() {
 	go badgeWorker.Start(ctx)
 
 	// Setup router
-	r := router.SetupRouter(db, jwtService, hub)
+	r := router.SetupRouter(db, jwtService, hub, cfg)
 
 	// Start server
 	log.Printf("🚀 AirMass API Server starting on port %s", cfg.Port)

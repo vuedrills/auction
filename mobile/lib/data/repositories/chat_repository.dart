@@ -134,10 +134,24 @@ class ChatRepository {
     });
     return ChatThread.fromJson(response.data);
   }
+
+  /// Start a chat with a user (universally)
+  Future<String> startChatWithUser(String targetUserId, {String? auctionId}) async {
+    final response = await _client.post('/chats/start', data: {
+      'target_user_id': targetUserId,
+      if (auctionId != null) 'auction_id': auctionId,
+    });
+    return response.data['id'] as String;
+  }
   
   /// Mark chat as read
   Future<void> markAsRead(String chatId) async {
     await _client.put('/chats/$chatId/read');
+  }
+
+  /// Mark all chats as read
+  Future<void> markAllAsRead() async {
+    await _client.put('/chats/read-all');
   }
 }
 
@@ -226,6 +240,30 @@ class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
       });
     } catch (e) {
       // If marking as read fails, still reload to sync with server
+      load();
+    }
+  }
+
+  /// Mark all chats as read
+  Future<void> markAllMessagesAsRead() async {
+    try {
+      await _repository.markAllAsRead();
+      state.whenData((chats) {
+        final List<ChatThread> newList = chats.map((c) => ChatThread(
+          id: c.id,
+          auctionId: c.auctionId,
+          auctionTitle: c.auctionTitle,
+          auctionImage: c.auctionImage,
+          participantId: c.participantId,
+          participantName: c.participantName,
+          participantAvatar: c.participantAvatar,
+          lastMessage: c.lastMessage,
+          unreadCount: 0,
+          updatedAt: c.updatedAt,
+        )).toList();
+        state = AsyncValue.data(newList);
+      });
+    } catch (e) {
       load();
     }
   }

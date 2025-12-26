@@ -85,6 +85,7 @@ class Store {
   final int views;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? address;
   
   // Joined fields
   final StoreOwner? owner;
@@ -119,6 +120,7 @@ class Store {
     this.views = 0,
     required this.createdAt,
     required this.updatedAt,
+    this.address,
     this.owner,
     this.category,
     this.townName,
@@ -158,6 +160,7 @@ class Store {
       views: json['views'] ?? 0,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      address: json['address'],
       owner: json['owner'] != null ? StoreOwner.fromJson(json['owner']) : null,
       category: json['category'] != null ? StoreCategory.fromJson(json['category']) : null,
       townName: json['town']?['name'],
@@ -305,6 +308,7 @@ class CreateStoreRequest {
   final String? phone;
   final List<String>? deliveryOptions;
   final int? deliveryRadiusKm;
+  final String? address;
 
   CreateStoreRequest({
     required this.storeName,
@@ -317,6 +321,7 @@ class CreateStoreRequest {
     this.phone,
     this.deliveryOptions,
     this.deliveryRadiusKm,
+    this.address,
   });
 
   Map<String, dynamic> toJson() => {
@@ -330,6 +335,7 @@ class CreateStoreRequest {
     if (phone != null) 'phone': phone,
     if (deliveryOptions != null) 'delivery_options': deliveryOptions,
     if (deliveryRadiusKm != null) 'delivery_radius_km': deliveryRadiusKm,
+    if (address != null) 'address': address,
   };
 }
 

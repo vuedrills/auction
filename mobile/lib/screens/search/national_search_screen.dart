@@ -5,9 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 
-/// National Search Screen - Dedicated search with real-time results
+/// Search Screen - Supports national, town-specific, and suburb-specific search
 class NationalSearchScreen extends ConsumerStatefulWidget {
-  const NationalSearchScreen({super.key});
+  final String? suburbId;
+  final String? townId;
+  const NationalSearchScreen({super.key, this.suburbId, this.townId});
 
   @override
   ConsumerState<NationalSearchScreen> createState() => _NationalSearchScreenState();
@@ -21,7 +23,6 @@ class _NationalSearchScreenState extends ConsumerState<NationalSearchScreen> {
   @override
   void initState() {
     super.initState();
-    // Auto-focus search field
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -36,12 +37,25 @@ class _NationalSearchScreenState extends ConsumerState<NationalSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auctionState = ref.watch(nationalAuctionsProvider);
+    // Determine source auctions based on context
+    List<Auction> sourceAuctions = [];
+    if (widget.suburbId != null) {
+      final suburbAsync = ref.watch(suburbAuctionsProvider(widget.suburbId!));
+      sourceAuctions = suburbAsync.valueOrNull?.auctions ?? [];
+    } else {
+      final auctionState = ref.watch(nationalAuctionsProvider);
+      // Filter by townId if provided
+      if (widget.townId != null) {
+        sourceAuctions = auctionState.auctions.where((a) => a.townId == widget.townId).toList();
+      } else {
+        sourceAuctions = auctionState.auctions;
+      }
+    }
 
     // Filter by search query
     final results = _searchQuery.isEmpty
         ? <Auction>[]
-        : auctionState.auctions.where((a) {
+        : sourceAuctions.where((a) {
             return a.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                 (a.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
           }).toList();
@@ -77,7 +91,11 @@ class _NationalSearchScreenState extends ConsumerState<NationalSearchScreen> {
                         onChanged: (q) => setState(() => _searchQuery = q),
                         style: AppTypography.bodyMedium,
                         decoration: InputDecoration(
-                          hintText: 'Search auctions...',
+                          hintText: widget.suburbId != null 
+                              ? 'Search in this suburb...' 
+                              : widget.townId != null 
+                                  ? 'Search in this town...' 
+                                  : 'Search auctions...',
                           hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
                           border: InputBorder.none,
                           prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondaryLight),
@@ -117,7 +135,11 @@ class _NationalSearchScreenState extends ConsumerState<NationalSearchScreen> {
           const SizedBox(height: 16),
           Text('Search for auctions', style: AppTypography.titleMedium.copyWith(color: AppColors.textSecondaryLight)),
           const SizedBox(height: 8),
-          Text('Find amazing deals from across Zimbabwe', 
+          Text(widget.suburbId != null 
+              ? 'Find deals in this suburb' 
+              : widget.townId != null 
+                  ? 'Find deals in this town' 
+                  : 'Find amazing deals from across Zimbabwe', 
             style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
         ],
       ),
@@ -207,7 +229,6 @@ class _SearchResultCard extends StatelessWidget {
                           )
                         : Center(child: Icon(Icons.image_rounded, size: 40, color: Colors.grey.shade400)),
                   ),
-                  // Town badge
                   if (auction.town != null)
                     Positioned(
                       top: 8, left: 8,

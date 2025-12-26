@@ -2,10 +2,14 @@ package handlers
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/email"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/models"
 	"github.com/airmass/backend/pkg/jwt"
 	"github.com/airmass/backend/pkg/password"
@@ -15,15 +19,19 @@ import (
 
 // AuthHandler handles authentication endpoints
 type AuthHandler struct {
-	db         *database.DB
-	jwtService *jwt.Service
+	db           *database.DB
+	jwtService   *jwt.Service
+	emailService *email.EmailService
+	fcmService   *fcm.FCMService
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(db *database.DB, jwtService *jwt.Service) *AuthHandler {
+func NewAuthHandler(db *database.DB, jwtService *jwt.Service, emailService *email.EmailService, fcmService *fcm.FCMService) *AuthHandler {
 	return &AuthHandler{
-		db:         db,
-		jwtService: jwtService,
+		db:           db,
+		jwtService:   jwtService,
+		emailService: emailService,
+		fcmService:   fcmService,
 	}
 }
 
@@ -280,16 +288,19 @@ func (h *AuthHandler) getUserByID(id uuid.UUID) *models.User {
 	var tName, tState, tCountry *string
 	var sID *uuid.UUID
 	var sName, sZip *string
+	var storeSlug *string
 
 	err := h.db.Pool.QueryRow(context.Background(),
 		`SELECT u.id, u.email, u.username, u.full_name, u.avatar_url, u.phone,
 		u.is_verified, u.is_active, u.home_town_id, u.home_suburb_id, 
 		u.last_town_change, u.created_at, u.updated_at,
 		t.id, t.name, t.state, t.country,
-		s.id, s.name, s.zip_code
+		s.id, s.name, s.zip_code,
+		st.slug
 		FROM users u
 		LEFT JOIN towns t ON u.home_town_id = t.id
 		LEFT JOIN suburbs s ON u.home_suburb_id = s.id
+		LEFT JOIN stores st ON u.id = st.user_id
 		WHERE u.id = $1`,
 		id,
 	).Scan(
@@ -298,6 +309,7 @@ func (h *AuthHandler) getUserByID(id uuid.UUID) *models.User {
 		&user.LastTownChange, &user.CreatedAt, &user.UpdatedAt,
 		&tID, &tName, &tState, &tCountry,
 		&sID, &sName, &sZip,
+		&storeSlug,
 	)
 
 	if err != nil {
@@ -331,6 +343,7 @@ func (h *AuthHandler) getUserByID(id uuid.UUID) *models.User {
 				TownID:  *tID,
 			}
 		}
+		user.StoreSlug = storeSlug
 	}
 	return &user
 }
@@ -340,4 +353,217 @@ func getString(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+// generateCode generates a random 6-digit code
+func generateCode() string {
+	b := make([]byte, 3)
+	rand.Read(b)
+	return fmt.Sprintf("%06d", int(b[0])*10000/256+int(b[1])*100/256+int(b[2])/3)
+}
+
+// generateToken generates a secure random token
+func generateToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return fmt.Sprintf("%x", b)
+}
+
+// ForgotPassword sends a password reset email
+func (h *AuthHandler) ForgotPassword(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find user by email
+	var userID uuid.UUID
+	var fullName, username string
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT id, full_name, username FROM users WHERE email = $1",
+		req.Email,
+	).Scan(&userID, &fullName, &username)
+
+	if err != nil {
+		// Don't reveal if email exists or not for security
+		c.JSON(http.StatusOK, gin.H{"message": "If an account with that email exists, a password reset link has been sent."})
+		return
+	}
+
+	// Generate reset token
+	resetToken := generateToken()
+	expiresAt := time.Now().Add(1 * time.Hour)
+
+	// Store reset token in database
+	_, err = h.db.Pool.Exec(context.Background(),
+		`INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)
+		ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
+		userID, resetToken, expiresAt,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process request"})
+		return
+	}
+
+	// Send reset email
+	userName := fullName
+	if userName == "" {
+		userName = username
+	}
+
+	if h.emailService != nil {
+		go h.emailService.SendPasswordReset(req.Email, resetToken, userName)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "If an account with that email exists, a password reset link has been sent."})
+}
+
+// ResetPassword resets user password with token
+func (h *AuthHandler) ResetPassword(c *gin.Context) {
+	var req struct {
+		Token       string `json:"token" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=8"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find reset token
+	var userID uuid.UUID
+	var expiresAt time.Time
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT user_id, expires_at FROM password_resets WHERE token = $1",
+		req.Token,
+	).Scan(&userID, &expiresAt)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired reset token"})
+		return
+	}
+
+	if time.Now().After(expiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Reset token has expired"})
+		return
+	}
+
+	// Hash new password
+	hashedPassword, err := password.Hash(req.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process password"})
+		return
+	}
+
+	// Update password
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3",
+		hashedPassword, time.Now(), userID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	// Delete used reset token
+	h.db.Pool.Exec(context.Background(), "DELETE FROM password_resets WHERE user_id = $1", userID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password has been reset successfully"})
+}
+
+// SendVerificationEmail sends a verification code to user's email
+func (h *AuthHandler) SendVerificationEmail(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	// Get user details
+	var email, fullName, username string
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT email, full_name, username FROM users WHERE id = $1",
+		userID,
+	).Scan(&email, &fullName, &username)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Generate verification code
+	code := generateCode()
+	expiresAt := time.Now().Add(15 * time.Minute)
+
+	// Store verification code
+	_, err = h.db.Pool.Exec(context.Background(),
+		`INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)
+		ON CONFLICT (user_id) DO UPDATE SET code = $2, expires_at = $3`,
+		userID, code, expiresAt,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process request"})
+		return
+	}
+
+	// Send verification email
+	userName := fullName
+	if userName == "" {
+		userName = username
+	}
+
+	if h.emailService != nil {
+		go h.emailService.SendEmailVerification(email, code, userName)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Verification code sent to your email"})
+}
+
+// VerifyEmail verifies user's email with code
+func (h *AuthHandler) VerifyEmail(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	var req struct {
+		Code string `json:"code" binding:"required,len=6"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find verification code
+	var storedCode string
+	var expiresAt time.Time
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT code, expires_at FROM email_verifications WHERE user_id = $1",
+		userID,
+	).Scan(&storedCode, &expiresAt)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No pending verification"})
+		return
+	}
+
+	if time.Now().After(expiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code has expired"})
+		return
+	}
+
+	if req.Code != storedCode {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid verification code"})
+		return
+	}
+
+	// Mark email as verified
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE users SET is_verified = true, updated_at = $1 WHERE id = $2",
+		time.Now(), userID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
+		return
+	}
+
+	// Delete used verification code
+	h.db.Pool.Exec(context.Background(), "DELETE FROM email_verifications WHERE user_id = $1", userID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully"})
 }

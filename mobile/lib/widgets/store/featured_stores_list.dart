@@ -16,36 +16,39 @@ class FeaturedStoresList extends ConsumerWidget {
       data: (stores) {
         if (stores.isEmpty) return const SizedBox.shrink();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Featured Stores', style: AppTypography.headlineSmall),
-                  TextButton(
-                    onPressed: () => context.push('/stores'),
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 140, // Height for the card
-              child: ListView.builder(
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                scrollDirection: Axis.horizontal,
-                itemCount: stores.length,
-                itemBuilder: (context, index) {
-                  final store = stores[index];
-                  return _StoreCard(store: store);
-                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Featured Stores', style: AppTypography.headlineSmall),
+                    TextButton(
+                      onPressed: () => context.push('/stores'),
+                      child: const Text('View All'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 140, // Height for the card
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: stores.length,
+                  itemBuilder: (context, index) {
+                    final store = stores[index];
+                    return _StoreCard(store: store);
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
       loading: () => const SizedBox.shrink(), // Don't show anything while loading to avoid layout shift or show shimmer

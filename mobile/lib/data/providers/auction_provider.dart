@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/auction.dart';
 import '../models/bid.dart';
 import '../repositories/auction_repository.dart';
+import 'auth_provider.dart';
 
 /// Auction list state
 class AuctionListState {
@@ -65,6 +66,7 @@ class MyTownAuctionsNotifier extends StateNotifier<AuctionListState> {
 }
 
 final myTownAuctionsProvider = StateNotifierProvider<MyTownAuctionsNotifier, AuctionListState>((ref) {
+  ref.watch(currentUserProvider); // Reset when user changes
   return MyTownAuctionsNotifier(ref.read(auctionRepositoryProvider));
 });
 
@@ -157,17 +159,20 @@ class MyAuctionsNotifier extends StateNotifier<AuctionListState> {
 }
 
 final myAuctionsProvider = StateNotifierProvider<MyAuctionsNotifier, AuctionListState>((ref) {
+  ref.watch(currentUserProvider); // Reset/re-create when user changes
   return MyAuctionsNotifier(ref.read(auctionRepositoryProvider));
 });
 
 /// My bids provider
 final myBidsProvider = FutureProvider<List<Bid>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(auctionRepositoryProvider);
   return repository.getMyBids();
 });
 
 /// Won auctions provider
 final wonAuctionsProvider = FutureProvider<AuctionListResponse>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
   final repository = ref.read(auctionRepositoryProvider);
   return repository.getWonAuctions();
 });
@@ -213,6 +218,7 @@ class WatchlistNotifier extends StateNotifier<AuctionListState> {
 }
 
 final watchlistProvider = StateNotifierProvider<WatchlistNotifier, AuctionListState>((ref) {
+  ref.watch(currentUserProvider); // Reset/re-create when user changes
   return WatchlistNotifier(ref.read(auctionRepositoryProvider));
 });
 

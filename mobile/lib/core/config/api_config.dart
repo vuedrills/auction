@@ -1,10 +1,22 @@
+import 'dart:io';
+
 /// API configuration for AirMass backend
 class ApiConfig {
+  /// Get the correct host based on platform
+  static String get _host {
+    // Android emulators use 10.0.2.2 to reach the host machine's localhost
+    if (Platform.isAndroid) {
+      return '10.0.2.2';
+    }
+    // iOS simulators and others use localhost
+    return 'localhost';
+  }
+
   /// Base URL for the API
-  static const String baseUrl = 'http://localhost:8080/api';
+  static String get baseUrl => 'http://$_host:8080/api';
   
   /// WebSocket URL
-  static const String wsUrl = 'ws://localhost:8080/ws';
+  static String get wsUrl => 'ws://$_host:8080/ws';
   
   /// Connection timeout in seconds
   static const int connectTimeout = 30;

@@ -35,6 +35,7 @@ type User struct {
 	// Joined fields
 	HomeTown   *Town   `json:"home_town,omitempty"`
 	HomeSuburb *Suburb `json:"home_suburb,omitempty"`
+	StoreSlug  *string `json:"store_slug,omitempty"`
 }
 
 // UserWithStats includes user statistics

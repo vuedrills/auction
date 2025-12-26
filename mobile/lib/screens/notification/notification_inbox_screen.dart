@@ -63,6 +63,11 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                         onPressed: () => ref.read(notificationsProvider.notifier).markAllAsRead(),
                         child: Text('Mark all read', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
                       ),
+                    if (_currentTabIndex == 1)
+                      TextButton(
+                        onPressed: () => ref.read(chatsProvider.notifier).markAllMessagesAsRead(),
+                        child: Text('Mark all read', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
+                      ),
                   ],
                 ),
                 
@@ -74,42 +79,74 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
                     child: Row(children: [
+                      // Notifications Tab
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {
-                            _tabController.animateTo(0);
-                          },
+                          onTap: () => _tabController.animateTo(0),
                           child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: _currentTabIndex == 0 ? Colors.white : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: _currentTabIndex == 0 ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
                             ),
-                            child: Center(
-                              child: Text('Notifications', style: AppTypography.titleSmall.copyWith(
-                                color: _currentTabIndex == 0 ? AppColors.textPrimaryLight : Colors.grey,
-                                fontWeight: _currentTabIndex == 0 ? FontWeight.w600 : FontWeight.w400,
-                              )),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Notifications', style: AppTypography.titleSmall.copyWith(
+                                  color: _currentTabIndex == 0 ? AppColors.textPrimaryLight : Colors.grey,
+                                  fontWeight: _currentTabIndex == 0 ? FontWeight.w600 : FontWeight.w400,
+                                )),
+                                Consumer(builder: (context, ref, _) {
+                                  final count = ref.watch(unreadNotificationCountProvider);
+                                  if (count == 0) return const SizedBox.shrink();
+                                  return Container(
+                                    margin: const EdgeInsets.only(left: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: _currentTabIndex == 0 ? AppColors.primary : Colors.grey.shade400,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  );
+                                }),
+                              ],
                             ),
                           ),
                         ),
                       ),
+                      // Messages Tab
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {
-                            _tabController.animateTo(1);
-                          },
+                          onTap: () => _tabController.animateTo(1),
                           child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: _currentTabIndex == 1 ? Colors.white : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: _currentTabIndex == 1 ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
                             ),
-                            child: Center(
-                              child: Text('Messages', style: AppTypography.titleSmall.copyWith(
-                                color: _currentTabIndex == 1 ? AppColors.textPrimaryLight : Colors.grey,
-                                fontWeight: _currentTabIndex == 1 ? FontWeight.w600 : FontWeight.w400,
-                              )),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Messages', style: AppTypography.titleSmall.copyWith(
+                                  color: _currentTabIndex == 1 ? AppColors.textPrimaryLight : Colors.grey,
+                                  fontWeight: _currentTabIndex == 1 ? FontWeight.w600 : FontWeight.w400,
+                                )),
+                                Consumer(builder: (context, ref, _) {
+                                  final count = ref.watch(unreadChatCountProvider);
+                                  if (count == 0) return const SizedBox.shrink();
+                                  return Container(
+                                    margin: const EdgeInsets.only(left: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: _currentTabIndex == 1 ? AppColors.primary : Colors.grey.shade400,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  );
+                                }),
+                              ],
                             ),
                           ),
                         ),
@@ -255,29 +292,24 @@ class _NotificationsTab extends ConsumerWidget {
     if (notification.type == NotificationType.auctionWon || 
         notification.type == NotificationType.auctionSold) {
         
+        // If already rated, go to auction detail
+        if (notification.hasRated) {
+           context.push('/auction/${notification.auctionId}');
+           return;
+        }
+
         // Fetch auction to find target user
         if (notification.auctionId != null) {
           try {
-             // We need to fetch the auction to know who to rate
-             // Assuming auctionsRepo is available via ref
-             // We can't import it easily here without viewing file, but let's assume standard providers
-             // I'll assume we need to import it. 
-             // Since I can't check imports easily in this tool call, I'll restrict this change to just logic 
-             // and hope the imports are there? No that's risky.
-             // I'll REPLACE the whole method and include imports at the top? No, that's huge.
-             
-             // I'll stick to navigating to auction detail for now but PASS A FLAG?
-             // No, the user wants it to work.
-             
-             // Let's redirect to a "loading" or intermediate handler?
-             // Or just do the fetch.
-             
-             // I will try to use a Helper or just access the repo.
-             // ref.read(auctionsRepositoryProvider).getAuction(id)
-             
-             // Let's modify the imports first in a separate tool call to be safe.
-             context.push('/rate/placeholder?auctionId=${notification.auctionId}');  // Temporary to test navigation
-             
+             // Try to extract target user from data if available, otherwise fallback
+             final targetUserId = notification.data?['related_user_id'];
+             if (targetUserId != null) {
+               context.push('/rate/$targetUserId?auctionId=${notification.auctionId}');
+             } else {
+               // Fallback if we can't find user ID easily (this might need backend update to include it)
+               // For now, let's go to auction detail as a fail-safe if we can't rate
+               context.push('/auction/${notification.auctionId}');
+             }
           } catch (e) {
              print('Error parsing for rate: $e');
              context.push('/auction/${notification.auctionId}');
@@ -293,7 +325,7 @@ class _NotificationsTab extends ConsumerWidget {
   }
 
   static Future<void> _handleMessageTap(BuildContext context, WidgetRef ref, AppNotification notification) async {
-    // Only for won/sold
+    // Only for won/sold - these are always auction-related
     if (notification.type != NotificationType.auctionWon && notification.type != NotificationType.auctionSold) return;
 
     if (notification.chatId != null) {
@@ -301,46 +333,48 @@ class _NotificationsTab extends ConsumerWidget {
       return;
     }
     
-    // Check if we already have a chat loaded with this auctionId
-    final chatsAsync = ref.read(chatsProvider);
-    String? existingChatId;
+    // Get the target user ID from notification data
+    final targetUserId = notification.data?['related_user_id']?.toString();
     
-    chatsAsync.whenData((chats) {
-        final matchingChat = chats.where((c) => c.auctionId == notification.auctionId).firstOrNull;
-        if (matchingChat != null) {
-          existingChatId = matchingChat.id;
-        }
-    });
+    if (targetUserId == null || targetUserId.isEmpty) {
+      // Fallback: Check if we have a chat with this auction
+      final chatsAsync = ref.read(chatsProvider);
+      String? existingChatId;
+      
+      chatsAsync.whenData((chats) {
+          final matchingChat = chats.where((c) => c.auctionId == notification.auctionId).firstOrNull;
+          if (matchingChat != null) {
+            existingChatId = matchingChat.id;
+          }
+      });
 
-    if (existingChatId != null) {
-       context.push('/chats/$existingChatId');
-       return;
+      if (existingChatId != null) {
+         context.push('/chats/$existingChatId');
+         return;
+      }
+      
+      // Can't proceed without a target user
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not find user to message'), backgroundColor: AppColors.error),
+        );
+      }
+      return;
     }
 
-    // Need to create/fetch chat from backend
+    // Start auction-related chat - always pass auctionId to associate the conversation
     try {
-        if (notification.auctionId == null) return;
-        
-        // We'll try to start a chat. 
-        // Note: startChat usually requires a message. We'll send an initial handshake if it's new.
-        // However, if the chat already exists in backend but not loaded in frontend list (e.g. pagination), 
-        // the backend logic for 'startChat' usually handles returning the existing thread without creating duplicates.
-        // We'll verify this assumption by calling it.
-        final initialMessage = notification.type == NotificationType.auctionWon 
-            ? "Hi, I won this auction!" 
-            : "Hi, I'm the seller for this auction.";
-            
-        final chatThread = await ref.read(chatRepositoryProvider).startChat(
-           notification.auctionId!, 
-           initialMessage
-        );
-        
-        // Refresh chats list to include this new one
-        ref.read(chatsProvider.notifier).load();
-        
-        if (context.mounted) {
-           context.push('/chats/${chatThread.id}');
-        }
+      final chatId = await ref.read(chatRepositoryProvider).startChatWithUser(
+        targetUserId, 
+        auctionId: notification.auctionId,
+      );
+      
+      // Refresh chats list to include this one
+      ref.read(chatsProvider.notifier).load();
+      
+      if (context.mounted) {
+         context.push('/chats/$chatId');
+      }
     } catch (e) {
         print('Error starting chat: $e');
         if (context.mounted) {
@@ -412,11 +446,11 @@ class _ChatListItem extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  backgroundImage: chat.participantAvatar != null
+                  backgroundImage: (chat.participantAvatar != null && chat.participantAvatar!.isNotEmpty)
                     ? CachedNetworkImageProvider(chat.participantAvatar!)
                     : null,
-                  child: chat.participantAvatar == null
-                    ? Text(chat.participantName[0].toUpperCase(), style: AppTypography.headlineSmall.copyWith(color: AppColors.primary))
+                  child: (chat.participantAvatar == null || chat.participantAvatar!.isEmpty)
+                    ? Text(chat.participantName.isNotEmpty ? chat.participantName[0].toUpperCase() : '?', style: AppTypography.headlineSmall.copyWith(color: AppColors.primary))
                     : null,
                 ),
                 if (chat.unreadCount > 0)
@@ -448,7 +482,7 @@ class _ChatListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        chat.participantName,
+                        chat.participantName.isNotEmpty ? chat.participantName : 'Unknown User',
                         style: AppTypography.titleSmall.copyWith(
                           fontWeight: chat.unreadCount > 0 ? FontWeight.w700 : FontWeight.w500,
                         ),
