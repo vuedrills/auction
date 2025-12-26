@@ -51,6 +51,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  void _handleGoogleSignIn() async {
+    setState(() { _isLoading = true; _errorMessage = null; });
+
+    final result = await ref.read(authProvider.notifier).signInWithGoogle();
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      switch (result) {
+        case 'success':
+          context.go('/home');
+          break;
+        case 'new_user':
+          // New user needs to select home town - redirect to register with Google flow
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please complete registration by selecting your home town'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          context.push('/register?google=true');
+          break;
+        case 'cancelled':
+          // User cancelled, do nothing
+          break;
+        default:
+          final authState = ref.read(authProvider);
+          setState(() => _errorMessage = authState.error ?? 'Google Sign-In failed. Please try again.');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -313,7 +344,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: _SocialButton(
                               icon: Icons.g_mobiledata_rounded,
                               label: 'Google',
-                              onPressed: () {},
+                              onPressed: _isLoading ? null : _handleGoogleSignIn,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -369,12 +400,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 class _SocialButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const _SocialButton({
     required this.icon,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override

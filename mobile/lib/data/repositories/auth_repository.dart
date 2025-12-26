@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/services/storage_service.dart';
@@ -7,6 +8,11 @@ import '../../core/services/storage_service.dart';
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref.read(dioClientProvider), ref.read(storageServiceProvider));
 });
+
+/// Google Sign-In instance
+final _googleSignIn = GoogleSignIn(
+  scopes: ['email', 'profile'],
+);
 
 /// Authentication repository
 class AuthRepository {
@@ -25,6 +31,40 @@ class AuthRepository {
     final authResponse = AuthResponse.fromJson(response.data);
     await _storage.saveToken(authResponse.token);
     return authResponse;
+  }
+  
+  /// Login with Google
+  /// Returns AuthResponse on success, throws exception with 'new_user' if home town needed
+  Future<AuthResponse> loginWithGoogle({String? homeTownId, String? homeSuburbId}) async {
+    // Trigger Google Sign-In flow
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      throw Exception('Google Sign-In cancelled');
+    }
+    
+    // Get the ID token
+    final googleAuth = await googleUser.authentication;
+    final idToken = googleAuth.idToken;
+    
+    if (idToken == null) {
+      throw Exception('Failed to get Google ID token');
+    }
+    
+    // Send to backend
+    final response = await _client.post('/auth/google', data: {
+      'id_token': idToken,
+      if (homeTownId != null) 'home_town_id': homeTownId,
+      if (homeSuburbId != null) 'home_suburb_id': homeSuburbId,
+    });
+    
+    final authResponse = AuthResponse.fromJson(response.data);
+    await _storage.saveToken(authResponse.token);
+    return authResponse;
+  }
+  
+  /// Sign out from Google
+  Future<void> signOutGoogle() async {
+    await _googleSignIn.signOut();
   }
   
   /// Register new user

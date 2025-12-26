@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/services"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/google/uuid"
@@ -14,15 +15,17 @@ import (
 type AuctionWorker struct {
 	db              *database.DB
 	hub             *websocket.Hub
+	fcmService      *fcm.FCMService
 	notificationSvc *services.NotificationService
 	badgeWorker     *BadgeWorker
 }
 
-func NewAuctionWorker(db *database.DB, hub *websocket.Hub) *AuctionWorker {
+func NewAuctionWorker(db *database.DB, hub *websocket.Hub, fcmService *fcm.FCMService) *AuctionWorker {
 	return &AuctionWorker{
 		db:              db,
 		hub:             hub,
-		notificationSvc: services.NewNotificationService(db, hub),
+		fcmService:      fcmService,
+		notificationSvc: services.NewNotificationService(db, hub, fcmService),
 		badgeWorker:     NewBadgeWorker(db),
 	}
 }
@@ -139,9 +142,50 @@ func (w *AuctionWorker) endExpiredAuctions(ctx context.Context) {
 }
 
 func (w *AuctionWorker) updateEndingSoon(ctx context.Context) {
-	// Status -> 'ending_soon' if less than 1 hour left
-	w.db.Pool.Exec(ctx,
-		"UPDATE auctions SET status = 'ending_soon' WHERE status = 'active' AND end_time <= NOW() + INTERVAL '1 hour'")
+	// Find auctions that just switched to 'ending_soon' (less than 1 hour left)
+	rows, err := w.db.Pool.Query(ctx, `
+		UPDATE auctions 
+		SET status = 'ending_soon' 
+		WHERE status = 'active' AND end_time <= NOW() + INTERVAL '1 hour'
+		RETURNING id, title
+	`)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var auctionID uuid.UUID
+		var title string
+		if err := rows.Scan(&auctionID, &title); err != nil {
+			continue
+		}
+
+		// Send push notification to all bidders on this auction
+		go func(auctionID uuid.UUID, title string) {
+			bidderRows, err := w.db.Pool.Query(ctx, `
+				SELECT DISTINCT u.fcm_token 
+				FROM bids b 
+				JOIN users u ON u.id = b.bidder_id 
+				WHERE b.auction_id = $1 AND u.fcm_token IS NOT NULL
+			`, auctionID)
+			if err != nil {
+				return
+			}
+			defer bidderRows.Close()
+
+			for bidderRows.Next() {
+				var fcmToken *string
+				if err := bidderRows.Scan(&fcmToken); err != nil || fcmToken == nil {
+					continue
+				}
+				err := w.fcmService.SendAuctionEndingNotification(*fcmToken, title, "less than 1 hour", auctionID.String())
+				if err != nil {
+					log.Printf("Failed to send ending soon push: %v", err)
+				}
+			}
+		}(auctionID, title)
+	}
 }
 
 func (w *AuctionWorker) processWaitingList(ctx context.Context) {

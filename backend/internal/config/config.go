@@ -33,6 +33,9 @@ type Config struct {
 
 	// App
 	PublicURL string
+
+	// Feature Flags
+	EnablePhoneAuth bool // Set to true to enable Firebase SMS phone authentication
 }
 
 func Load() (*Config, error) {
@@ -62,12 +65,25 @@ func Load() (*Config, error) {
 		FirebaseServiceAccountPath: getEnv("FIREBASE_SERVICE_ACCOUNT_PATH", "./servicekey.json"),
 		// App
 		PublicURL: getEnv("PUBLIC_URL", "http://localhost:8080"),
+
+		// Feature Flags
+		EnablePhoneAuth: getEnvBool("ENABLE_PHONE_AUTH", false), // Disabled by default (Firebase SMS is paid)
 	}, nil
 }
 
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
+	}
+	return defaultValue
+}
+
+func getEnvBool(key string, defaultValue bool) bool {
+	if value, exists := os.LookupEnv(key); exists {
+		boolVal, err := strconv.ParseBool(value)
+		if err == nil {
+			return boolVal
+		}
 	}
 	return defaultValue
 }

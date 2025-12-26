@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/middleware"
 	"github.com/airmass/backend/internal/models"
 	"github.com/airmass/backend/internal/websocket"
@@ -20,13 +21,14 @@ import (
 
 // AuctionHandler handles auction endpoints
 type AuctionHandler struct {
-	db  *database.DB
-	hub *websocket.Hub
+	db         *database.DB
+	hub        *websocket.Hub
+	fcmService *fcm.FCMService
 }
 
 // NewAuctionHandler creates a new auction handler
-func NewAuctionHandler(db *database.DB, hub *websocket.Hub) *AuctionHandler {
-	return &AuctionHandler{db: db, hub: hub}
+func NewAuctionHandler(db *database.DB, hub *websocket.Hub, fcmService *fcm.FCMService) *AuctionHandler {
+	return &AuctionHandler{db: db, hub: hub, fcmService: fcmService}
 }
 
 // BidIncrementTier represents a bid increment tier from the database
@@ -713,6 +715,23 @@ func (h *AuctionHandler) PlaceBid(c *gin.Context) {
 			VALUES ($1, 'outbid', 'You''ve been outbid!', $2, $3)`,
 			previousHighBidderID, fmt.Sprintf("Someone bid $%.2f", requiredBid), auctionID,
 		)
+
+		// Send push notification to outbid user
+		go func() {
+			var fcmToken *string
+			var auctionTitle string
+			h.db.Pool.QueryRow(context.Background(),
+				"SELECT fcm_token FROM users WHERE id = $1", *previousHighBidderID).Scan(&fcmToken)
+			h.db.Pool.QueryRow(context.Background(),
+				"SELECT title FROM auctions WHERE id = $1", auctionID).Scan(&auctionTitle)
+
+			if fcmToken != nil && *fcmToken != "" {
+				err := h.fcmService.SendBidNotification(*fcmToken, auctionTitle, requiredBid, auctionID.String())
+				if err != nil {
+					log.Printf("Failed to send outbid push notification: %v", err)
+				}
+			}
+		}()
 	}
 
 	c.JSON(http.StatusOK, models.BidResponse{

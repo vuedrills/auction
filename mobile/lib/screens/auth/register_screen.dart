@@ -80,6 +80,39 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  void _handleGoogleSignIn() async {
+    // For Google sign-in during registration, we need town selection first
+    if (_selectedTown == null) {
+      setState(() => _errorMessage = 'Please select your home town first to sign up with Google');
+      return;
+    }
+
+    setState(() { _isLoading = true; _errorMessage = null; });
+
+    final result = await ref.read(authProvider.notifier).signInWithGoogle(
+      homeTownId: _selectedTown!.id,
+      homeSuburbId: _selectedSuburb?.id,
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      switch (result) {
+        case 'success':
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Account created with Google!'), backgroundColor: AppColors.success),
+          );
+          context.go('/home');
+          break;
+        case 'cancelled':
+          // User cancelled, do nothing
+          break;
+        default:
+          final authState = ref.read(authProvider);
+          setState(() => _errorMessage = authState.error ?? 'Google Sign-In failed. Please try again.');
+      }
+    }
+  }
+
   void _showTownPicker() {
     showModalBottomSheet(
       context: context,
@@ -162,7 +195,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Error message
+                      // Error message (shown at top for visibility)
                       if (_errorMessage != null) ...[
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -181,43 +214,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         const SizedBox(height: 16),
                       ],
 
-                      // Full Name
-                      AppTextField(
-                        controller: _nameController,
-                        label: 'Full Name',
-                        hintText: 'Jane Doe',
-                        prefixIcon: Icons.person_outline,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return 'Please enter your name';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Username
-                      AppTextField(
-                        controller: _usernameController,
-                        label: 'Username',
-                        hintText: 'janedoe',
-                        prefixIcon: Icons.alternate_email,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return 'Please enter a username';
-                          if (value.length < 3) return 'Username must be at least 3 characters';
-                          if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                            return 'Only letters, numbers, and underscores';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Home Town Selection
+                      // Step 1: Home Town Selection (required for both methods)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Text('Home Town', style: AppTypography.titleMedium),
+                              Text('Step 1: Select Your Town', style: AppTypography.titleMedium),
                               const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -297,7 +300,45 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
+
+                      // Step 2: Choose signup method
+                      Text('Step 2: Create Account', style: AppTypography.titleMedium),
+                      const SizedBox(height: 12),
+
+                      // Google Sign-In Button
+                      OutlinedButton.icon(
+                        onPressed: _isLoading ? null : _handleGoogleSignIn,
+                        icon: const Icon(Icons.g_mobiledata_rounded, size: 24),
+                        label: const Text('Continue with Google'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.textPrimaryLight,
+                          side: const BorderSide(color: AppColors.borderLight),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Divider
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: AppColors.borderLight)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'Or register with email',
+                              style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondaryLight),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: AppColors.borderLight)),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
 
                       // Email
                       AppTextField(

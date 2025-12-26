@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
 import '../repositories/auth_repository.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/services/push_notification_service.dart';
 
 // Auth repository and store repository imports for invalidation
 import '../repositories/store_repository.dart';
@@ -61,6 +62,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final response = await _repository.login(email, password);
       state = AuthState(status: AuthStatus.authenticated, user: response.user);
+      
+      // Register FCM token now that user is authenticated
+      _ref.read(pushNotificationServiceProvider).registerTokenIfNeeded();
+      
       return true;
     } catch (e) {
       state = AuthState(status: AuthStatus.error, error: e.toString());
@@ -90,10 +95,44 @@ class AuthNotifier extends StateNotifier<AuthState> {
         homeSuburbId: homeSuburbId,
       );
       state = AuthState(status: AuthStatus.authenticated, user: response.user);
+      
+      // Register FCM token now that user is authenticated
+      _ref.read(pushNotificationServiceProvider).registerTokenIfNeeded();
+      
       return true;
     } catch (e) {
       state = AuthState(status: AuthStatus.error, error: e.toString());
       return false;
+    }
+  }
+  
+  /// Sign in with Google
+  /// Returns: 'success' on success, 'new_user' if home town selection needed, 'error' on failure
+  Future<String> signInWithGoogle({String? homeTownId, String? homeSuburbId}) async {
+    state = state.copyWith(status: AuthStatus.loading);
+    try {
+      final response = await _repository.loginWithGoogle(
+        homeTownId: homeTownId,
+        homeSuburbId: homeSuburbId,
+      );
+      state = AuthState(status: AuthStatus.authenticated, user: response.user);
+      
+      // Register FCM token now that user is authenticated
+      _ref.read(pushNotificationServiceProvider).registerTokenIfNeeded();
+      
+      return 'success';
+    } catch (e) {
+      final errorMsg = e.toString();
+      if (errorMsg.contains('new_user') || errorMsg.contains('Home town is required')) {
+        state = state.copyWith(status: AuthStatus.unauthenticated, error: 'new_user');
+        return 'new_user';
+      }
+      if (errorMsg.contains('cancelled')) {
+        state = state.copyWith(status: AuthStatus.unauthenticated);
+        return 'cancelled';
+      }
+      state = AuthState(status: AuthStatus.error, error: errorMsg);
+      return 'error';
     }
   }
   
@@ -108,6 +147,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       
       print('DEBUG: Calling repository.logout');
       await _repository.logout();
+      
+      // Also sign out from Google if signed in
+      await _repository.signOutGoogle();
       
       print('DEBUG: Setting state to unauthenticated');
       state = const AuthState(status: AuthStatus.unauthenticated);
