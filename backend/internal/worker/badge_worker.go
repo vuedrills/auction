@@ -67,6 +67,9 @@ func (w *BadgeWorker) evaluateAllBadges() {
 	w.awardOGMemberBadges()
 	w.awardOneYearBadges()
 
+	// Verification badges
+	w.awardPhoneVerifiedBadges()
+
 	log.Println("🏅 Badge evaluation complete")
 }
 
@@ -535,6 +538,39 @@ func (w *BadgeWorker) awardOneYearBadges() {
 	}
 	if count > 0 {
 		log.Printf("🏅 Awarded '1 Year Member' badge to %d users", count)
+	}
+}
+
+// ============ VERIFICATION BADGES ============
+
+// awardPhoneVerifiedBadges awards to users who have verified their phone number
+func (w *BadgeWorker) awardPhoneVerifiedBadges() {
+	rows, err := w.db.Pool.Query(context.Background(), `
+		SELECT id FROM users
+		WHERE phone_verified = TRUE
+		  AND NOT EXISTS (
+			SELECT 1 FROM user_badges ub
+			JOIN badges b ON ub.badge_id = b.id
+			WHERE ub.user_id = users.id AND b.name = 'phone_verified'
+		  )
+	`)
+	if err != nil {
+		log.Printf("Error fetching phone verified candidates: %v", err)
+		return
+	}
+	defer rows.Close()
+
+	count := 0
+	for rows.Next() {
+		var userID uuid.UUID
+		if err := rows.Scan(&userID); err != nil {
+			continue
+		}
+		w.awardBadge(userID, "phone_verified")
+		count++
+	}
+	if count > 0 {
+		log.Printf("🏅 Awarded 'Phone Verified' badge to %d users", count)
 	}
 }
 

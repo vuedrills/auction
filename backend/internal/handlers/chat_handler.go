@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/middleware"
 	"github.com/airmass/backend/internal/models"
 	"github.com/airmass/backend/internal/websocket"
@@ -14,12 +16,13 @@ import (
 )
 
 type ChatHandler struct {
-	db  *database.DB
-	hub *websocket.Hub
+	db         *database.DB
+	hub        *websocket.Hub
+	fcmService *fcm.FCMService
 }
 
-func NewChatHandler(db *database.DB, hub *websocket.Hub) *ChatHandler {
-	return &ChatHandler{db: db, hub: hub}
+func NewChatHandler(db *database.DB, hub *websocket.Hub, fcmService *fcm.FCMService) *ChatHandler {
+	return &ChatHandler{db: db, hub: hub, fcmService: fcmService}
 }
 
 // GetChats returns the user's conversations
@@ -227,6 +230,29 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 			"is_read":    false,
 			"created_at": createdAt,
 		})
+
+		// Send push notification to recipient
+		go func() {
+			// Get recipient's FCM token and sender's name
+			var fcmToken *string
+			var senderName string
+			h.db.Pool.QueryRow(context.Background(),
+				"SELECT fcm_token FROM users WHERE id = $1", otherID).Scan(&fcmToken)
+			h.db.Pool.QueryRow(context.Background(),
+				"SELECT COALESCE(NULLIF(full_name, ''), username) FROM users WHERE id = $1", userID).Scan(&senderName)
+
+			if fcmToken != nil && *fcmToken != "" {
+				// Truncate message preview
+				preview := req.Content
+				if len(preview) > 50 {
+					preview = preview[:47] + "..."
+				}
+				err := h.fcmService.SendNewMessageNotification(*fcmToken, senderName, preview, chatID.String())
+				if err != nil {
+					log.Printf("Failed to send message push notification: %v", err)
+				}
+			}
+		}()
 	}
 
 	c.JSON(http.StatusOK, gin.H{

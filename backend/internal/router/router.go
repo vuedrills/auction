@@ -27,10 +27,10 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	authHandler := handlers.NewAuthHandler(db, jwtService, emailService, fcmService)
 	townHandler := handlers.NewTownHandler(db)
 	categoryHandler := handlers.NewCategoryHandler(db)
-	auctionHandler := handlers.NewAuctionHandler(db, hub)
+	auctionHandler := handlers.NewAuctionHandler(db, hub, fcmService)
 	featuresHandler := handlers.NewFeaturesHandler(db, hub)
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
-	chatHandler := handlers.NewChatHandler(db, hub)
+	chatHandler := handlers.NewChatHandler(db, hub, fcmService)
 	badgeHandler := handlers.NewBadgeHandler(db)
 	storeHandler := handlers.NewStoreHandler(db)
 	productHandler := handlers.NewProductHandler(db)
@@ -49,6 +49,14 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+			auth.POST("/google", authHandler.GoogleSignIn)
+
+			// Phone authentication (DISABLED by default - set ENABLE_PHONE_AUTH=true to enable)
+			// Requires Firebase SMS (paid service after free tier)
+			// auth.POST("/phone/verify", middleware.Auth(jwtService), authHandler.VerifyPhone)
+			// auth.POST("/phone/signin", authHandler.PhoneSignIn)
+			// auth.POST("/phone/register", authHandler.PhoneRegister)
+
 			auth.POST("/refresh-token", middleware.Auth(jwtService), authHandler.RefreshToken)
 			auth.POST("/forgot-password", authHandler.ForgotPassword)
 			auth.POST("/reset-password", authHandler.ResetPassword)
@@ -226,8 +234,9 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		}
 
 		// TEST ENDPOINTS (REMOVE IN PRODUCTION)
-		testHandler := handlers.NewTestHandler(db, hub)
+		testHandler := handlers.NewTestHandler(db, hub, fcmService)
 		api.POST("/test/end-auction/:id", testHandler.EndAuctionTest)
+		api.POST("/test/push-notification/:userId", testHandler.TestPushNotification)
 	}
 
 	// WebSocket

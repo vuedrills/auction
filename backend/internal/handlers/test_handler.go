@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/models"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/gin-gonic/gin"
@@ -15,13 +16,14 @@ import (
 
 // TestHandler handles test-only endpoints
 type TestHandler struct {
-	db  *database.DB
-	hub *websocket.Hub
+	db         *database.DB
+	hub        *websocket.Hub
+	fcmService *fcm.FCMService
 }
 
 // NewTestHandler creates a new test handler
-func NewTestHandler(db *database.DB, hub *websocket.Hub) *TestHandler {
-	return &TestHandler{db: db, hub: hub}
+func NewTestHandler(db *database.DB, hub *websocket.Hub, fcmService *fcm.FCMService) *TestHandler {
+	return &TestHandler{db: db, hub: hub, fcmService: fcmService}
 }
 
 // EndAuctionTest forces an auction to end immediately (FOR TESTING ONLY)
@@ -145,5 +147,50 @@ func (h *TestHandler) EndAuctionTest(c *gin.Context) {
 		"message":   "Auction ended successfully",
 		"status":    status,
 		"winner_id": winnerID,
+	})
+}
+
+// TestPushNotification sends a test push notification to a user (FOR TESTING ONLY)
+func (h *TestHandler) TestPushNotification(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("userId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Get user's FCM token
+	var fcmToken *string
+	err = h.db.Pool.QueryRow(context.Background(),
+		"SELECT fcm_token FROM users WHERE id = $1",
+		userID,
+	).Scan(&fcmToken)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if fcmToken == nil || *fcmToken == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User has no FCM token registered"})
+		return
+	}
+
+	// Send test notification
+	err = h.fcmService.SendToDevice(
+		*fcmToken,
+		"🔔 Test Notification",
+		"This is a test push notification from Trabab!",
+		map[string]string{
+			"type":   "test",
+			"action": "open_app",
+		},
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to send notification: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Test notification sent successfully",
+		"user_id": userID,
 	})
 }

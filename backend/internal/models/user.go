@@ -23,6 +23,17 @@ type User struct {
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
 
+	// OAuth fields
+	GoogleID     *string `json:"google_id,omitempty"`
+	AuthProvider string  `json:"auth_provider"` // "email", "google", "phone"
+
+	// Phone verification
+	PhoneVerified   bool       `json:"phone_verified"`
+	PhoneVerifiedAt *time.Time `json:"phone_verified_at,omitempty"`
+
+	// Push notifications
+	FcmToken *string `json:"-"` // FCM token for push notifications (not exposed in API)
+
 	// Reputation fields
 	Rating            float64   `json:"rating"`
 	RatingCount       int       `json:"rating_count"`
@@ -78,10 +89,40 @@ type UpdateProfileRequest struct {
 	FullName  *string `json:"full_name"`
 	Phone     *string `json:"phone"`
 	AvatarURL *string `json:"avatar_url"`
+	FcmToken  *string `json:"fcm_token"` // FCM token for push notifications
 }
 
 // UpdateTownRequest represents home town change request
 type UpdateTownRequest struct {
 	HomeTownID   uuid.UUID  `json:"home_town_id" binding:"required"`
 	HomeSuburbID *uuid.UUID `json:"home_suburb_id"`
+}
+
+// GoogleAuthRequest represents a Google Sign-In request
+type GoogleAuthRequest struct {
+	IDToken      string     `json:"id_token" binding:"required"`
+	HomeTownID   *uuid.UUID `json:"home_town_id"`   // Optional for first-time sign-up
+	HomeSuburbID *uuid.UUID `json:"home_suburb_id"` // Optional for first-time sign-up
+}
+
+// PhoneAuthRequest represents a phone authentication request
+type PhoneAuthRequest struct {
+	PhoneNumber string `json:"phone_number" binding:"required"`
+	HomeTownID  string `json:"home_town_id"` // Required for registration
+}
+
+// VerifyPhoneRequest represents a phone verification request
+type VerifyPhoneRequest struct {
+	PhoneNumber      string `json:"phone_number" binding:"required"`
+	VerificationCode string `json:"verification_code" binding:"required"`
+}
+
+// PhoneRegisterRequest represents a phone-based registration
+type PhoneRegisterRequest struct {
+	PhoneNumber      string  `json:"phone_number" binding:"required"`
+	VerificationCode string  `json:"verification_code" binding:"required"`
+	FullName         string  `json:"full_name"`
+	Username         *string `json:"username"` // Optional, will be generated if not provided
+	HomeTownID       string  `json:"home_town_id" binding:"required"`
+	HomeSuburbID     *string `json:"home_suburb_id"`
 }

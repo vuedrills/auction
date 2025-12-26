@@ -194,6 +194,12 @@ class ProfileScreen extends ConsumerWidget {
     final myAuctionsState = ref.watch(myAuctionsProvider);
     final wonAuctionsAsync = ref.watch(wonAuctionsProvider);
     final myBidsAsync = ref.watch(myBidsProvider);
+    final user = ref.watch(currentUserProvider);
+    
+    // Get rating - show N/A if user has no ratings yet
+    final ratingDisplay = user != null && user.ratingCount > 0
+        ? user.rating.toStringAsFixed(1)
+        : 'N/A';
     
     return Container(
       margin: const EdgeInsets.all(16),
@@ -220,7 +226,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           label: 'Bids',
         ),
-        const _StatItem(value: '4.8', label: 'Rating'),
+        _StatItem(value: ratingDisplay, label: 'Rating'),
       ]),
     );
   }

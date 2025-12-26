@@ -7,19 +7,22 @@ import (
 	"log"
 
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/google/uuid"
 )
 
 type NotificationService struct {
-	db  *database.DB
-	hub *websocket.Hub
+	db         *database.DB
+	hub        *websocket.Hub
+	fcmService *fcm.FCMService
 }
 
-func NewNotificationService(db *database.DB, hub *websocket.Hub) *NotificationService {
+func NewNotificationService(db *database.DB, hub *websocket.Hub, fcmService *fcm.FCMService) *NotificationService {
 	return &NotificationService{
-		db:  db,
-		hub: hub,
+		db:         db,
+		hub:        hub,
+		fcmService: fcmService,
 	}
 }
 
@@ -55,6 +58,19 @@ func (s *NotificationService) SendAuctionWonNotification(ctx context.Context, wi
 		"is_read":            false,
 		"data":               data,
 	})
+
+	// Send FCM push notification
+	go func() {
+		var fcmToken *string
+		s.db.Pool.QueryRow(context.Background(),
+			"SELECT fcm_token FROM users WHERE id = $1", winnerID).Scan(&fcmToken)
+		if fcmToken != nil && *fcmToken != "" {
+			err := s.fcmService.SendAuctionWonNotification(*fcmToken, auctionTitle, finalAmount, auctionID.String())
+			if err != nil {
+				log.Printf("Failed to send auction won push notification: %v", err)
+			}
+		}
+	}()
 
 	log.Printf("✅ Sent 'auction won' notification to user %s for auction %s (chat: %s)", winnerID, auctionID, conversationID)
 	return nil

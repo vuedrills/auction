@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../network/dio_client.dart';
+import 'storage_service.dart';
 
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -55,18 +56,17 @@ class PushNotificationService {
     
     // Get FCM token
     _fcmToken = await _messaging.getToken();
-    debugPrint('🔔 FCM Token: $_fcmToken');
+    debugPrint('🔔 FCM Token obtained: $_fcmToken');
     
-    // Send token to backend
-    if (_fcmToken != null) {
-      await _registerTokenWithBackend(_fcmToken!);
-    }
+    // Don't register immediately - wait until user is authenticated
+    // The token will be registered when registerTokenIfNeeded() is called after login
     
     // Listen for token refresh
     _messaging.onTokenRefresh.listen((newToken) async {
       _fcmToken = newToken;
       debugPrint('🔔 FCM Token refreshed: $newToken');
-      await _registerTokenWithBackend(newToken);
+      // Try to register the new token (will only succeed if authenticated)
+      await registerTokenIfNeeded();
     });
     
     // Handle foreground messages
@@ -80,6 +80,9 @@ class PushNotificationService {
     if (initialMessage != null) {
       _handleNotificationTap(initialMessage);
     }
+    
+    // Try to register token if user is already logged in
+    await registerTokenIfNeeded();
   }
   
   /// Setup local notifications for foreground display
@@ -119,9 +122,26 @@ class PushNotificationService {
     }
   }
   
+  /// Register FCM token with backend (public method to call after login)
+  Future<void> registerTokenIfNeeded() async {
+    if (_fcmToken == null) {
+      debugPrint('🔔 No FCM token available to register');
+      return;
+    }
+    await _registerTokenWithBackend(_fcmToken!);
+  }
+  
   /// Register FCM token with backend
   Future<void> _registerTokenWithBackend(String token) async {
     try {
+      // Check if we have an auth token before trying to register
+      final storageService = _ref.read(storageServiceProvider);
+      final authToken = await storageService.getToken();
+      if (authToken == null || authToken.isEmpty) {
+        debugPrint('🔔 Skipping FCM registration - user not authenticated');
+        return;
+      }
+      
       final client = _ref.read(dioClientProvider);
       await client.put('/users/me', data: {
         'fcm_token': token,

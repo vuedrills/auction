@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -148,6 +149,178 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
+// GoogleSignIn handles Google OAuth sign-in
+func (h *AuthHandler) GoogleSignIn(c *gin.Context) {
+	var req models.GoogleAuthRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Verify Google ID token
+	googleUser, err := h.verifyGoogleToken(req.IDToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Google token: " + err.Error()})
+		return
+	}
+
+	// Check if user already exists with this Google ID
+	var user models.User
+	err = h.db.Pool.QueryRow(context.Background(),
+		`SELECT id, email, username, full_name, avatar_url, phone, 
+		is_verified, is_active, home_town_id, home_suburb_id, created_at, updated_at
+		FROM users WHERE google_id = $1`,
+		googleUser.GoogleID,
+	).Scan(
+		&user.ID, &user.Email, &user.Username, &user.FullName,
+		&user.AvatarURL, &user.Phone, &user.IsVerified, &user.IsActive,
+		&user.HomeTownID, &user.HomeSuburbID, &user.CreatedAt, &user.UpdatedAt,
+	)
+
+	if err != nil {
+		// User doesn't exist with Google ID, check if email exists
+		var existingUserID uuid.UUID
+		err = h.db.Pool.QueryRow(context.Background(),
+			"SELECT id FROM users WHERE email = $1",
+			googleUser.Email,
+		).Scan(&existingUserID)
+
+		if err == nil {
+			// Email exists but not linked to Google - link the accounts
+			_, err = h.db.Pool.Exec(context.Background(),
+				`UPDATE users SET google_id = $1, auth_provider = 'google', 
+				avatar_url = COALESCE(avatar_url, $2), is_verified = true, updated_at = $3 
+				WHERE id = $4`,
+				googleUser.GoogleID, googleUser.AvatarURL, time.Now(), existingUserID,
+			)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to link Google account"})
+				return
+			}
+			user.ID = existingUserID
+		} else {
+			// New user - create account
+			// For new users, we need a home town
+			if req.HomeTownID == nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error":    "Home town is required for new users",
+					"new_user": true,
+				})
+				return
+			}
+
+			// Generate username from email
+			username := generateUsernameFromEmail(googleUser.Email)
+
+			var userID uuid.UUID
+			err = h.db.Pool.QueryRow(context.Background(),
+				`INSERT INTO users (email, username, full_name, avatar_url, google_id, auth_provider, 
+				home_town_id, home_suburb_id, is_verified, is_active)
+				VALUES ($1, $2, $3, $4, $5, 'google', $6, $7, true, true)
+				RETURNING id`,
+				googleUser.Email, username, googleUser.Name, googleUser.AvatarURL,
+				googleUser.GoogleID, req.HomeTownID, req.HomeSuburbID,
+			).Scan(&userID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
+				return
+			}
+			user.ID = userID
+			user.Username = username
+		}
+	}
+
+	// Check if user is active
+	fullUser := h.getUserByID(user.ID)
+	if fullUser == nil || !fullUser.IsActive {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Account is disabled"})
+		return
+	}
+
+	// Generate JWT token
+	token, expiresAt, err := h.jwtService.GenerateToken(fullUser.ID, fullUser.Email, fullUser.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.AuthResponse{
+		Token:     token,
+		ExpiresAt: expiresAt,
+		User:      fullUser,
+	})
+}
+
+// GoogleUserInfo represents user info from Google token
+type GoogleUserInfo struct {
+	GoogleID  string
+	Email     string
+	Name      string
+	AvatarURL *string
+}
+
+// verifyGoogleToken verifies the Google ID token and returns user info
+func (h *AuthHandler) verifyGoogleToken(idToken string) (*GoogleUserInfo, error) {
+	// Call Google's tokeninfo endpoint to verify the token
+	resp, err := http.Get("https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify token: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	var tokenInfo struct {
+		Sub           string `json:"sub"`
+		Email         string `json:"email"`
+		EmailVerified string `json:"email_verified"`
+		Name          string `json:"name"`
+		Picture       string `json:"picture"`
+		Aud           string `json:"aud"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&tokenInfo); err != nil {
+		return nil, fmt.Errorf("failed to decode token info: %v", err)
+	}
+
+	// Verify email is verified
+	if tokenInfo.EmailVerified != "true" {
+		return nil, fmt.Errorf("email not verified")
+	}
+
+	var avatarURL *string
+	if tokenInfo.Picture != "" {
+		avatarURL = &tokenInfo.Picture
+	}
+
+	return &GoogleUserInfo{
+		GoogleID:  tokenInfo.Sub,
+		Email:     tokenInfo.Email,
+		Name:      tokenInfo.Name,
+		AvatarURL: avatarURL,
+	}, nil
+}
+
+// generateUsernameFromEmail creates a username from an email address
+func generateUsernameFromEmail(email string) string {
+	// Extract the part before @
+	atIndex := 0
+	for i, c := range email {
+		if c == '@' {
+			atIndex = i
+			break
+		}
+	}
+	base := email[:atIndex]
+
+	// Add random suffix to ensure uniqueness
+	b := make([]byte, 4)
+	rand.Read(b)
+	return fmt.Sprintf("%s_%x", base, b[:2])
+}
+
 // RefreshToken handles token refresh
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	userID, _ := c.Get("user_id")
@@ -199,9 +372,10 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 			full_name = COALESCE($2, full_name),
 			phone = COALESCE($3, phone),
 			avatar_url = COALESCE($4, avatar_url),
-			updated_at = $5
+			fcm_token = COALESCE($5, fcm_token),
+			updated_at = $6
 		WHERE id = $1`,
-		userID, req.FullName, req.Phone, req.AvatarURL, time.Now(),
+		userID, req.FullName, req.Phone, req.AvatarURL, req.FcmToken, time.Now(),
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})

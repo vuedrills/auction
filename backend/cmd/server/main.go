@@ -8,6 +8,7 @@ import (
 
 	"github.com/airmass/backend/internal/config"
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/router"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/airmass/backend/internal/worker"
@@ -44,12 +45,18 @@ func main() {
 	// Initialize services
 	jwtService := jwt.NewService(cfg.JWTSecret, cfg.JWTExpiryHours)
 
+	// Initialize FCM service
+	fcmService, err := fcm.NewFCMService(cfg)
+	if err != nil {
+		log.Printf("Warning: Failed to initialize FCM: %v", err)
+	}
+
 	// Initialize WebSocket hub
 	hub := websocket.NewHub()
 	go hub.Run()
 
 	// Initialize and start background workers
-	auctionWorker := worker.NewAuctionWorker(db, hub)
+	auctionWorker := worker.NewAuctionWorker(db, hub, fcmService)
 	go auctionWorker.Start(ctx)
 
 	badgeWorker := worker.NewBadgeWorker(db)
