@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/data.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -26,6 +27,7 @@ import '../screens/search/national_search_screen.dart';
 import '../screens/user/user_screens.dart';
 import '../screens/legal/legal_screens.dart';
 import '../screens/states/error_states_screen.dart';
+import '../screens/store/edit_store_screen.dart';
 import '../screens/rating/rate_user_screen.dart';
 import '../screens/rating/user_reviews_screen.dart';
 import '../screens/profile/verification_screen.dart';
@@ -140,6 +142,10 @@ final appRouter = GoRouter(
 
     // Store Routes
     GoRoute(path: '/store/create', builder: (_, __) => const CreateStoreScreen()),
+    GoRoute(
+      path: '/store/edit',
+      builder: (_, state) => EditStoreScreen(store: state.extra as Store),
+    ),
     GoRoute(path: '/stores', builder: (_, __) => const StoreExploreScreen()),
     GoRoute(
       path: '/store/:slug',
@@ -188,7 +194,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/search/national',
-      builder: (_, __) => const NationalSearchScreen(),
+      builder: (_, state) => NationalSearchScreen(
+        suburbId: state.uri.queryParameters['suburbId'],
+        townId: state.uri.queryParameters['townId'],
+      ),
     ),
     
     // Legal

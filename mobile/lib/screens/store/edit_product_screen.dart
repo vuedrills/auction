@@ -132,6 +132,13 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
 
       // Refresh providers
       ref.invalidate(myProductsProvider);
+      ref.invalidate(myStoreProvider);
+      
+      // Also invalidate store-front products if we know the slug
+      final myStore = ref.read(myStoreProvider).valueOrNull;
+      if (myStore != null) {
+        ref.invalidate(storeProductsProvider(StoreProductsParams(slug: myStore.slug)));
+      }
       
       if (mounted) context.pop();
 

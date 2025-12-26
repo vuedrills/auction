@@ -22,6 +22,17 @@ type Config struct {
 	SupabaseAnonKey    string
 	SupabaseServiceKey string
 	SupabaseBucket     string
+
+	// Email (Resend)
+	ResendAPIKey string
+	FromEmail    string
+	FromName     string
+
+	// Firebase (FCM)
+	FirebaseServiceAccountPath string
+
+	// App
+	PublicURL string
 }
 
 func Load() (*Config, error) {
@@ -43,6 +54,14 @@ func Load() (*Config, error) {
 		SupabaseAnonKey:    getEnv("SUPABASE_ANON_KEY", ""),
 		SupabaseServiceKey: getEnv("SUPABASE_SERVICE_KEY", ""),
 		SupabaseBucket:     getEnv("SUPABASE_BUCKET", "auctionimages"),
+		// Email
+		ResendAPIKey: getEnv("RESEND_API_KEY", ""),
+		FromEmail:    getEnv("FROM_EMAIL", "noreply@trabab.com"),
+		FromName:     getEnv("FROM_NAME", "Trabab"),
+		// Firebase
+		FirebaseServiceAccountPath: getEnv("FIREBASE_SERVICE_ACCOUNT_PATH", "./servicekey.json"),
+		// App
+		PublicURL: getEnv("PUBLIC_URL", "http://localhost:8080"),
 	}, nil
 }
 

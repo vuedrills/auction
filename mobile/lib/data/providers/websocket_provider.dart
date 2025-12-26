@@ -86,16 +86,13 @@ class WebSocketManager extends StateNotifier<WsConnectionState> {
   
   /// Subscribe to auction updates
   void subscribeToAuction(String auctionId) {
-    if (_wsService.isConnected) {
-      _wsService.subscribeToAuction(auctionId);
-    }
+    // Always call service. It handles queueing if not connected.
+    _wsService.subscribeToAuction(auctionId);
   }
   
   /// Unsubscribe from auction updates
   void unsubscribeFromAuction(String auctionId) {
-    if (_wsService.isConnected) {
-      _wsService.unsubscribeFromAuction(auctionId);
-    }
+    _wsService.unsubscribeFromAuction(auctionId);
   }
   
   @override

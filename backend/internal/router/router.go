@@ -1,7 +1,10 @@
 package router
 
 import (
+	"github.com/airmass/backend/internal/config"
 	"github.com/airmass/backend/internal/database"
+	"github.com/airmass/backend/internal/email"
+	"github.com/airmass/backend/internal/fcm"
 	"github.com/airmass/backend/internal/handlers"
 	"github.com/airmass/backend/internal/middleware"
 	"github.com/airmass/backend/internal/websocket"
@@ -10,14 +13,18 @@ import (
 )
 
 // SetupRouter configures all routes
-func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *gin.Engine {
+func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, cfg *config.Config) *gin.Engine {
 	r := gin.Default()
 
 	// Middleware
 	r.Use(middleware.CORS())
 
+	// Services
+	emailService := email.NewEmailService(cfg)
+	fcmService, _ := fcm.NewFCMService(cfg) // FCM is optional, continues without it
+
 	// Handlers
-	authHandler := handlers.NewAuthHandler(db, jwtService)
+	authHandler := handlers.NewAuthHandler(db, jwtService, emailService, fcmService)
 	townHandler := handlers.NewTownHandler(db)
 	categoryHandler := handlers.NewCategoryHandler(db)
 	auctionHandler := handlers.NewAuctionHandler(db, hub)
@@ -43,6 +50,10 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/refresh-token", middleware.Auth(jwtService), authHandler.RefreshToken)
+			auth.POST("/forgot-password", authHandler.ForgotPassword)
+			auth.POST("/reset-password", authHandler.ResetPassword)
+			auth.POST("/send-verification", middleware.Auth(jwtService), authHandler.SendVerificationEmail)
+			auth.POST("/verify-email", middleware.Auth(jwtService), authHandler.VerifyEmail)
 		}
 
 		// Users
@@ -96,9 +107,11 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 		chats.Use(middleware.Auth(jwtService))
 		{
 			chats.GET("", chatHandler.GetChats)
+			chats.POST("/start", chatHandler.StartChatWithUser)
 			chats.GET("/:id/messages", chatHandler.GetMessages)
 			chats.POST("/:id/messages", chatHandler.SendMessage)
 			chats.PUT("/:id/read", chatHandler.MarkAsRead)
+			chats.PUT("/read-all", chatHandler.MarkAllAsRead)
 		}
 
 		// Towns & Suburbs
@@ -143,6 +156,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub) *
 			stores.POST("", middleware.Auth(jwtService), storeHandler.CreateStore)
 			stores.GET("/me", middleware.Auth(jwtService), storeHandler.GetMyStore)
 			stores.PUT("/me", middleware.Auth(jwtService), storeHandler.UpdateMyStore)
+			stores.DELETE("/me", middleware.Auth(jwtService), storeHandler.DeleteMyStore)
 			stores.GET("/me/products", middleware.Auth(jwtService), productHandler.GetMyProducts)
 			stores.POST("/me/products", middleware.Auth(jwtService), productHandler.CreateProduct)
 

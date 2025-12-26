@@ -35,3 +35,12 @@ mobile/ios/Flutter/flutter_export_environment.sh
 
 # Logs
 *.log
+
+# Secrets
+servicekey.json
+backend/servicekey.json
+google-services.json
+mobile/android/app/google-services.json
+
+# Artifacts
+.gemini/

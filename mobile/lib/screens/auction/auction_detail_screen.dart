@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -95,6 +97,46 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
     );
   }
 
+  void _openFullScreenGallery(BuildContext context, List<String> images, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              PhotoViewGallery.builder(
+                scrollPhysics: const BouncingScrollPhysics(),
+                builder: (BuildContext context, int index) {
+                  return PhotoViewGalleryPageOptions(
+                    imageProvider: CachedNetworkImageProvider(images[index]),
+                    initialScale: PhotoViewComputedScale.contained,
+                    minScale: PhotoViewComputedScale.contained * 0.8,
+                    maxScale: PhotoViewComputedScale.covered * 2,
+                    heroAttributes: PhotoViewHeroAttributes(tag: 'auction_image_${widget.auctionId}_$index'),
+                  );
+                },
+                itemCount: images.length,
+                loadingBuilder: (context, event) => const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+                backgroundDecoration: const BoxDecoration(color: Colors.black),
+                pageController: PageController(initialPage: initialIndex),
+              ),
+              Positioned(
+                top: 50,
+                left: 16,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _bidSubscription?.cancel();
@@ -174,18 +216,24 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> {
           PageView.builder(
             itemCount: images.length,
             onPageChanged: (i) => setState(() => _currentImageIndex = i),
-            itemBuilder: (_, i) => Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+            itemBuilder: (_, i) => GestureDetector(
+              onTap: () => _openFullScreenGallery(context, images, i),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                ),
+                child: images[i].isNotEmpty
+                    ? Hero(
+                        tag: 'auction_image_${widget.auctionId}_$i',
+                        child: CachedNetworkImage(
+                          imageUrl: images[i],
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                          errorWidget: (_, __, ___) => Icon(Icons.broken_image, size: 64, color: Colors.grey.shade400),
+                        ),
+                      )
+                    : Icon(Icons.image, size: 64, color: Colors.grey.shade400),
               ),
-              child: images[i].isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: images[i],
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Center(child: CircularProgressIndicator()),
-                      errorWidget: (_, __, ___) => Icon(Icons.broken_image, size: 64, color: Colors.grey.shade400),
-                    )
-                  : Icon(Icons.image, size: 64, color: Colors.grey.shade400),
             ),
           ),
           Positioned(

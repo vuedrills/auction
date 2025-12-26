@@ -114,8 +114,7 @@ func (h *StoreHandler) CreateStore(c *gin.Context) {
 			user_id, store_name, slug, tagline, about, logo_url, cover_url,
 			category_id, whatsapp, phone, delivery_options, delivery_radius_km,
 			town_id, suburb_id, address, is_verified
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-			(SELECT is_verified FROM users WHERE id = $1))
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, false)
 		RETURNING id, user_id, store_name, slug, tagline, about, logo_url, cover_url,
 			category_id, whatsapp, phone, delivery_options, delivery_radius_km,
 			town_id, suburb_id, address, is_active, is_verified, is_featured,
@@ -261,6 +260,50 @@ func (h *StoreHandler) UpdateMyStore(c *gin.Context) {
 
 	store, _ := h.getStoreByUserID(userID.(uuid.UUID))
 	c.JSON(http.StatusOK, models.StoreResponse{Store: store})
+}
+
+// DeleteMyStore deletes the authenticated user's store
+func (h *StoreHandler) DeleteMyStore(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("user_id"))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Begin transaction
+	tx, err := h.db.Pool.Begin(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
+		return
+	}
+	defer tx.Rollback(c)
+
+	// Check if store exists
+	var storeID uuid.UUID
+	err = tx.QueryRow(c, "SELECT id FROM stores WHERE user_id = $1", userID).Scan(&storeID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// Delete the store (cascading will handle products, followers, etc.)
+	_, err = tx.Exec(c, "DELETE FROM stores WHERE id = $1", storeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete store"})
+		return
+	}
+
+	// Commit transaction
+	if err := tx.Commit(c); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Store deleted successfully"})
 }
 
 // ============ STORE DISCOVERY ============

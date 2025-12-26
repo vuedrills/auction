@@ -49,13 +49,13 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     }
   }
 
-  Future<void> _uploadSelfie() async {
+  Future<void> _uploadSelfie(ImageSource source) async {
     setState(() => _isUploadingSelfie = true);
     try {
       final storageService = ref.read(supabaseStorageProvider);
       final url = await storageService.pickAndUploadImage(
         folder: 'verification/selfies',
-        source: ImageSource.camera,
+        source: source,
       );
       if (url != null) {
         setState(() {
@@ -72,6 +72,71 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     } finally {
       if (mounted) setState(() => _isUploadingSelfie = false);
     }
+  }
+
+  void _showSelfieSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Take a Selfie', style: AppTypography.titleLarge),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: AppColors.primary),
+                ),
+                title: Text('Take Photo', style: AppTypography.titleSmall),
+                subtitle: Text('Use camera for selfie', style: AppTypography.bodySmall),
+                onTap: () {
+                  Navigator.pop(context);
+                  _uploadSelfie(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.photo_library, color: AppColors.primary),
+                ),
+                title: Text('Choose from Gallery', style: AppTypography.titleSmall),
+                subtitle: Text('Select existing photo', style: AppTypography.bodySmall),
+                onTap: () {
+                  Navigator.pop(context);
+                  _uploadSelfie(ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _submitVerification() async {
@@ -266,9 +331,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
                           }))
                         : _buildUploadButton(
                             isLoading: _isUploadingSelfie,
-                            onTap: _idDocumentUrl != null ? _uploadSelfie : null,
-                            label: 'Take Selfie',
-                            icon: Icons.camera_alt,
+                            onTap: _idDocumentUrl != null ? _showSelfieSourceDialog : null,
+                            label: 'Upload Selfie',
+                            icon: Icons.face,
                           ),
                   ),
                   

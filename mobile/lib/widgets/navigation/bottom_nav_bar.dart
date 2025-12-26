@@ -124,22 +124,24 @@ class _NavItem extends StatelessWidget {
                 ),
                 if (badgeCount != null && badgeCount! > 0)
                   Positioned(
-                    right: 2,
-                    top: 2,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        badgeCount! > 9 ? '9+' : badgeCount.toString(),
-                        style: AppTypography.labelSmall.copyWith(
-                          color: Colors.white,
-                          fontSize: 10,
+                    right: label == 'Inbox' ? 4 : 2,
+                    top: label == 'Inbox' ? 4 : 2,
+                    child: label == 'Inbox' 
+                      ? const _PulsatingDot()
+                      : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            badgeCount! > 9 ? '9+' : badgeCount.toString(),
+                            style: AppTypography.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                   ),
               ],
             ),
@@ -195,6 +197,56 @@ class _FABItem extends StatelessWidget {
           size: 28,
         ),
       ),
+    );
+  }
+}
+
+class _PulsatingDot extends StatefulWidget {
+  const _PulsatingDot();
+
+  @override
+  State<_PulsatingDot> createState() => _PulsatingDotState();
+}
+
+class _PulsatingDotState extends State<_PulsatingDot> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.4 * _controller.value),
+                blurRadius: 8 * _controller.value,
+                spreadRadius: 2 * _controller.value,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -89,34 +90,55 @@ func (h *TestHandler) EndAuctionTest(c *gin.Context) {
 
 	// 1. Notify Winner
 	if winnerID != nil {
+		// Include seller ID so winner can rate the seller
+		winnerData := map[string]interface{}{
+			"related_user_id": sellerID.String(),
+		}
+		winnerDataJSON, _ := json.Marshal(winnerData)
+
 		h.hub.BroadcastToUser(*winnerID, websocket.MessageTypeAuctionWon, gin.H{
-			"auction_id": auctionID,
-			"title":      "You Won!",
-			"body":       fmt.Sprintf("You won '%s' for $%.2f", title, *currentPrice),
-			"amount":     currentPrice,
-			"seller_id":  sellerID,
+			"auction_id":      auctionID,
+			"title":           "You Won!",
+			"body":            fmt.Sprintf("You won '%s' for $%.2f", title, *currentPrice),
+			"amount":          currentPrice,
+			"related_user_id": sellerID.String(),
 		})
 
 		h.db.Pool.Exec(context.Background(),
-			`INSERT INTO notifications (user_id, type, title, body, related_auction_id)
-			 VALUES ($1, 'auction_won', 'You won the auction!', $2, $3)`,
-			winnerID, fmt.Sprintf("You won '%s'", title), auctionID,
+			`INSERT INTO notifications (user_id, type, title, body, related_auction_id, data)
+			 VALUES ($1, 'auction_won', 'You won the auction!', $2, $3, $4)`,
+			winnerID, fmt.Sprintf("You won '%s'", title), auctionID, winnerDataJSON,
 		)
 	}
 
 	// 2. Notify Seller
+	var sellerData []byte
+	if winnerID != nil {
+		// Include winner ID so seller can rate the buyer
+		sellerDataMap := map[string]interface{}{
+			"related_user_id": winnerID.String(),
+		}
+		sellerData, _ = json.Marshal(sellerDataMap)
+	}
+
 	h.hub.BroadcastToUser(sellerID, websocket.MessageTypeAuctionSold, gin.H{
 		"auction_id": auctionID,
-		"title":      "Auction Sold!",
-		"body":       fmt.Sprintf("'%s' was sold for $%.2f", title, *currentPrice),
+		"title":      "Your auction ended",
+		"body":       fmt.Sprintf("Auction '%s' has ended", title),
 		"amount":     currentPrice,
-		"winner_id":  winnerID,
+		"related_user_id": func() string {
+			if winnerID != nil {
+				return winnerID.String()
+			} else {
+				return ""
+			}
+		}(),
 	})
 
 	h.db.Pool.Exec(context.Background(),
-		`INSERT INTO notifications (user_id, type, title, body, related_auction_id)
-		 VALUES ($1, 'auction_sold', 'Your auction ended', $2, $3)`,
-		sellerID, fmt.Sprintf("Auction '%s' has ended", title), auctionID,
+		`INSERT INTO notifications (user_id, type, title, body, related_auction_id, data)
+		 VALUES ($1, 'auction_sold', 'Your auction ended', $2, $3, $4)`,
+		sellerID, fmt.Sprintf("Auction '%s' has ended", title), auctionID, sellerData,
 	)
 
 	c.JSON(http.StatusOK, gin.H{

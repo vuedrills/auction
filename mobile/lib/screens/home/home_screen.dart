@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../data/repositories/notification_repository.dart';
+import '../../data/repositories/chat_repository.dart';
 import '../../widgets/navigation/bottom_nav_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../profile/profile_screen.dart';
@@ -42,7 +43,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = ref.watch(unreadNotificationCountProvider);
+    final unreadNotifications = ref.watch(unreadNotificationCountProvider);
+    final unreadChats = ref.watch(unreadChatCountProvider);
+    final totalUnread = unreadNotifications + unreadChats;
     
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -58,7 +61,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTabSelected: _onTabSelected,
-        notificationBadgeCount: unreadCount,
+        notificationBadgeCount: totalUnread,
       ),
       extendBody: true,
     );
@@ -96,10 +99,7 @@ class MyTownTabContent extends ConsumerWidget {
 
           // Featured Stores
           const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: FeaturedStoresList(),
-            ),
+            child: FeaturedStoresList(),
           ),
           
           // Ending Soon Section
@@ -240,23 +240,7 @@ class _HeaderWithDropdown extends ConsumerWidget {
                   Text('HOME TOWN', style: AppTypography.labelSmall.copyWith(
                     color: AppColors.primary, fontWeight: FontWeight.w700, letterSpacing: 1)),
                 ]),
-                if (user?.homeTownId != null)
-                  GestureDetector(
-                    onTap: () => context.push('/suburbs/${user?.homeTownId}?name=${Uri.encodeComponent(user?.homeTown?.name ?? '')}'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(children: [
-                        Icon(Icons.explore_rounded, size: 14, color: AppColors.primary),
-                        const SizedBox(width: 4),
-                        Text('Explore Suburbs', style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.primary, fontWeight: FontWeight.w600)),
-                      ]),
-                    ),
-                  ),
+
               ],
             ),
             const SizedBox(height: 8),
@@ -303,19 +287,18 @@ class _HeaderWithDropdown extends ConsumerWidget {
                 const SizedBox(width: 12),
                 // Profile icon
                 GestureDetector(
-                  onTap: () => context.push('/profile'),
+                  onTap: () {
+                    if (user?.homeTownId != null) {
+                      context.push('/suburbs/${user?.homeTownId}?name=${Uri.encodeComponent(user?.homeTown?.name ?? '')}');
+                    }
+                  },
                   child: Container(
                     width: 40, height: 40,
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: user?.avatarUrl != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(imageUrl: user!.avatarUrl!, fit: BoxFit.cover),
-                        )
-                      : Icon(Icons.person_rounded, color: AppColors.primary),
+                    child: Icon(Icons.explore_outlined, color: AppColors.primary),
                   ),
                 ),
               ],
@@ -449,13 +432,13 @@ class _EndingSoonList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (auctions.isEmpty) {
       return SizedBox(
-        height: 200,
+        height: 240,
         child: Center(child: Text('No auctions ending soon', style: AppTypography.bodyMedium)),
       );
     }
 
     return SizedBox(
-      height: 200,
+      height: 240,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -478,7 +461,7 @@ class _EndingSoonCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/auction/${auction.id}'),
       child: Container(
-        width: 160,
+        width: 175,
         decoration: BoxDecoration(
           color: AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(16),
@@ -488,59 +471,85 @@ class _EndingSoonCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (auction.primaryImage != null)
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                      child: CachedNetworkImage(
-                        imageUrl: auction.primaryImage!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Center(child: Icon(Icons.image, color: Colors.grey.shade400)),
-                        errorWidget: (_, __, ___) => Center(child: Icon(Icons.broken_image, color: Colors.grey.shade400)),
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (auction.primaryImage != null)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        child: CachedNetworkImage(
+                          imageUrl: auction.primaryImage!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Center(child: Icon(Icons.image, color: Colors.grey.shade400)),
+                          errorWidget: (_, __, ___) => Center(child: Icon(Icons.broken_image, color: Colors.grey.shade400)),
+                        ),
+                      )
+                    else
+                      Center(child: Icon(Icons.image_rounded, size: 40, color: Colors.grey.shade400)),
+                    // Timer badge
+                    Positioned(
+                      top: 8, right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(color: auction.isEndingSoon ? AppColors.secondary : Colors.black54, borderRadius: BorderRadius.circular(12)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.timer_rounded, size: 12, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(auction.timeRemaining ?? '', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                          ],
+                        ),
                       ),
-                    )
-                  else
-                    Center(child: Icon(Icons.image_rounded, size: 40, color: Colors.grey.shade400)),
-                  // Timer badge
-                  Positioned(
-                    top: 8, right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.secondary, borderRadius: BorderRadius.circular(12)),
-                      child: Row(children: [
-                        Icon(Icons.timer_rounded, size: 12, color: Colors.white),
-                        const SizedBox(width: 4),
-                        Text(auction.timeRemaining ?? '', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-                      ]),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             // Content
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(auction.title, style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text('\$${auction.displayPrice.toStringAsFixed(2)}', style: AppTypography.titleMedium.copyWith(color: AppColors.primary)),
-                  const SizedBox(height: 4),
-                  Row(children: [
-                    Icon(Icons.gavel_rounded, size: 12, color: AppColors.textSecondaryLight),
-                    const SizedBox(width: 4),
-                    Text('${auction.totalBids} bids', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
-                  ]),
-                ],
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(auction.title, style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(auction.suburb?.name ?? auction.town?.name ?? '', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                        ),
+                        if (auction.totalBids > 0)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.gavel_rounded, size: 10, color: AppColors.textSecondaryLight),
+                              const SizedBox(width: 2),
+                              Text('${auction.totalBids}', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('\$${auction.displayPrice.toStringAsFixed(0)}', style: AppTypography.titleMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                        if (auction.timeRemaining != null)
+                          Text(auction.timeRemaining!, style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

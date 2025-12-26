@@ -8,14 +8,21 @@ import '../../widgets/common/app_button.dart';
 import '../../widgets/common/badge_widgets.dart';
 
 /// User Profile Screen (Other User) - Connected to Backend
-class UserProfileScreen extends ConsumerWidget {
+class UserProfileScreen extends ConsumerStatefulWidget {
   final String userId;
   const UserProfileScreen({super.key, required this.userId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userProfileProvider(userId));
-    final userAuctionsAsync = ref.watch(userAuctionsProvider(userId));
+  ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider);
+    final isMe = currentUser?.id == widget.userId;
+    final userAsync = ref.watch(userProfileProvider(widget.userId));
+    final userAuctionsAsync = ref.watch(userAuctionsProvider(widget.userId));
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -85,13 +92,13 @@ class UserProfileScreen extends ConsumerWidget {
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
                 child: userAuctionsAsync.when(
                   data: (auctionResponse) {
-                    final ratingsAsync = ref.watch(userRatingsProvider(userId));
+                    final ratingsAsync = ref.watch(userRatingsProvider(widget.userId));
                     
                     return ratingsAsync.when(
                       data: (ratingsResponse) => Row(children: [
                         _StatItem(value: '${auctionResponse.auctions.length}', label: 'Auctions'),
                         GestureDetector(
-                          onTap: () => context.push('/user/$userId/reviews'),
+                          onTap: () => context.push('/user/${widget.userId}/reviews'),
                           child: _StatItem(
                             value: ratingsResponse.totalRatings > 0
                                 ? ratingsResponse.average.toStringAsFixed(1)
@@ -135,7 +142,7 @@ class UserProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Consumer(
                   builder: (context, ref, _) {
-                    final badgesAsync = ref.watch(userBadgesProvider(userId));
+                    final badgesAsync = ref.watch(userBadgesProvider(widget.userId));
                     return badgesAsync.when(
                       data: (badges) {
                         if (badges.isEmpty) return const SizedBox.shrink();
@@ -181,73 +188,65 @@ class UserProfileScreen extends ConsumerWidget {
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            // See Reviews Button
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Consumer(
-                  builder: (context, ref, _) {
-                    final ratingsAsync = ref.watch(userRatingsProvider(userId));
-                    return ratingsAsync.whenOrNull(
-                      data: (response) {
-                        if (response.totalRatings == 0) return const SizedBox.shrink();
-                        return OutlinedButton.icon(
-                          onPressed: () => context.push('/user/$userId/reviews'),
-                          icon: const Icon(Icons.rate_review),
-                          label: Text('See ${response.totalRatings} ${response.totalRatings == 1 ? 'Review' : 'Reviews'}'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                            side: BorderSide(color: AppColors.primary),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                        );
-                      },
-                    ) ?? const SizedBox.shrink();
-                  },
+            // Visit Store Button
+            if (user.storeSlug != null)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              sliver: SliverToBoxAdapter(
+                child: AppButton(
+                  label: 'Visit Store',
+                  onPressed: () => context.push('/store/${user.storeSlug}'),
+                  icon: Icons.store,
+                  isOutlined: true,
                 ),
               ),
             ),
+
             // Active listings
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text('Active Listings', style: AppTypography.headlineSmall),
-                ]),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Text('Active Listings', style: AppTypography.headlineSmall),
               ),
             ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 200,
-                child: userAuctionsAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (_, __) => const Center(child: Text('Error loading auctions')),
+            
+            Consumer(
+              builder: (context, ref, _) {
+                final auctionsAsync = ref.watch(userAuctionsProvider(widget.userId));
+                return auctionsAsync.when(
                   data: (response) {
                     if (response.auctions.isEmpty) {
-                      return Center(
-                        child: Text('No active listings', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+                      return const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(child: Text('No active auctions')),
+                        ),
                       );
                     }
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
+                    return SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: response.auctions.length > 5 ? 5 : response.auctions.length,
-                      itemBuilder: (_, i) => _ListingCard(auction: response.auctions[i]),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _ListingCard(auction: response.auctions[index]),
+                          childCount: response.auctions.length,
+                        ),
+                      ),
                     );
                   },
-                ),
-              ),
+                  loading: () => const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator())),
+                  error: (e, _) => SliverToBoxAdapter(child: Center(child: Text('Error: $e'))),
+                );
+              },
             ),
+
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppColors.borderLight))),
-        child: SafeArea(
-          top: false,
-          child: AppButton(label: 'Message Seller', onPressed: () => context.push('/chat/new?userId=$userId'), icon: Icons.message),
         ),
       ),
     );
