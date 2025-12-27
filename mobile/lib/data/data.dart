@@ -16,6 +16,7 @@ export 'repositories/notification_repository.dart';
 export 'repositories/features_repository.dart'; // Advanced features
 export 'repositories/badge_repository.dart';
 export 'repositories/store_repository.dart';
+export 'repositories/shop_chat_repository.dart';
 
 // Providers
 export 'providers/auth_provider.dart';
