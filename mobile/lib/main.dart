@@ -6,8 +6,14 @@ import 'app/app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  // Initialize Firebase (optional - app works without it)
+  try {
+    await Firebase.initializeApp();
+    debugPrint('✅ Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('⚠️ Firebase not configured - push notifications disabled');
+    debugPrint('   To enable push notifications, run: flutterfire configure');
+  }
   
   runApp(
     const ProviderScope(

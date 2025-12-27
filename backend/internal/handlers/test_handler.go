@@ -194,3 +194,67 @@ func (h *TestHandler) TestPushNotification(c *gin.Context) {
 		"user_id": userID,
 	})
 }
+
+// SetAuctionEndingSoon updates an auction to end in 5 minutes (FOR TESTING ONLY)
+func (h *TestHandler) SetAuctionEndingSoon(c *gin.Context) {
+	auctionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	// Update auction end time to 5 minutes from now
+	_, err = h.db.Pool.Exec(context.Background(),
+		`UPDATE auctions 
+		 SET end_time = NOW() + INTERVAL '5 minutes', 
+		     status = 'active',
+		     updated_at = NOW() 
+		 WHERE id = $1`,
+		auctionID,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update auction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Auction set to end in 5 minutes",
+		"auction_id": auctionID,
+	})
+}
+
+// UpdateUserEmail updates a user's email (FOR TESTING ONLY)
+func (h *TestHandler) UpdateUserEmail(c *gin.Context) {
+	var req struct {
+		UserID string `json:"user_id"`
+		Email  string `json:"email"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE users SET email = $1 WHERE id = $2",
+		req.Email, userID,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update email"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Email updated successfully",
+		"user_id": userID,
+		"email":   req.Email,
+	})
+}

@@ -32,6 +32,9 @@ class ChatMessage {
   
   factory ChatMessage.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
     final senderId = (json['sender_id'] as String?) ?? '';
+    // Debug print if needed (remove in prod)
+    // if (currentUserId != null && senderId == currentUserId) print('Message is me: ${json['content']}');
+    
     return ChatMessage(
       id: (json['id'] as String?) ?? '',
       chatId: (json['chat_id'] as String?) ?? '',
@@ -42,7 +45,7 @@ class ChatMessage {
       createdAt: json['created_at'] != null 
           ? DateTime.parse(json['created_at'] as String) 
           : DateTime.now(),
-      isMe: currentUserId != null && senderId == currentUserId,
+      isMe: currentUserId != null && senderId.toLowerCase() == currentUserId.toLowerCase(),
     );
   }
 }
