@@ -36,6 +36,7 @@ import '../screens/store/storefront_screen.dart';
 import '../screens/store/store_products_screen.dart';
 import '../screens/store/product_detail_screen.dart';
 import '../screens/store/store_explore_screen.dart';
+import '../screens/store/shop_chat_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -185,6 +186,20 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/chats/:id',
       builder: (_, state) => ChatDetailScreen(chatId: state.pathParameters['id'] ?? ''),
+    ),
+    
+    // Shop Chat (separate from auction chats)
+    GoRoute(
+      path: '/shop-chats/:id',
+      builder: (_, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ShopChatScreen(
+          conversationId: state.pathParameters['id'] ?? '',
+          storeName: extra?['storeName'] as String?,
+          storeSlug: extra?['storeSlug'] as String?,
+          productTitle: extra?['productTitle'] as String?,
+        );
+      },
     ),
     
     // Search

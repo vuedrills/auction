@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/repositories/notification_repository.dart';
 import '../../data/repositories/chat_repository.dart';
+import '../../data/repositories/shop_chat_repository.dart';
 import '../../data/repositories/auction_repository.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -22,7 +23,7 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // Now 3 tabs
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         setState(() {
@@ -68,89 +69,29 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                         onPressed: () => ref.read(chatsProvider.notifier).markAllMessagesAsRead(),
                         child: Text('Mark all read', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
                       ),
+                    // Tab 2 (Shops) doesn't have mark all read yet
                   ],
                 ),
                 
-                // Custom Toggle
+                // 3-Tab Toggle
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Container(
-                    height: 48,
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
+                    height: 44,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(14)),
                     child: Row(children: [
                       // Notifications Tab
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _tabController.animateTo(0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _currentTabIndex == 0 ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: _currentTabIndex == 0 ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Notifications', style: AppTypography.titleSmall.copyWith(
-                                  color: _currentTabIndex == 0 ? AppColors.textPrimaryLight : Colors.grey,
-                                  fontWeight: _currentTabIndex == 0 ? FontWeight.w600 : FontWeight.w400,
-                                )),
-                                Consumer(builder: (context, ref, _) {
-                                  final count = ref.watch(unreadNotificationCountProvider);
-                                  if (count == 0) return const SizedBox.shrink();
-                                  return Container(
-                                    margin: const EdgeInsets.only(left: 6),
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: _currentTabIndex == 0 ? AppColors.primary : Colors.grey.shade400,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Messages Tab
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _tabController.animateTo(1),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _currentTabIndex == 1 ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: _currentTabIndex == 1 ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Messages', style: AppTypography.titleSmall.copyWith(
-                                  color: _currentTabIndex == 1 ? AppColors.textPrimaryLight : Colors.grey,
-                                  fontWeight: _currentTabIndex == 1 ? FontWeight.w600 : FontWeight.w400,
-                                )),
-                                Consumer(builder: (context, ref, _) {
-                                  final count = ref.watch(unreadChatCountProvider);
-                                  if (count == 0) return const SizedBox.shrink();
-                                  return Container(
-                                    margin: const EdgeInsets.only(left: 6),
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: _currentTabIndex == 1 ? AppColors.primary : Colors.grey.shade400,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      _buildTabButton(0, 'Alerts', Icons.notifications_outlined, 
+                        ref.watch(unreadNotificationCountProvider)),
+                      const SizedBox(width: 4),
+                      // Auctions Tab (auction chats)
+                      _buildTabButton(1, 'Auctions', Icons.gavel, 
+                        ref.watch(unreadChatCountProvider)),
+                      const SizedBox(width: 4),
+                      // Shops Tab (shop chats)
+                      _buildTabButton(2, 'Shops', Icons.storefront_outlined, 
+                        ref.watch(unreadShopChatCountProvider).valueOrNull ?? 0),
                     ]),
                   ),
                 ),
@@ -164,7 +105,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
               controller: _tabController,
               children: const [
                 _NotificationsTab(),
-                _MessagesTab(),
+                _MessagesTab(),     // Auction chats
+                _ShopChatsTab(),    // Shop chats (NEW)
               ],
             ),
           ),
@@ -173,6 +115,47 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
     );
   }
 
+  Widget _buildTabButton(int index, String label, IconData icon, int count) {
+    final isSelected = _currentTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _tabController.animateTo(index),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: isSelected ? AppColors.primary : Colors.grey),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(label, style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected ? AppColors.textPrimaryLight : Colors.grey,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                ), overflow: TextOverflow.ellipsis),
+              ),
+              if (count > 0) ...[
+                const SizedBox(width: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary : Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Notifications Tab Content
@@ -420,6 +403,175 @@ class _MessagesTab extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+/// Shop Chats Tab Content (NEW - separate from auction chats)
+class _ShopChatsTab extends ConsumerWidget {
+  const _ShopChatsTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final conversationsAsync = ref.watch(shopConversationsProvider);
+
+    return conversationsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data: (conversations) {
+        if (conversations.isEmpty) {
+          return Center(
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.storefront_outlined, size: 64, color: Colors.grey.shade300),
+              const SizedBox(height: 16),
+              Text('No shop messages yet', style: AppTypography.titleMedium.copyWith(color: AppColors.textSecondaryLight)),
+              const SizedBox(height: 8),
+              Text('Contact a store about their products', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+            ]),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(shopConversationsProvider),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: conversations.length,
+            itemBuilder: (_, i) => _ShopChatListItem(conversation: conversations[i]),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Shop Chat List Item Widget
+class _ShopChatListItem extends StatelessWidget {
+  final ShopConversation conversation;
+
+  const _ShopChatListItem({required this.conversation});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => context.push(
+        '/shop-chats/${conversation.id}',
+        extra: {
+          'storeName': conversation.storeName,
+          'storeSlug': null, // Would need to add this to the model
+          'productTitle': conversation.productTitle,
+        },
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: conversation.unreadCount > 0 ? AppColors.primary.withOpacity(0.05) : Colors.transparent,
+          border: Border(bottom: BorderSide(color: AppColors.borderLight.withOpacity(0.5))),
+        ),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                // Store logo or icon
+                Container(
+                  width: 56, height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: conversation.otherAvatar != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: CachedNetworkImage(
+                            imageUrl: conversation.otherAvatar!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(Icons.storefront, color: Colors.green, size: 28),
+                ),
+                if (conversation.unreadCount > 0)
+                  Positioned(
+                    right: 0, bottom: 0,
+                    child: Container(
+                      width: 18, height: 18,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${conversation.unreadCount}',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.storefront, size: 14, color: Colors.green),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                conversation.otherName,
+                                style: AppTypography.titleSmall.copyWith(
+                                  fontWeight: conversation.unreadCount > 0 ? FontWeight.w700 : FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        _formatTime(conversation.updatedAt),
+                        style: AppTypography.labelSmall.copyWith(
+                          color: conversation.unreadCount > 0 ? Colors.green : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  if (conversation.productTitle != null)
+                    Text(
+                      '📦 ${conversation.productTitle}',
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                  Text(
+                    conversation.lastMessage?.content ?? 'No messages yet',
+                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inDays < 7) return '${diff.inDays}d';
+    return '${time.month}/${time.day}';
   }
 }
 
