@@ -39,6 +39,7 @@ type Store struct {
 	IsActive               bool       `json:"is_active"`
 	IsVerified             bool       `json:"is_verified"`
 	IsFeatured             bool       `json:"is_featured"`
+	IsStale                bool       `json:"is_stale"`
 	TotalProducts          int        `json:"total_products"`
 	TotalSales             int        `json:"total_sales"`
 	FollowerCount          int        `json:"follower_count"`
@@ -58,23 +59,24 @@ type Store struct {
 
 // Product represents a fixed-price product in a store
 type Product struct {
-	ID             uuid.UUID  `json:"id"`
-	StoreID        uuid.UUID  `json:"store_id"`
-	Title          string     `json:"title"`
-	Description    *string    `json:"description,omitempty"`
-	Price          float64    `json:"price"`
-	CompareAtPrice *float64   `json:"compare_at_price,omitempty"`
-	PricingType    string     `json:"pricing_type"` // fixed, negotiable, service
-	CategoryID     *uuid.UUID `json:"category_id,omitempty"`
-	Condition      string     `json:"condition"` // new, used, refurbished
-	Images         []string   `json:"images"`
-	StockQuantity  int        `json:"stock_quantity"`
-	IsAvailable    bool       `json:"is_available"`
-	IsFeatured     bool       `json:"is_featured"`
-	Views          int        `json:"views"`
-	Enquiries      int        `json:"enquiries"`
-	CreatedAt      time.Time  `json:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at"`
+	ID              uuid.UUID  `json:"id"`
+	StoreID         uuid.UUID  `json:"store_id"`
+	Title           string     `json:"title"`
+	Description     *string    `json:"description,omitempty"`
+	Price           float64    `json:"price"`
+	CompareAtPrice  *float64   `json:"compare_at_price,omitempty"`
+	PricingType     string     `json:"pricing_type"` // fixed, negotiable, service
+	CategoryID      *uuid.UUID `json:"category_id,omitempty"`
+	Condition       string     `json:"condition"` // new, used, refurbished
+	Images          []string   `json:"images"`
+	StockQuantity   int        `json:"stock_quantity"`
+	IsAvailable     bool       `json:"is_available"`
+	IsFeatured      bool       `json:"is_featured"`
+	Views           int        `json:"views"`
+	Enquiries       int        `json:"enquiries"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	LastConfirmedAt *time.Time `json:"last_confirmed_at,omitempty"`
 
 	// Joined fields
 	Store    *Store    `json:"store,omitempty"`
@@ -107,6 +109,17 @@ type StoreEnquiry struct {
 	// Joined
 	Customer *User    `json:"customer,omitempty"`
 	Product  *Product `json:"product,omitempty"`
+}
+
+// ProductAnalyticsEvent represents a single analytics event for a product
+type ProductAnalyticsEvent struct {
+	ID        uuid.UUID              `json:"id"`
+	StoreID   uuid.UUID              `json:"store_id"`
+	ProductID uuid.UUID              `json:"product_id"`
+	EventType string                 `json:"event_type"` // impression, view, cart, checkout, contact
+	ViewerID  *uuid.UUID             `json:"viewer_id,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // StoreAnalytics represents daily analytics for a store

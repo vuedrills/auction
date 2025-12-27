@@ -42,6 +42,10 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// Initialize Analytics & Jobs Handlers
+	analyticsHandler := handlers.NewAnalyticsHandler(db)
+	jobHandler := handlers.NewJobHandler(db)
+
 	// API routes
 	api := r.Group("/api")
 	{
@@ -193,9 +197,11 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		products := api.Group("/products")
 		{
 			products.GET("/search", productHandler.SearchProducts)
+			products.GET("/stale", middleware.Auth(jwtService), productHandler.GetStaleProducts)
 			products.GET("/:id", productHandler.GetProduct)
 			products.PUT("/:id", middleware.Auth(jwtService), productHandler.UpdateProduct)
 			products.DELETE("/:id", middleware.Auth(jwtService), productHandler.DeleteProduct)
+			products.POST("/:id/confirm", middleware.Auth(jwtService), productHandler.ConfirmProduct)
 		}
 
 		// Following stores
@@ -249,12 +255,31 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 			promotions.POST("/:id", middleware.Auth(jwtService), featuresHandler.PromoteAuction)
 		}
 
+		// ANALYTICS ENDPOINTS
+		analytics := api.Group("/analytics")
+		{
+			// Batch track events (impressions, etc)
+			// OptionalAuth for now, but could be strictly Auth depending on need.
+			// ViewerID logic handles anonymous users.
+			analytics.POST("/events/batch", middleware.OptionalAuth(jwtService), analyticsHandler.BatchTrackImpressions)
+
+			// Dashboard stats
+			analytics.GET("/store/:id", middleware.OptionalAuth(jwtService), analyticsHandler.GetStoreAnalytics)
+		}
+
+		// JOBS (Background Tasks)
+		jobs := api.Group("/jobs")
+		{
+			jobs.POST("/nudge-stale-stores", jobHandler.CheckStaleStores)
+		}
+
 		// TEST ENDPOINTS (REMOVE IN PRODUCTION)
 		testHandler := handlers.NewTestHandler(db, hub, fcmService)
 		api.POST("/test/end-auction/:id", testHandler.EndAuctionTest)
 		api.POST("/test/push-notification/:userId", testHandler.TestPushNotification)
 		api.POST("/test/set-ending-soon/:id", testHandler.SetAuctionEndingSoon)
 		api.POST("/test/update-email", testHandler.UpdateUserEmail)
+		api.POST("/test/restale-store/:slug", testHandler.RestaleStore)
 	}
 
 	// WebSocket

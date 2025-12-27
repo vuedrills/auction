@@ -33,6 +33,9 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
   List<String> _uploadedImages = [];
   List<XFile> _newImages = [];
   bool _isSubmitting = false;
+  bool _isAvailable = true;
+  bool _isStale = false;
+  bool _isConfirming = false;
 
   @override
   void initState() {
@@ -45,6 +48,12 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
       _pricingType = widget.product!.pricingType;
       _condition = widget.product!.condition;
       _uploadedImages = List.from(widget.product!.images);
+      _isAvailable = widget.product!.isAvailable;
+      
+      // Check if stale (>30 days since last confirmation)
+      final lastConfirmed = widget.product!.lastConfirmedAt ?? widget.product!.createdAt;
+      final daysSince = DateTime.now().difference(lastConfirmed).inDays;
+      _isStale = daysSince > 30;
     }
   }
 
@@ -64,6 +73,36 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
       setState(() {
         _newImages.addAll(images);
       });
+    }
+  }
+
+  Future<void> _confirmProduct() async {
+    if (widget.product == null) return;
+    
+    setState(() => _isConfirming = true);
+    try {
+      await ref.read(storeRepositoryProvider).confirmProduct(widget.product!.id);
+      setState(() {
+        _isStale = false;
+        _isConfirming = false;
+      });
+      
+      // Refresh providers
+      ref.invalidate(staleProductsProvider);
+      ref.invalidate(myProductsProvider);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product marked as fresh!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      setState(() => _isConfirming = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -101,6 +140,8 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
           condition: _condition,
           pricingType: _pricingType,
           images: finalImages,
+          // ignore: avoid_print
+          // Note: CreateProductRequest might need updating if isAvailable is supported on creation
         );
         
         await ref.read(storeRepositoryProvider).createProduct(request);
@@ -121,6 +162,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
             'condition': _condition,
             'pricing_type': _pricingType,
             'images': finalImages,
+            'is_available': _isAvailable,
           },
         );
         if (mounted) {
@@ -133,6 +175,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
       // Refresh providers
       ref.invalidate(myProductsProvider);
       ref.invalidate(myStoreProvider);
+      ref.invalidate(staleProductsProvider); // Also refresh stale list
       
       // Also invalidate store-front products if we know the slug
       final myStore = ref.read(myStoreProvider).valueOrNull;
@@ -167,6 +210,35 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Mark as Fresh Button (if stale)
+            if (_isStale) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'This product hasn\'t been confirmed in over 30 days.',
+                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    AppButton(
+                      label: 'Confirm Still Available',
+                      onPressed: _confirmProduct,
+                      isLoading: _isConfirming,
+                      backgroundColor: Colors.orange,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Images Section
             SizedBox(
               height: 120,
@@ -270,6 +342,19 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
               maxLines: 4,
             ),
             
+            const SizedBox(height: 16),
+            
+            // Availability Toggle
+            SwitchListTile(
+              title: const Text('In Stock / Available'),
+              subtitle: const Text('Turn off if sold out or unavailable'),
+              value: _isAvailable,
+              activeColor: AppColors.primary,
+              onChanged: (val) => setState(() => _isAvailable = val),
+            ),
+            
+
+
             const SizedBox(height: 32),
             AppButton(
               label: widget.product == null ? 'Post Product' : 'Save Changes',

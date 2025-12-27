@@ -398,7 +398,12 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 			s.delivery_options, s.town_id, s.address, s.is_active, s.is_verified,
 			s.is_featured, s.total_products, s.follower_count, s.views,
 			t.name as town_name,
-			u.full_name as owner_name, u.avatar_url as owner_avatar
+			u.full_name as owner_name, u.avatar_url as owner_avatar,
+			COALESCE(
+				(SELECT bool_and(last_confirmed_at < NOW() - INTERVAL '30 days')
+				 FROM products WHERE store_id = s.id AND is_available = true),
+				false
+			) as is_stale
 		FROM stores s
 		LEFT JOIN towns t ON s.town_id = t.id
 		LEFT JOIN users u ON s.user_id = u.id
@@ -425,7 +430,7 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 			&store.DeliveryOptions, &store.TownID, &store.Address, &store.IsActive,
 			&store.IsVerified, &store.IsFeatured, &store.TotalProducts,
 			&store.FollowerCount, &store.Views,
-			&townName, &ownerName, &ownerAvatar,
+			&townName, &ownerName, &ownerAvatar, &store.IsStale,
 		)
 		if err != nil {
 			continue
@@ -699,7 +704,17 @@ func (h *StoreHandler) getStoreBySlug(slug string, currentUserID *uuid.UUID) (*m
 			t.name as town_name, sub.name as suburb_name,
 			u.full_name as owner_name, u.avatar_url as owner_avatar,
 			sc.display_name as category_name,
-			CASE WHEN sf.id IS NOT NULL THEN true ELSE false END as is_following
+			CASE WHEN sf.id IS NOT NULL THEN true ELSE false END as is_following,
+			(
+				SELECT COUNT(*) > 0 
+				FROM products p 
+				WHERE p.store_id = s.id AND p.is_available = true
+			) AND (
+				SELECT COUNT(*) = 0 
+				FROM products p 
+				WHERE p.store_id = s.id AND p.is_available = true 
+				AND p.last_confirmed_at > NOW() - INTERVAL '30 days'
+			) as is_stale
 		FROM stores s
 		LEFT JOIN towns t ON s.town_id = t.id
 		LEFT JOIN suburbs sub ON s.suburb_id = sub.id
@@ -722,7 +737,7 @@ func (h *StoreHandler) getStoreBySlug(slug string, currentUserID *uuid.UUID) (*m
 		&store.TownID, &store.SuburbID, &store.Address, &store.IsActive, &store.IsVerified,
 		&store.IsFeatured, &store.TotalProducts, &store.TotalSales,
 		&store.FollowerCount, &store.Views, &store.CreatedAt, &store.UpdatedAt,
-		&townName, &suburbName, &ownerName, &ownerAvatar, &categoryName, &isFollowing,
+		&townName, &suburbName, &ownerName, &ownerAvatar, &categoryName, &isFollowing, &store.IsStale,
 	)
 	if err != nil {
 		return nil, err

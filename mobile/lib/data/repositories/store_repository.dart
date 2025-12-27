@@ -307,6 +307,26 @@ class StoreRepository {
     }
   }
 
+  /// Get stale products that need attention (>30 days without confirmation)
+  Future<List<StaleProduct>> getStaleProducts() async {
+    try {
+      final response = await _client.get('/products/stale');
+      final List<dynamic> list = response.data['products'] ?? [];
+      return list.map((json) => StaleProduct.fromJson(json)).toList();
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Confirm a product is still available (refreshes last_confirmed_at)
+  Future<void> confirmProduct(String productId) async {
+    try {
+      await _client.post('/products/$productId/confirm', data: {});
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic e) {
     if (e is DioException) {
       return Exception(e.response?.data['error'] ?? 'Network error occurred');
@@ -363,6 +383,12 @@ final myStoreProvider = FutureProvider<Store?>((ref) async {
 final myProductsProvider = FutureProvider<List<Product>>((ref) async {
   ref.watch(currentUserProvider); // Refresh when user changes
   return ref.watch(storeRepositoryProvider).getMyProducts();
+});
+
+// Stale products provider (products needing attention)
+final staleProductsProvider = FutureProvider<List<StaleProduct>>((ref) async {
+  ref.watch(currentUserProvider); // Refresh when user changes
+  return ref.watch(storeRepositoryProvider).getStaleProducts();
 });
 
 class PaginatedResponse<T> {

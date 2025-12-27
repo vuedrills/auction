@@ -345,95 +345,121 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.push('/product/${product.id}'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Expanded(
-              flex: 3,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    ),
-                    child: product.primaryImage != null
-                        ? ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: CachedNetworkImage(
-                              imageUrl: product.primaryImage!,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => Center(child: Icon(Icons.image, color: Colors.grey.shade400)),
-                              errorWidget: (_, __, ___) => Center(child: Icon(Icons.broken_image, color: Colors.grey.shade400)),
-                            ),
-                          )
-                        : Center(child: Icon(Icons.shopping_bag_rounded, size: 40, color: Colors.grey.shade400)),
+    // Check stale: use lastConfirmedAt if available, otherwise fall back to createdAt
+    final referenceDate = product.lastConfirmedAt ?? product.createdAt;
+    final daysSinceUpdate = DateTime.now().difference(referenceDate).inDays;
+    final isStale = daysSinceUpdate > 30;
+
+    // Build the card content - this is ALWAYS the same structure
+    final cardContent = Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image
+          Expanded(
+            flex: 3,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
-                  // Negotiable badge
-                  if (product.isNegotiable)
-                    Positioned(
-                      top: 8, right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text('NEGOTIABLE', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 9)),
+                  child: product.primaryImage != null
+                      ? ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          child: CachedNetworkImage(
+                            imageUrl: product.primaryImage!,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Center(child: Icon(Icons.image, color: Colors.grey.shade400)),
+                            errorWidget: (_, __, ___) => Center(child: Icon(Icons.broken_image, color: Colors.grey.shade400)),
+                          ),
+                        )
+                      : Center(child: Icon(Icons.shopping_bag_rounded, size: 40, color: Colors.grey.shade400)),
+                ),
+                // Negotiable badge
+                if (product.isNegotiable)
+                  Positioned(
+                    top: 8, right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: Text('NEGOTIABLE', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 9)),
                     ),
-                  // Store verified badge
-                  if (product.store?.isVerified == true)
-                    Positioned(
-                      top: 8, left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.verified, size: 12, color: Colors.white),
+                  ),
+                // Store verified badge
+                if (product.store?.isVerified == true)
+                  Positioned(
+                    top: 8, left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
                       ),
+                      child: Icon(Icons.verified, size: 12, color: Colors.white),
                     ),
+                  ),
+              ],
+            ),
+          ),
+          // Details
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product.name, style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(product.store?.storeName ?? '', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text('\$${product.price.toStringAsFixed(0)}', style: AppTypography.titleMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
-            // Details
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(product.name, style: AppTypography.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(product.store?.storeName ?? '', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight), maxLines: 1, overflow: TextOverflow.ellipsis),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Text('\$${product.price.toStringAsFixed(0)}', style: AppTypography.titleMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+
+    // For stale products, apply desaturation filter
+    Widget finalCard = cardContent;
+    if (isStale) {
+      // Wrap in ClipRRect first to establish clipping bounds,
+      // then RepaintBoundary to isolate rendering,
+      // then ColorFiltered for desaturation
+      finalCard = ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: RepaintBoundary(
+          child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+            child: cardContent,
+          ),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () => context.push('/product/${product.id}'),
+      child: finalCard,
     );
   }
 }
+

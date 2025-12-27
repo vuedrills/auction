@@ -93,6 +93,7 @@ class Store {
   final String? townName;
   final String? suburbName;
   final bool isFollowing;
+  final bool isStale;
 
   Store({
     required this.id,
@@ -126,6 +127,7 @@ class Store {
     this.townName,
     this.suburbName,
     this.isFollowing = false,
+    this.isStale = false,
   });
 
   factory Store.fromJson(Map<String, dynamic> json) {
@@ -166,6 +168,7 @@ class Store {
       townName: json['town']?['name'],
       suburbName: json['suburb']?['name'],
       isFollowing: json['is_following'] ?? false,
+      isStale: json['is_stale'] ?? false,
     );
   }
 
@@ -219,6 +222,7 @@ class Product {
   final int enquiries;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? lastConfirmedAt;
   
   // Joined
   final Store? store;
@@ -242,6 +246,7 @@ class Product {
     this.enquiries = 0,
     required this.createdAt,
     required this.updatedAt,
+    this.lastConfirmedAt,
     this.store,
     this.categoryName,
   });
@@ -265,6 +270,9 @@ class Product {
       enquiries: json['enquiries'] ?? 0,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      lastConfirmedAt: json['last_confirmed_at'] != null 
+          ? DateTime.tryParse(json['last_confirmed_at']) 
+          : null,
       store: json['store'] != null ? Store.fromJson(json['store']) : null,
       categoryName: json['category']?['name'],
     );
@@ -381,3 +389,140 @@ class CreateProductRequest {
     if (stockQuantity != null) 'stock_quantity': stockQuantity,
   };
 }
+
+/// Analytics data for a single day
+class StoreAnalytics {
+  final String id;
+  final DateTime date;
+  final int views;
+  final int uniqueVisitors;
+  final int productViews;
+  final int enquiries;
+  final int whatsappClicks;
+  final int callClicks;
+  final int followsGained;
+
+  StoreAnalytics({
+    required this.id,
+    required this.date,
+    required this.views,
+    required this.uniqueVisitors,
+    required this.productViews,
+    required this.enquiries,
+    required this.whatsappClicks,
+    required this.callClicks,
+    required this.followsGained,
+  });
+
+  factory StoreAnalytics.fromJson(Map<String, dynamic> json) {
+    return StoreAnalytics(
+      id: json['id'] ?? '',
+      date: DateTime.tryParse(json['date'] ?? '') ?? DateTime.now(),
+      views: json['views'] ?? 0,
+      uniqueVisitors: json['unique_visitors'] ?? 0,
+      productViews: json['product_views'] ?? 0,
+      enquiries: json['enquiries'] ?? 0,
+      whatsappClicks: json['whatsapp_clicks'] ?? 0,
+      callClicks: json['call_clicks'] ?? 0,
+      followsGained: json['follows_gained'] ?? 0,
+    );
+  }
+}
+
+/// Dashboard response containing analytics data
+class StoreAnalyticsResponse {
+  final int totalViews;
+  final int totalEnquiries;
+  final int totalFollowers;
+  final int totalProducts;
+  final int viewsThisWeek;
+  final int viewsThisMonth;
+  final List<Product> topProducts;
+  final List<StoreAnalytics> dailyStats;
+
+  StoreAnalyticsResponse({
+    required this.totalViews,
+    required this.totalEnquiries,
+    required this.totalFollowers,
+    required this.totalProducts,
+    required this.viewsThisWeek,
+    required this.viewsThisMonth,
+    this.topProducts = const [],
+    this.dailyStats = const [],
+  });
+
+  factory StoreAnalyticsResponse.fromJson(Map<String, dynamic> json) {
+    return StoreAnalyticsResponse(
+      totalViews: json['total_views'] ?? 0,
+      totalEnquiries: json['total_enquiries'] ?? 0,
+      totalFollowers: json['total_followers'] ?? 0,
+      totalProducts: json['total_products'] ?? 0,
+      viewsThisWeek: json['views_this_week'] ?? 0,
+      viewsThisMonth: json['views_this_month'] ?? 0,
+      topProducts: json['top_products'] != null
+          ? (json['top_products'] as List).map((e) => Product.fromJson(e)).toList()
+          : [],
+      dailyStats: json['daily_stats'] != null
+          ? (json['daily_stats'] as List).map((e) => StoreAnalytics.fromJson(e)).toList()
+          : [],
+    );
+  }
+}
+
+/// Stale Product (product needing attention)
+class StaleProduct extends Product {
+  final int daysStale;
+
+  StaleProduct({
+    required super.id,
+    required super.storeId,
+    required super.title,
+    super.description,
+    required super.price,
+    super.compareAtPrice,
+    super.pricingType,
+    super.categoryId,
+    super.condition,
+    super.images,
+    super.stockQuantity,
+    super.isAvailable,
+    super.isFeatured,
+    super.views,
+    super.enquiries,
+    required super.createdAt,
+    required super.updatedAt,
+    super.lastConfirmedAt,
+    super.store,
+    super.categoryName,
+    required this.daysStale,
+  });
+
+  factory StaleProduct.fromJson(Map<String, dynamic> json) {
+    return StaleProduct(
+      id: json['id'] ?? '',
+      storeId: json['store_id'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'],
+      price: (json['price'] ?? 0).toDouble(),
+      compareAtPrice: json['compare_at_price']?.toDouble(),
+      pricingType: json['pricing_type'] ?? 'fixed',
+      categoryId: json['category_id'],
+      condition: json['condition'] ?? 'new',
+      images: json['images'] != null ? List<String>.from(json['images']) : [],
+      stockQuantity: json['stock_quantity'] ?? 1,
+      isAvailable: json['is_available'] ?? true,
+      isFeatured: json['is_featured'] ?? false,
+      views: json['views'] ?? 0,
+      enquiries: json['enquiries'] ?? 0,
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      lastConfirmedAt: json['last_confirmed_at'] != null 
+          ? DateTime.tryParse(json['last_confirmed_at']) 
+          : null,
+      store: json['store'] != null ? Store.fromJson(json['store']) : null,
+      categoryName: json['category']?['name'],
+      daysStale: json['days_stale'] ?? 0,
+    );
+  }
+}
+
