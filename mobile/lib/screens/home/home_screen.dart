@@ -531,6 +531,23 @@ class _UnifiedHeader extends ConsumerWidget {
                     loading: () => const SizedBox(width: 60),
                     error: (_, __) => const SizedBox.shrink(),
                   ),
+                // Explore button (only in Town mode)
+                if (scope == ViewScope.town && user?.homeTownId != null) ...[
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/suburbs/${user?.homeTownId}?name=${Uri.encodeComponent(user?.homeTown?.name ?? '')}');
+                    },
+                    child: Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.explore_outlined, color: AppColors.primary),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
