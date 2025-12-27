@@ -219,3 +219,16 @@ func (s *FCMService) SendToTopic(topic, title, body string, data map[string]stri
 	log.Printf("🔔 Topic notification sent: %s", response)
 	return nil
 }
+
+// SendShopMessageNotification sends a notification for new shop messages
+func (s *FCMService) SendShopMessageNotification(token, storeName, messagePreview, conversationId string) error {
+	return s.SendToDevice(token,
+		fmt.Sprintf("🛒 Message from %s", storeName),
+		messagePreview,
+		map[string]string{
+			"type":            "shop_message",
+			"conversation_id": conversationId,
+			"route":           "/shop-chats/" + conversationId,
+		},
+	)
+}

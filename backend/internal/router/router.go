@@ -31,6 +31,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	featuresHandler := handlers.NewFeaturesHandler(db, hub)
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
 	chatHandler := handlers.NewChatHandler(db, hub, fcmService)
+	shopChatHandler := handlers.NewShopChatHandler(db, hub, fcmService)
 	badgeHandler := handlers.NewBadgeHandler(db)
 	storeHandler := handlers.NewStoreHandler(db)
 	productHandler := handlers.NewProductHandler(db)
@@ -110,7 +111,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 			notifications.PUT("/read-all", notificationHandler.MarkAllAsRead)
 		}
 
-		// Chats (NEW)
+		// Chats (Auction-related)
 		chats := api.Group("/chats")
 		chats.Use(middleware.Auth(jwtService))
 		{
@@ -120,6 +121,18 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 			chats.POST("/:id/messages", chatHandler.SendMessage)
 			chats.PUT("/:id/read", chatHandler.MarkAsRead)
 			chats.PUT("/read-all", chatHandler.MarkAllAsRead)
+		}
+
+		// Shop Chats (Store-related, separate from auctions)
+		shopChats := api.Group("/shop-chats")
+		shopChats.Use(middleware.Auth(jwtService))
+		{
+			shopChats.GET("", shopChatHandler.GetShopConversations)
+			shopChats.GET("/unread-count", shopChatHandler.GetUnreadShopCount)
+			shopChats.POST("/start", shopChatHandler.StartShopConversation)
+			shopChats.GET("/:id/messages", shopChatHandler.GetShopMessages)
+			shopChats.POST("/:id/messages", shopChatHandler.SendShopMessage)
+			shopChats.PUT("/:id/read", shopChatHandler.MarkShopConversationRead)
 		}
 
 		// Towns & Suburbs

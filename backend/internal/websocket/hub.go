@@ -28,6 +28,7 @@ const (
 	MessageTypeAuctionUpdate MessageType = "auction:update"
 	MessageTypeNotification  MessageType = "notification:new"
 	MessageTypeMessage       MessageType = "message:new"
+	MessageTypeShopMessage   MessageType = "shop_message:new"
 	MessageTypeError         MessageType = "error"
 	MessageTypePong          MessageType = "pong"
 )
