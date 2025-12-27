@@ -71,12 +71,21 @@ class StoreProductsScreen extends ConsumerWidget {
                   contentPadding: const EdgeInsets.all(12),
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: product.primaryImage,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
+                    child: product.primaryImage != null
+                        ? CachedNetworkImage(
+                            imageUrl: product.primaryImage!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(width: 60, height: 60, color: Colors.grey.shade200),
+                            errorWidget: (_, __, ___) => Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.image)),
+                          )
+                        : Container(
+                            width: 60,
+                            height: 60,
+                            color: Colors.grey.shade200,
+                            child: const Icon(Icons.shopping_bag, color: Colors.grey),
+                          ),
                   ),
                   title: Text(product.title, maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Column(

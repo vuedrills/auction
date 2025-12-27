@@ -450,12 +450,21 @@ class _ProductCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: CachedNetworkImage(
-                    imageUrl: product.primaryImage,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: constraints.maxHeight * 0.65,
-                  ),
+                  child: product.primaryImage != null 
+                      ? CachedNetworkImage(
+                          imageUrl: product.primaryImage!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: constraints.maxHeight * 0.65,
+                          placeholder: (_, __) => Container(color: Colors.grey.shade200),
+                          errorWidget: (_, __, ___) => Container(color: Colors.grey.shade200, child: const Icon(Icons.image)),
+                        )
+                      : Container(
+                          width: double.infinity,
+                          height: constraints.maxHeight * 0.65,
+                          color: Colors.grey.shade200,
+                          child: const Icon(Icons.shopping_bag, color: Colors.grey),
+                        ),
                 ),
                 Expanded(
                   child: Padding(
