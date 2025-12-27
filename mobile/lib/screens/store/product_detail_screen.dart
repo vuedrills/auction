@@ -7,16 +7,32 @@ import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../widgets/common/app_button.dart';
 
-class ProductDetailScreen extends ConsumerWidget {
+class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
 
   const ProductDetailScreen({super.key, required this.productId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // We might need a provider for single product
-    // For now, let's assume we can fetch it via a future provider I'll create
-    final productAsync = ref.watch(productProvider(productId));
+  ConsumerState<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+  bool _hasTrackedView = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final productAsync = ref.watch(productProvider(widget.productId));
+
+    // Track product view once loaded
+    if (productAsync.hasValue && !_hasTrackedView) {
+      final product = productAsync.value!;
+      if (product.store?.id != null) {
+        _hasTrackedView = true;
+        Future.microtask(() {
+          ref.read(storeRepositoryProvider).trackEvent(product.store!.id, 'product_view');
+        });
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -204,6 +220,9 @@ class ProductDetailScreen extends ConsumerWidget {
                   onPressed: () {
                     final store = productAsync.value!.store;
                     if (store?.whatsapp != null && store!.whatsapp!.isNotEmpty) {
+                      // Track click
+                      ref.read(storeRepositoryProvider).trackEvent(store!.id, 'whatsapp_click');
+                      
                       final message = Uri.encodeComponent('Hi, is ${productAsync.value!.title} still available?');
                       launchUrl(Uri.parse('https://wa.me/${store.whatsapp}?text=$message'));
                     } else {
@@ -227,7 +246,7 @@ class ProductDetailScreen extends ConsumerWidget {
                     try {
                       final conversationId = await ref.read(shopChatRepositoryProvider).startConversation(
                         store.id,
-                        productId: productId,
+                        productId: widget.productId,
                         message: 'Hi, I\'m interested in ${productAsync.value!.title}',
                       );
                       if (context.mounted) {
