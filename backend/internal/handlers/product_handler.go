@@ -416,27 +416,21 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	minPrice, _ := strconv.ParseFloat(c.Query("min_price"), 64)
 	maxPrice, _ := strconv.ParseFloat(c.Query("max_price"), 64)
 
-	if search == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query required"})
-		return
-	}
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 50 {
-		limit = 20
-	}
 	offset := (page - 1) * limit
 
 	// Build query
 	where := []string{
 		"p.is_available = true",
 		"s.is_active = true",
-		"(p.title ILIKE $1 OR p.description ILIKE $1)",
 	}
-	args := []interface{}{"%" + search + "%"}
-	argNum := 2
+	args := []interface{}{}
+	argNum := 1
+
+	if search != "" {
+		where = append(where, "(p.title ILIKE $"+strconv.Itoa(argNum)+" OR p.description ILIKE $"+strconv.Itoa(argNum)+")")
+		args = append(args, "%"+search+"%")
+		argNum++
+	}
 
 	if townID != "" {
 		if id, err := uuid.Parse(townID); err == nil {
