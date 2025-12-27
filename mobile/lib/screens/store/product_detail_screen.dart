@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../data/data.dart';
+import '../../data/providers/analytics_provider.dart';
 import '../../widgets/common/app_button.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -30,12 +31,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       if (product.store?.id != null) {
         _hasTrackedView = true;
         Future.microtask(() {
-          ref.read(storeRepositoryProvider).trackEvent(product.store!.id, 'product_view');
+          ref.read(analyticsServiceProvider).trackEvent(storeId: product.store!.id, productId: product.id, eventType: 'product_view');
         });
       }
     }
 
-    return Scaffold(
+    // Calculate stale status once
+    final isStale = productAsync.hasValue 
+        ? (productAsync.value!.lastConfirmedAt != null 
+            ? DateTime.now().difference(productAsync.value!.lastConfirmedAt!).inDays > 30 
+            : false)
+        : false;
+
+    Widget scaffold = Scaffold(
       backgroundColor: Colors.white,
       body: productAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -204,7 +212,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5)),
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5)),
           ],
         ),
         child: SafeArea(
@@ -240,7 +248,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         final store = product.store;
                         if (store?.whatsapp != null && store!.whatsapp!.isNotEmpty) {
                           // Track click
-                          ref.read(storeRepositoryProvider).trackEvent(store.id, 'whatsapp_click');
+                          ref.read(analyticsServiceProvider).trackEvent(storeId: store.id, productId: product.id, eventType: 'whatsapp_click');
                           
                           final message = Uri.encodeComponent('Hi, is ${product.title} still available?');
                           launchUrl(Uri.parse('https://wa.me/${store.whatsapp}?text=$message'));
@@ -306,6 +314,22 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ),
       ) : null,
     );
+
+    // Apply grey filter to entire scaffold if stale
+    if (isStale) {
+      return ColorFiltered(
+        colorFilter: const ColorFilter.mode(
+          Colors.grey,
+          BlendMode.saturation,
+        ),
+        child: Opacity(
+          opacity: 0.7,
+          child: scaffold,
+        ),
+      );
+    }
+
+    return scaffold;
   }
 }
 

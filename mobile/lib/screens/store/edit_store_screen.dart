@@ -182,6 +182,21 @@ class _EditStoreScreenState extends ConsumerState<EditStoreScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Analytics Access
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/store/${widget.store.id}/analytics'),
+                        icon: const Icon(Icons.analytics_outlined),
+                        label: const Text('View Store Analytics'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.05),
+                        ),
+                      ),
+                    ),
+
                     // Cover Image Picker
                     Text('Cover Image', style: AppTypography.titleSmall),
                     const SizedBox(height: 8),

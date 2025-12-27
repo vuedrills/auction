@@ -73,7 +73,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		RETURNING id, store_id, title, description, price, compare_at_price,
 			pricing_type, category_id, condition, images, stock_quantity,
-			is_available, is_featured, views, enquiries, created_at, updated_at
+			is_available, is_featured, views, enquiries, created_at, updated_at, last_confirmed_at
 	`,
 		storeID, req.Title, nilIfEmpty(req.Description), req.Price,
 		nilIfZeroFloat(req.CompareAtPrice), pricingType, categoryID,
@@ -83,7 +83,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		&product.Price, &product.CompareAtPrice, &product.PricingType,
 		&product.CategoryID, &product.Condition, &product.Images,
 		&product.StockQuantity, &product.IsAvailable, &product.IsFeatured,
-		&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt,
+		&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt, &product.LastConfirmedAt,
 	)
 
 	if err != nil {
@@ -190,7 +190,7 @@ func (h *ProductHandler) GetStoreProducts(c *gin.Context) {
 		SELECT p.id, p.store_id, p.title, p.description, p.price,
 			p.compare_at_price, p.pricing_type, p.category_id, p.condition,
 			p.images, p.stock_quantity, p.is_available, p.is_featured,
-			p.views, p.enquiries, p.created_at, p.updated_at,
+			p.views, p.enquiries, p.created_at, p.updated_at, p.last_confirmed_at,
 			c.name as category_name
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
@@ -215,7 +215,7 @@ func (h *ProductHandler) GetStoreProducts(c *gin.Context) {
 			&product.Price, &product.CompareAtPrice, &product.PricingType,
 			&product.CategoryID, &product.Condition, &product.Images,
 			&product.StockQuantity, &product.IsAvailable, &product.IsFeatured,
-			&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt,
+			&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt, &product.LastConfirmedAt,
 			&categoryName,
 		)
 		if err != nil {
@@ -406,6 +406,107 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Product deleted"})
 }
 
+// ConfirmProduct updates the last_confirmed_at timestamp to mark product as still available
+func (h *ProductHandler) ConfirmProduct(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	productID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	// Verify ownership
+	var storeID uuid.UUID
+	err = h.db.Pool.QueryRow(context.Background(), `
+		SELECT p.store_id FROM products p
+		JOIN stores s ON p.store_id = s.id
+		WHERE p.id = $1 AND s.user_id = $2
+	`, productID, userID).Scan(&storeID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Product not found or not yours"})
+		return
+	}
+
+	// Update last_confirmed_at
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE products SET last_confirmed_at = NOW(), updated_at = NOW() WHERE id = $1", productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to confirm product"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product confirmed as still available"})
+}
+
+// GetStaleProducts returns products that need attention (older than staleDays without confirmation)
+func (h *ProductHandler) GetStaleProducts(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+
+	// Get user's store
+	var storeID uuid.UUID
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT id FROM stores WHERE user_id = $1", userID).Scan(&storeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "You don't have a store"})
+		return
+	}
+
+	// Configurable stale threshold - default 30 days for "needs attention"
+	// 120 days is the "hidden from discovery" threshold (configured elsewhere)
+	staleDays := 30
+
+	query := `
+		SELECT p.id, p.store_id, p.title, p.description, p.price,
+			p.compare_at_price, p.pricing_type, p.category_id, p.condition,
+			p.images, p.stock_quantity, p.is_available, p.is_featured,
+			p.views, p.enquiries, p.created_at, p.updated_at, p.last_confirmed_at,
+			EXTRACT(DAY FROM NOW() - COALESCE(p.last_confirmed_at, p.created_at)) as days_stale
+		FROM products p
+		WHERE p.store_id = $1 
+		  AND p.is_available = true
+		  AND COALESCE(p.last_confirmed_at, p.created_at) < NOW() - INTERVAL '1 day' * $2
+		ORDER BY p.last_confirmed_at ASC NULLS FIRST
+	`
+
+	rows, err := h.db.Pool.Query(context.Background(), query, storeID, staleDays)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch stale products"})
+		return
+	}
+	defer rows.Close()
+
+	type StaleProduct struct {
+		models.Product
+		DaysStale int `json:"days_stale"`
+	}
+
+	products := []StaleProduct{}
+	for rows.Next() {
+		var product StaleProduct
+		var daysStale float64
+
+		err := rows.Scan(
+			&product.ID, &product.StoreID, &product.Title, &product.Description,
+			&product.Price, &product.CompareAtPrice, &product.PricingType,
+			&product.CategoryID, &product.Condition, &product.Images,
+			&product.StockQuantity, &product.IsAvailable, &product.IsFeatured,
+			&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt, &product.LastConfirmedAt,
+			&daysStale,
+		)
+		if err != nil {
+			continue
+		}
+		product.DaysStale = int(daysStale)
+		products = append(products, product)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"products":        products,
+		"count":           len(products),
+		"stale_threshold": staleDays,
+	})
+}
+
 // SearchProducts searches products across all stores
 func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	search := c.Query("q")
@@ -419,9 +520,12 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	offset := (page - 1) * limit
 
 	// Build query
+	// Hide products older than 120 days without confirmation (configurable via admin in future)
+	const hiddenThresholdDays = 120
 	where := []string{
 		"p.is_available = true",
 		"s.is_active = true",
+		"COALESCE(p.last_confirmed_at, p.created_at) > NOW() - INTERVAL '1 day' * " + strconv.Itoa(hiddenThresholdDays),
 	}
 	args := []interface{}{}
 	argNum := 1
@@ -470,14 +574,16 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	query := `
 		SELECT p.id, p.store_id, p.title, p.description, p.price,
 			p.compare_at_price, p.pricing_type, p.condition, p.images,
-			p.views, p.created_at,
-			s.store_name, s.slug, s.logo_url, s.is_verified,
+			p.views, p.created_at, p.last_confirmed_at,
+			s.store_name, s.slug, s.logo_url, s.is_verified, s.is_featured,
 			t.name as town_name
 		FROM products p
 		JOIN stores s ON p.store_id = s.id
 		LEFT JOIN towns t ON s.town_id = t.id
 		WHERE ` + whereClause + `
-		ORDER BY p.is_featured DESC, p.views DESC, p.created_at DESC
+		ORDER BY p.is_featured DESC, 
+		CASE WHEN p.last_confirmed_at > NOW() - INTERVAL '30 days' THEN 1 ELSE 0 END DESC,
+		p.last_confirmed_at DESC, p.views DESC, p.created_at DESC ` + `
 		LIMIT $` + strconv.Itoa(argNum) + ` OFFSET $` + strconv.Itoa(argNum+1)
 
 	rows, err := h.db.Pool.Query(context.Background(), query, args...)
@@ -491,13 +597,13 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	for rows.Next() {
 		var product models.Product
 		var storeName, storeSlug, storeLogo, townName *string
-		var storeVerified bool
+		var storeVerified, storeFeatured bool
 
 		err := rows.Scan(
 			&product.ID, &product.StoreID, &product.Title, &product.Description,
 			&product.Price, &product.CompareAtPrice, &product.PricingType,
-			&product.Condition, &product.Images, &product.Views, &product.CreatedAt,
-			&storeName, &storeSlug, &storeLogo, &storeVerified, &townName,
+			&product.Condition, &product.Images, &product.Views, &product.CreatedAt, &product.LastConfirmedAt,
+			&storeName, &storeSlug, &storeLogo, &storeVerified, &storeFeatured, &townName,
 		)
 		if err != nil {
 			continue
@@ -509,6 +615,7 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 			Slug:       *storeSlug,
 			LogoURL:    storeLogo,
 			IsVerified: storeVerified,
+			IsFeatured: storeFeatured,
 		}
 		if townName != nil {
 			product.Store.Town = &models.Town{Name: *townName}
@@ -535,7 +642,7 @@ func (h *ProductHandler) getProductByID(productID uuid.UUID) (*models.Product, e
 		SELECT p.id, p.store_id, p.title, p.description, p.price,
 			p.compare_at_price, p.pricing_type, p.category_id, p.condition,
 			p.images, p.stock_quantity, p.is_available, p.is_featured,
-			p.views, p.enquiries, p.created_at, p.updated_at,
+			p.views, p.enquiries, p.created_at, p.updated_at, p.last_confirmed_at,
 			s.store_name, s.slug, s.logo_url, s.is_verified,
 			c.name as category_name
 		FROM products p
@@ -547,7 +654,7 @@ func (h *ProductHandler) getProductByID(productID uuid.UUID) (*models.Product, e
 		&product.Price, &product.CompareAtPrice, &product.PricingType,
 		&product.CategoryID, &product.Condition, &product.Images,
 		&product.StockQuantity, &product.IsAvailable, &product.IsFeatured,
-		&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt,
+		&product.Views, &product.Enquiries, &product.CreatedAt, &product.UpdatedAt, &product.LastConfirmedAt,
 		&storeName, &storeSlug, &storeLogo, &storeVerified, &categoryName,
 	)
 

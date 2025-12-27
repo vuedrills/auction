@@ -121,6 +121,11 @@ class ProfileScreen extends ConsumerWidget {
                               onTap: () => context.push('/store/${store.slug}'),
                             ),
                             _MenuItem(
+                              icon: Icons.settings_applications,
+                              title: 'Manage Store',
+                              onTap: () => context.push('/store/edit', extra: store),
+                            ),
+                            _MenuItem(
                               icon: Icons.inventory_2,
                               title: 'Manage Products',
                               onTap: () => context.push('/store/manage/products'),

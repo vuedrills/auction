@@ -112,6 +112,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           
           const SizedBox(height: 24),
           _SectionTitle('Account'),
+          Consumer(
+            builder: (context, ref, _) {
+              final myStore = ref.watch(myStoreProvider).valueOrNull;
+              if (myStore != null) {
+                return _SettingsItem(
+                  icon: Icons.store,
+                  color: Colors.orange,
+                  title: 'Manage Store',
+                  onTap: () => context.push('/store/edit', extra: myStore),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           _SettingsItem(icon: Icons.person, color: Colors.blue, title: 'Personal Information', onTap: () => context.push('/profile/edit')),
           _SettingsItem(icon: Icons.credit_card, color: Colors.green, title: 'Payment Methods', onTap: () {}),
           _SettingsItem(icon: Icons.gavel, color: Colors.purple, title: 'Auction History', onTap: () => context.push('/profile/auctions')),

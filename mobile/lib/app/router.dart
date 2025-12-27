@@ -37,6 +37,8 @@ import '../screens/store/store_products_screen.dart';
 import '../screens/store/product_detail_screen.dart';
 import '../screens/store/store_explore_screen.dart';
 import '../screens/store/shop_chat_screen.dart';
+import '../screens/store/analytics_dashboard_screen.dart';
+import '../screens/store/edit_product_screen.dart';
 
 /// Global navigator key
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -152,10 +154,18 @@ final appRouter = GoRouter(
       path: '/store/:slug',
       builder: (_, state) => StorefrontScreen(slug: state.pathParameters['slug'] ?? ''),
     ),
+    GoRoute(
+      path: '/store/:id/analytics',
+      builder: (_, state) => AnalyticsDashboardScreen(storeId: state.pathParameters['id'] ?? ''),
+    ),
     GoRoute(path: '/store/manage/products', builder: (_, __) => const StoreProductsScreen()),
     GoRoute(
       path: '/product/:id',
       builder: (_, state) => ProductDetailScreen(productId: state.pathParameters['id'] ?? ''),
+    ),
+    GoRoute(
+      path: '/product/:id/edit',
+      builder: (_, state) => EditProductScreen(product: state.extra as Product?),
     ),
     GoRoute(
       path: '/rate/:userId',

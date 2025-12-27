@@ -128,62 +128,63 @@ class _StoreExploreScreenState extends ConsumerState<StoreExploreScreen> {
                        padding: const EdgeInsets.all(16),
                        itemCount: stores.length,
                        itemBuilder: (context, index) {
-                         final store = stores[index];
-                         return Card(
-                           margin: const EdgeInsets.only(bottom: 12),
-                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                           child: InkWell(
-                             onTap: () => context.push('/store/${store.slug}'),
-                             borderRadius: BorderRadius.circular(12),
-                             child: Padding(
-                               padding: const EdgeInsets.all(12),
-                               child: Row(
-                                 children: [
-                                   // Logo
-                                   Container(
-                                     width: 60,
-                                     height: 60,
-                                     decoration: BoxDecoration(
-                                       borderRadius: BorderRadius.circular(30),
-                                       border: Border.all(color: Colors.grey[200]!),
-                                        image: store.logoUrl != null
-                                          ? DecorationImage(image: NetworkImage(store.logoUrl!), fit: BoxFit.cover)
+                          final store = stores[index];
+                          
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: InkWell(
+                              onTap: () => context.push('/store/${store.slug}'),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    // Logo
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30),
+                                        border: Border.all(color: Colors.grey[200]!),
+                                         image: store.logoUrl != null
+                                           ? DecorationImage(image: NetworkImage(store.logoUrl!), fit: BoxFit.cover)
+                                           : null,
+                                      ),
+                                      child: store.logoUrl == null
+                                          ? const Icon(Icons.store, color: Colors.grey)
                                           : null,
-                                     ),
-                                     child: store.logoUrl == null
-                                         ? const Icon(Icons.store, color: Colors.grey)
-                                         : null,
-                                   ),
-                                   const SizedBox(width: 16),
-                                   // Info
-                                   Expanded(
-                                     child: Column(
-                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                       children: [
-                                         Text(store.storeName, style: AppTypography.titleMedium),
-                                         if (store.tagline != null)
-                                            Text(store.tagline!, style: AppTypography.bodySmall, maxLines: 1),
-                                         const SizedBox(height: 4),
-                                         Row(
-                                           children: [
-                                             const Icon(Icons.location_on, size: 12, color: Colors.grey),
-                                             const SizedBox(width: 2),
-                                             Text(store.townName ?? 'Unknown', style: AppTypography.labelSmall),
-                                             const SizedBox(width: 8),
-                                             const Icon(Icons.inventory_2, size: 12, color: Colors.grey),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(store.storeName, style: AppTypography.titleMedium),
+                                          if (store.tagline != null)
+                                             Text(store.tagline!, style: AppTypography.bodySmall, maxLines: 1),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on, size: 12, color: Colors.grey),
                                               const SizedBox(width: 2),
-                                             Text('${store.totalProducts} items', style: AppTypography.labelSmall),
-                                           ],
-                                         ),
-                                       ],
-                                     ),
-                                   ),
-                                   const Icon(Icons.chevron_right, color: Colors.grey),
-                                 ],
-                               ),
-                             ),
-                           ),
-                         );
+                                              Text(store.townName ?? 'Unknown', style: AppTypography.labelSmall),
+                                              const SizedBox(width: 8),
+                                              const Icon(Icons.inventory_2, size: 12, color: Colors.grey),
+                                               const SizedBox(width: 2),
+                                              Text('${store.totalProducts} items', style: AppTypography.labelSmall),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(Icons.chevron_right, color: Colors.grey),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
                        },
                      );
                    },

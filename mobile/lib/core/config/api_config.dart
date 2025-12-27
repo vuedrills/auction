@@ -45,4 +45,11 @@ class ApiConfig {
   
   static const String notifications = '/notifications';
   static const String conversations = '/conversations';
+  
+  static const String products = '/products';
+  static const String staleProducts = '/products/stale';
+  static String confirmProduct(String id) => '/products/$id/confirm';
+  
+  static const String analytics = '/analytics';
+  static const String batchTrack = '$analytics/events/batch';
 }

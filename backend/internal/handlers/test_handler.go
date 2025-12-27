@@ -258,3 +258,33 @@ func (h *TestHandler) UpdateUserEmail(c *gin.Context) {
 		"email":   req.Email,
 	})
 }
+
+// RestaleStore sets all products of a store to be stale (last_confirmed_at = 60 days ago) (FOR TESTING ONLY)
+func (h *TestHandler) RestaleStore(c *gin.Context) {
+	slug := c.Param("slug")
+
+	// Find store by slug
+	var storeID uuid.UUID
+	err := h.db.Pool.QueryRow(context.Background(),
+		"SELECT id FROM stores WHERE slug = $1", slug).Scan(&storeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		return
+	}
+
+	// Update all products to be stale (60 days ago)
+	result, err := h.db.Pool.Exec(context.Background(),
+		`UPDATE products SET last_confirmed_at = NOW() - INTERVAL '60 days' WHERE store_id = $1`,
+		storeID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update products"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":          "Store products re-staled successfully",
+		"store_slug":       slug,
+		"products_updated": result.RowsAffected(),
+	})
+}
