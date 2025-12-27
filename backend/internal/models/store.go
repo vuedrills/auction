@@ -192,6 +192,11 @@ type CreateEnquiryRequest struct {
 	Message   string `json:"message" binding:"required"`
 }
 
+// TrackStoreEventRequest represents a request to track a store event
+type TrackStoreEventRequest struct {
+	EventType string `json:"event_type" binding:"required"` // whatsapp_click, call_click, store_view, product_view
+}
+
 // ============ RESPONSE MODELS ============
 
 // StoreResponse wraps a single store

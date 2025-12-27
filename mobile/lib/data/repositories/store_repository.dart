@@ -294,6 +294,19 @@ class StoreRepository {
     }
   }
 
+  /// Track store analytics event
+  Future<void> trackEvent(String storeId, String eventType) async {
+    try {
+      await _client.post(
+        '/stores/$storeId/track',
+        data: {'event_type': eventType},
+      );
+    } catch (e) {
+      // Fail silently for analytics
+      print('Failed to track event: $e');
+    }
+  }
+
   Exception _handleError(dynamic e) {
     if (e is DioException) {
       return Exception(e.response?.data['error'] ?? 'Network error occurred');

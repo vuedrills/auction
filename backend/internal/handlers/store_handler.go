@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -604,6 +605,52 @@ func (h *StoreHandler) GetFollowingStores(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.StoresResponse{Stores: stores, TotalCount: len(stores)})
+}
+
+// TrackEvent tracks clicks and views for store analytics
+func (h *StoreHandler) TrackEvent(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	var req models.TrackStoreEventRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var column string
+	switch req.EventType {
+	case "whatsapp_click":
+		column = "whatsapp_clicks"
+	case "call_click":
+		column = "call_clicks"
+	case "store_view":
+		column = "views"
+	case "product_view":
+		column = "product_views"
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event type"})
+		return
+	}
+
+	// Upsert into store_analytics for the current day
+	query := fmt.Sprintf(`
+		INSERT INTO store_analytics (store_id, date, %s)
+		VALUES ($1, CURRENT_DATE, 1)
+		ON CONFLICT (store_id, date)
+		DO UPDATE SET %s = store_analytics.%s + 1
+	`, column, column, column)
+
+	_, err = h.db.Pool.Exec(context.Background(), query, storeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track event: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 // ============ HELPERS ============

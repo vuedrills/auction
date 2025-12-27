@@ -22,6 +22,19 @@ class _StorefrontScreenState extends ConsumerState<StorefrontScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    
+    // Track store view
+    Future.microtask(() async {
+      try {
+        final store = await ref.read(storeBySlugProvider(widget.slug).future);
+        ref.read(storeRepositoryProvider).trackEvent(store.id, 'store_view');
+      } catch (_) {}
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -383,7 +396,11 @@ class _StorefrontScreenState extends ConsumerState<StorefrontScreen> {
                           
                           if (store.phone != null) ...[
                             InkWell(
-                              onTap: () => launchUrl(Uri.parse('tel:${store.phone}')),
+                              onTap: () {
+                                // Track click
+                                ref.read(storeRepositoryProvider).trackEvent(store.id, 'call_click');
+                                launchUrl(Uri.parse('tel:${store.phone}'));
+                              },
                               child: Row(
                                 children: [
                                   const Icon(Icons.phone_outlined, size: 20, color: Colors.grey),
@@ -397,7 +414,11 @@ class _StorefrontScreenState extends ConsumerState<StorefrontScreen> {
                           
                           if (store.whatsapp != null) ...[
                             InkWell(
-                              onTap: () => launchUrl(Uri.parse('https://wa.me/${store.whatsapp}')),
+                              onTap: () {
+                                // Track click
+                                ref.read(storeRepositoryProvider).trackEvent(store.id, 'whatsapp_click');
+                                launchUrl(Uri.parse('https://wa.me/${store.whatsapp}'));
+                              },
                               child: Row(
                                 children: [
                                   const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.green),

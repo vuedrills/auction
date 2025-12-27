@@ -184,6 +184,9 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 			// Follow system
 			stores.POST("/:id/follow", middleware.Auth(jwtService), storeHandler.FollowStore)
 			stores.DELETE("/:id/follow", middleware.Auth(jwtService), storeHandler.UnfollowStore)
+
+			// Tracking
+			stores.POST("/:id/track", storeHandler.TrackEvent)
 		}
 
 		// Products
