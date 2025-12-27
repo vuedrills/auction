@@ -339,7 +339,12 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	categoryID := c.Query("category")
 	townID := c.Query("town")
-	featured := c.Query("featured")
+	featuredQuery := c.Query("featured")
+	featuredCtx, _ := c.Get("featured")
+	featured := ""
+	if featuredQuery == "true" || featuredCtx == "true" {
+		featured = "true"
+	}
 	search := c.Query("q")
 
 	if page < 1 {
@@ -351,29 +356,29 @@ func (h *StoreHandler) GetStores(c *gin.Context) {
 	offset := (page - 1) * limit
 
 	// Build query
-	where := []string{"is_active = true"}
+	where := []string{"s.is_active = true"}
 	args := []interface{}{}
 	argNum := 1
 
 	if categoryID != "" {
 		if id, err := uuid.Parse(categoryID); err == nil {
-			where = append(where, "category_id = $"+strconv.Itoa(argNum))
+			where = append(where, "s.category_id = $"+strconv.Itoa(argNum))
 			args = append(args, id)
 			argNum++
 		}
 	}
 	if townID != "" {
 		if id, err := uuid.Parse(townID); err == nil {
-			where = append(where, "town_id = $"+strconv.Itoa(argNum))
+			where = append(where, "s.town_id = $"+strconv.Itoa(argNum))
 			args = append(args, id)
 			argNum++
 		}
 	}
 	if featured == "true" {
-		where = append(where, "is_featured = true")
+		where = append(where, "s.is_featured = true")
 	}
 	if search != "" {
-		where = append(where, "(store_name ILIKE $"+strconv.Itoa(argNum)+" OR tagline ILIKE $"+strconv.Itoa(argNum)+")")
+		where = append(where, "(s.store_name ILIKE $"+strconv.Itoa(argNum)+" OR s.tagline ILIKE $"+strconv.Itoa(argNum)+")")
 		args = append(args, "%"+search+"%")
 		argNum++
 	}
