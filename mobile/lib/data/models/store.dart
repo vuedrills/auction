@@ -292,8 +292,14 @@ class Product {
   }
 
   /// First image or placeholder
-  String get primaryImage =>
-      images.isNotEmpty ? images.first : 'https://via.placeholder.com/400x300';
+  String? get primaryImage =>
+      images.isNotEmpty ? images.first : null;
+  
+  /// Whether product is negotiable
+  bool get isNegotiable => pricingType == 'negotiable';
+  
+  /// Getter for name (alias for title)
+  String get name => title;
 }
 
 /// Request to create a store

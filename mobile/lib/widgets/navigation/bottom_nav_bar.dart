@@ -42,14 +42,14 @@ class BottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _NavItem(
-                icon: Icons.home_filled,
-                label: 'Town',
+                icon: Icons.home_rounded,
+                label: 'Home',
                 isSelected: currentIndex == 0,
                 onTap: () => onTabSelected(0),
               ),
               _NavItem(
-                icon: Icons.public_rounded,
-                label: 'National',
+                icon: Icons.storefront_rounded,
+                label: 'Shops',
                 isSelected: currentIndex == 1,
                 onTap: () => onTabSelected(1),
               ),
@@ -57,7 +57,7 @@ class BottomNavBar extends StatelessWidget {
                 onTap: () => onTabSelected(2),
               ),
               _NavItem(
-                icon: Icons.notifications_rounded,
+                icon: Icons.chat_bubble_rounded,
                 label: 'Inbox',
                 isSelected: currentIndex == 3,
                 onTap: () => onTabSelected(3),
