@@ -137,36 +137,66 @@ class _StorefrontScreenState extends ConsumerState<StorefrontScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      store.storeName,
-                                      style: AppTypography.headlineSmall.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                          Shadow(
-                                            color: Colors.black.withOpacity(0.5),
-                                            offset: const Offset(0, 2),
-                                            blurRadius: 4,
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            store.storeName,
+                                            style: AppTypography.headlineSmall.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              shadows: [
+                                                Shadow(
+                                                  color: Colors.black.withOpacity(0.5),
+                                                  offset: const Offset(0, 2),
+                                                  blurRadius: 4,
+                                                ),
+                                              ],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (store.isVerified) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.blue,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.check, color: Colors.white, size: 12),
                                           ),
                                         ],
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      ],
                                     ),
                                     const SizedBox(height: 4),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '${store.totalProducts} Products',
-                                        style: AppTypography.bodySmall.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            '${store.totalProducts} Products',
+                                            style: AppTypography.bodySmall.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        if (store.createdAt != null) ...[
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Since ${store.createdAt!.year}',
+                                            style: AppTypography.labelSmall.copyWith(
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ],
                                 ),
