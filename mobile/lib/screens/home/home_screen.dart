@@ -175,9 +175,6 @@ class HomeTabContent extends ConsumerWidget {
           // Category Chips
           const SliverToBoxAdapter(child: _CategoryChips()),
 
-          // Featured Stores
-          const SliverToBoxAdapter(child: FeaturedStoresList()),
-          
           // Ending Soon Section
           SliverToBoxAdapter(child: _buildSectionHeader(
             context, 

@@ -16,38 +16,16 @@ class FeaturedStoresList extends ConsumerWidget {
       data: (stores) {
         if (stores.isEmpty) return const SizedBox.shrink();
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Featured Stores', style: AppTypography.headlineSmall),
-                    TextButton(
-                      onPressed: () => context.push('/stores'),
-                      child: const Text('View All'),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 140, // Height for the card
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: stores.length,
-                  itemBuilder: (context, index) {
-                    final store = stores[index];
-                    return _StoreCard(store: store);
-                  },
-                ),
-              ),
-            ],
+        return SizedBox(
+          height: 140,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: stores.length,
+            itemBuilder: (context, index) {
+              final store = stores[index];
+              return _StoreCard(store: store);
+            },
           ),
         );
       },

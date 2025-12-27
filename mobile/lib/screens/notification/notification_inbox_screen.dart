@@ -77,9 +77,9 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Container(
-                    height: 44,
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(14)),
+                    height: 50,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
                     child: Row(children: [
                       // Notifications Tab
                       _buildTabButton(0, 'Alerts', Icons.notifications_outlined, 
@@ -120,21 +120,23 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
     return Expanded(
       child: GestureDetector(
         onTap: () => _tabController.animateTo(index),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(11),
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))] : null,
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 16, color: isSelected ? AppColors.primary : Colors.grey),
-              const SizedBox(width: 4),
+              Icon(icon, size: 18, color: isSelected ? AppColors.primary : Colors.grey),
+              const SizedBox(width: 8),
               Flexible(
                 child: Text(label, style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: isSelected ? AppColors.textPrimaryLight : Colors.grey,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 ), overflow: TextOverflow.ellipsis),
@@ -463,8 +465,8 @@ class _ShopChatListItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: conversation.unreadCount > 0 ? AppColors.primary.withOpacity(0.05) : Colors.transparent,
-          border: Border(bottom: BorderSide(color: AppColors.borderLight.withOpacity(0.5))),
+          color: conversation.unreadCount > 0 ? AppColors.primary.withValues(alpha: 0.05) : Colors.transparent,
+          border: Border(bottom: BorderSide(color: AppColors.borderLight.withValues(alpha: 0.5))),
         ),
         child: Row(
           children: [
@@ -474,7 +476,7 @@ class _ShopChatListItem extends StatelessWidget {
                 Container(
                   width: 56, height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: conversation.otherAvatar != null

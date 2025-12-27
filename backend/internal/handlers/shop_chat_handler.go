@@ -383,7 +383,7 @@ func (h *ShopChatHandler) StartShopConversation(c *gin.Context) {
 	}
 
 	if storeOwnerID == userID {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot start conversation with your own store"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "You cannot chat with your own store"})
 		return
 	}
 

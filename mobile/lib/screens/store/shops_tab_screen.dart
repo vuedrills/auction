@@ -45,7 +45,7 @@ class _ShopsTabScreenState extends ConsumerState<ShopsTabScreen> {
           slivers: [
             // Header with search
             SliverToBoxAdapter(child: _ShopsHeader(
-              onSearchTap: () => context.push('/search/shops'),
+              onSearchTap: () => context.push('/stores'),
             )),
 
             // Town filter

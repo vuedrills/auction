@@ -22,6 +22,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final productAsync = ref.watch(productProvider(widget.productId));
+    final user = ref.watch(currentUserProvider);
 
     // Track product view once loaded
     if (productAsync.hasValue && !_hasTrackedView) {
@@ -207,74 +208,100 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ],
         ),
         child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Primary: WhatsApp button (full width, prominent)
-              SizedBox(
-                width: double.infinity,
-                child: AppButton(
-                  label: 'WhatsApp Seller',
-                  icon: Icons.chat,
-                  backgroundColor: const Color(0xFF25D366),
-                  onPressed: () {
-                    final store = productAsync.value!.store;
-                    if (store?.whatsapp != null && store!.whatsapp!.isNotEmpty) {
-                      // Track click
-                      ref.read(storeRepositoryProvider).trackEvent(store!.id, 'whatsapp_click');
-                      
-                      final message = Uri.encodeComponent('Hi, is ${productAsync.value!.title} still available?');
-                      launchUrl(Uri.parse('https://wa.me/${store.whatsapp}?text=$message'));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('WhatsApp not available. Try in-app chat.')),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Secondary: In-App Chat (outline style)
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    final store = productAsync.value!.store;
-                    if (store == null) return;
-                    
-                    // Start shop conversation
-                    try {
-                      final conversationId = await ref.read(shopChatRepositoryProvider).startConversation(
-                        store.id,
-                        productId: widget.productId,
-                        message: 'Hi, I\'m interested in ${productAsync.value!.title}',
-                      );
-                      if (context.mounted) {
-                        context.push('/shop-chats/$conversationId', extra: {
-                          'storeName': store.storeName,
-                          'storeSlug': store.slug,
-                          'productTitle': productAsync.value!.title,
-                        });
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.message_outlined, size: 18),
-                  label: const Text('Chat In App'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          child: Builder(
+            builder: (context) {
+              final product = productAsync.value!;
+              final isMine = user != null && product.store?.userId == user.id;
+
+              if (isMine) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    label: 'Manage Product',
+                    icon: Icons.edit_outlined,
+                    onPressed: () {
+                      context.push('/store/manage/products'); // Or a specific edit page if we have one
+                    },
                   ),
-                ),
-              ),
-            ],
+                );
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Primary: WhatsApp button (full width, prominent)
+                  SizedBox(
+                    width: double.infinity,
+                    child: AppButton(
+                      label: 'WhatsApp Seller',
+                      icon: Icons.chat,
+                      backgroundColor: const Color(0xFF25D366),
+                      onPressed: () {
+                        final store = product.store;
+                        if (store?.whatsapp != null && store!.whatsapp!.isNotEmpty) {
+                          // Track click
+                          ref.read(storeRepositoryProvider).trackEvent(store.id, 'whatsapp_click');
+                          
+                          final message = Uri.encodeComponent('Hi, is ${product.title} still available?');
+                          launchUrl(Uri.parse('https://wa.me/${store.whatsapp}?text=$message'));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('WhatsApp not available. Try in-app chat.')),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Secondary: In-App Chat (outline style)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final store = product.store;
+                        if (store == null) return;
+                        
+                        // Start shop conversation
+                        try {
+                          final conversationId = await ref.read(shopChatRepositoryProvider).startConversation(
+                            store.id,
+                            productId: widget.productId,
+                            message: 'Hi, I\'m interested in ${product.title}',
+                          );
+                          if (context.mounted) {
+                            context.push('/shop-chats/$conversationId', extra: {
+                              'storeName': store.storeName,
+                              'storeSlug': store.slug,
+                              'productTitle': product.title,
+                            });
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            String message = e.toString();
+                            if (message.contains('400')) {
+                              message = 'You cannot chat with your own store.';
+                            } else {
+                              message = 'Failed to start chat. Please try again.';
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message), backgroundColor: Colors.red),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.message_outlined, size: 18),
+                      label: const Text('Chat In App'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
           ),
         ),
       ) : null,
