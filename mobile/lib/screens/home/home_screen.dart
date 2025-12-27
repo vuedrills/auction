@@ -5,12 +5,17 @@ import '../../app/theme.dart';
 import '../../data/data.dart';
 import '../../data/repositories/notification_repository.dart';
 import '../../data/repositories/chat_repository.dart';
+import '../../data/repositories/store_repository.dart';
 import '../../widgets/navigation/bottom_nav_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../profile/profile_screen.dart';
-import 'national_auctions_screen.dart';
+import '../store/shops_tab_screen.dart';
 import '../notification/notification_inbox_screen.dart';
 import '../../widgets/store/featured_stores_list.dart';
+
+/// View Scope Provider - Town vs National
+enum ViewScope { town, national }
+final viewScopeProvider = StateProvider<ViewScope>((ref) => ViewScope.town);
 
 /// Home Screen - Wrapper with bottom navigation
 class HomeScreen extends ConsumerStatefulWidget {
@@ -52,8 +57,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: IndexedStack(
         index: _currentIndex > 2 ? _currentIndex - 1 : _currentIndex,
         children: const [
-          MyTownTabContent(),
-          NationalAuctionsScreen(),
+          HomeTabContent(),        // Unified Home (Town/National toggle)
+          ShopsTabScreen(),        // Dedicated Shops tab
           NotificationInboxScreen(),
           ProfileScreen(),
         ],
@@ -68,39 +73,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-/// My Town Tab Content - Connected to Backend
-class MyTownTabContent extends ConsumerWidget {
-  const MyTownTabContent({super.key});
+/// Home Tab Content - Unified Town/National with scope toggle
+class HomeTabContent extends ConsumerWidget {
+  const HomeTabContent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auctionState = ref.watch(myTownAuctionsProvider);
+    final scope = ref.watch(viewScopeProvider);
     final user = ref.watch(currentUserProvider);
-    final endingSoonAsync = ref.watch(endingSoonProvider(user?.homeTownId));
+    
+    // Use different providers based on scope
+    final auctionState = scope == ViewScope.town 
+        ? ref.watch(myTownAuctionsProvider)
+        : ref.watch(nationalAuctionsProvider);
+    
+    final endingSoonAsync = scope == ViewScope.town
+        ? ref.watch(endingSoonProvider(user?.homeTownId))
+        : ref.watch(endingSoonProvider(null)); // null = national
+    
     final selectedSuburb = ref.watch(selectedSuburbProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedTown = ref.watch(selectedTownFilterProvider);
 
-    // Filter auctions by BOTH suburb and category
+    // Filter auctions based on scope
     final filteredAuctions = auctionState.auctions.where((a) {
-      final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
-      final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
-      return matchesSuburb && matchesCategory;
+      if (scope == ViewScope.town) {
+        final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
+        final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+        return matchesSuburb && matchesCategory;
+      } else {
+        final matchesTown = selectedTown == null || a.townId == selectedTown.id;
+        final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+        return matchesTown && matchesCategory;
+      }
     }).toList();
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(myTownAuctionsProvider.notifier).refresh(),
+      onRefresh: () => scope == ViewScope.town
+          ? ref.read(myTownAuctionsProvider.notifier).refresh()
+          : ref.read(nationalAuctionsProvider.notifier).refresh(),
       child: CustomScrollView(
         slivers: [
-          // Header with Suburb Dropdown
-          SliverToBoxAdapter(child: _HeaderWithDropdown(user: user)),
+          // Header with scope toggle
+          SliverToBoxAdapter(child: _UnifiedHeader(scope: scope, user: user)),
           
           // Category Chips
           const SliverToBoxAdapter(child: _CategoryChips()),
 
           // Featured Stores
-          const SliverToBoxAdapter(
-            child: FeaturedStoresList(),
-          ),
+          const SliverToBoxAdapter(child: FeaturedStoresList()),
           
           // Ending Soon Section
           SliverToBoxAdapter(child: _buildSectionHeader(
@@ -112,7 +133,9 @@ class MyTownTabContent extends ConsumerWidget {
                 'title': 'Ending Soon',
                 'filter': 'ending_soon',
               };
-              if (user?.homeTownId != null) params['townId'] = user!.homeTownId!;
+              if (scope == ViewScope.town && user?.homeTownId != null) {
+                params['townId'] = user!.homeTownId!;
+              }
               if (selectedSuburb != null) params['suburbId'] = selectedSuburb.id;
               if (selectedCategory != null) params['categoryId'] = selectedCategory.id;
               context.push('/auctions/filtered?${Uri(queryParameters: params).query}');
@@ -121,11 +144,17 @@ class MyTownTabContent extends ConsumerWidget {
           SliverToBoxAdapter(
             child: endingSoonAsync.when(
               data: (auctions) {
-                // Filter ending soon by suburb and category too
+                // Filter ending soon
                 final filtered = auctions.where((a) {
-                  final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
-                  final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
-                  return matchesSuburb && matchesCategory;
+                  if (scope == ViewScope.town) {
+                    final matchesSuburb = selectedSuburb == null || a.suburbId == selectedSuburb.id;
+                    final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+                    return matchesSuburb && matchesCategory;
+                  } else {
+                    final matchesTown = selectedTown == null || a.townId == selectedTown.id;
+                    final matchesCategory = selectedCategory == null || a.categoryId == selectedCategory.id;
+                    return matchesTown && matchesCategory;
+                  }
                 }).toList();
                 return _EndingSoonList(auctions: filtered);
               },
@@ -134,17 +163,23 @@ class MyTownTabContent extends ConsumerWidget {
             ),
           ),
           
-          // Fresh in Town Section
+          // Fresh Auctions Section
           SliverToBoxAdapter(child: _buildSectionHeader(
             context, 
-            'Fresh in Your Town', 
+            scope == ViewScope.town 
+                ? 'Fresh in ${user?.homeTown?.name ?? 'Your Town'}'
+                : 'Fresh Nationwide', 
             Icons.local_fire_department_rounded,
             onSeeAll: () {
               final params = <String, String>{
-                'title': 'Fresh in ${user?.homeTown?.name ?? 'Your Town'}',
+                'title': scope == ViewScope.town 
+                    ? 'Fresh in ${user?.homeTown?.name ?? 'Your Town'}'
+                    : 'Fresh Nationwide',
                 'filter': 'fresh',
               };
-              if (user?.homeTownId != null) params['townId'] = user!.homeTownId!;
+              if (scope == ViewScope.town && user?.homeTownId != null) {
+                params['townId'] = user!.homeTownId!;
+              }
               if (selectedSuburb != null) params['suburbId'] = selectedSuburb.id;
               if (selectedCategory != null) params['categoryId'] = selectedCategory.id;
               context.push('/auctions/filtered?${Uri(queryParameters: params).query}');
@@ -166,7 +201,7 @@ class MyTownTabContent extends ConsumerWidget {
                     Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
                     const SizedBox(height: 12),
                     Text(
-                      _getEmptyMessage(selectedSuburb, selectedCategory),
+                      _getEmptyMessage(scope, selectedSuburb, selectedTown, selectedCategory),
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
                     ),
@@ -198,17 +233,32 @@ class MyTownTabContent extends ConsumerWidget {
     );
   }
   
-  String _getEmptyMessage(Suburb? suburb, Category? category) {
-    if (suburb != null && category != null) {
-      return 'No ${category.name} in ${suburb.name}';
-    } else if (suburb != null) {
-      return 'No auctions in ${suburb.name}';
-    } else if (category != null) {
-      return 'No ${category.name} auctions';
+  String _getEmptyMessage(ViewScope scope, Suburb? suburb, Town? town, Category? category) {
+    if (scope == ViewScope.town) {
+      if (suburb != null && category != null) {
+        return 'No ${category.name} in ${suburb.name}';
+      } else if (suburb != null) {
+        return 'No auctions in ${suburb.name}';
+      } else if (category != null) {
+        return 'No ${category.name} auctions';
+      }
+      return 'No auctions in your town yet';
+    } else {
+      if (town != null && category != null) {
+        return 'No ${category.name} in ${town.name}';
+      } else if (town != null) {
+        return 'No auctions in ${town.name}';
+      } else if (category != null) {
+        return 'No ${category.name} auctions';
+      }
+      return 'No auctions found';
     }
-    return 'No auctions in your town yet';
   }
 }
+
+/// Town filter provider (for national scope)
+final selectedTownFilterProvider = StateProvider<Town?>((ref) => null);
+
 
 
 /// Header with integrated suburb dropdown
@@ -301,6 +351,186 @@ class _HeaderWithDropdown extends ConsumerWidget {
                     child: Icon(Icons.explore_outlined, color: AppColors.primary),
                   ),
                 ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Unified Header with scope toggle
+class _UnifiedHeader extends ConsumerWidget {
+  final ViewScope scope;
+  final User? user;
+  const _UnifiedHeader({required this.scope, this.user});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final suburbsAsync = user?.homeTownId != null 
+        ? ref.watch(suburbsProvider(user!.homeTownId!))
+        : const AsyncValue<List<Suburb>>.data([]);
+    final townsAsync = ref.watch(townsProvider);
+    final selectedSuburb = ref.watch(selectedSuburbProvider);
+    final selectedTown = ref.watch(selectedTownFilterProvider);
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      decoration: BoxDecoration(color: AppColors.surfaceLight),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Scope indicator
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(children: [
+                  Icon(
+                    scope == ViewScope.town ? Icons.location_on_rounded : Icons.public_rounded, 
+                    color: AppColors.primary, 
+                    size: 18,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    scope == ViewScope.town ? 'MY TOWN' : 'NATIONWIDE', 
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primary, 
+                      fontWeight: FontWeight.w700, 
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ]),
+                // Scope toggle button
+                GestureDetector(
+                  onTap: () {
+                    ref.read(viewScopeProvider.notifier).state = 
+                        scope == ViewScope.town ? ViewScope.national : ViewScope.town;
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: scope == ViewScope.town 
+                          ? Colors.blue.shade50 
+                          : AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: scope == ViewScope.town 
+                            ? Colors.blue.shade200 
+                            : AppColors.primary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          scope == ViewScope.town ? Icons.public_rounded : Icons.home_rounded,
+                          size: 14,
+                          color: scope == ViewScope.town ? Colors.blue : AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          scope == ViewScope.town ? 'National' : 'My Town',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: scope == ViewScope.town ? Colors.blue : AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                // Location name
+                Expanded(
+                  child: Text(
+                    scope == ViewScope.town 
+                        ? (user?.homeTown?.name ?? 'Your Town')
+                        : (selectedTown?.name ?? 'All Zimbabwe'),
+                    style: AppTypography.displaySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Filter dropdown based on scope
+                if (scope == ViewScope.town)
+                  // Suburb dropdown for town scope
+                  suburbsAsync.when(
+                    data: (suburbs) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<Suburb?>(
+                        value: selectedSuburb,
+                        hint: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.location_on, size: 14, color: AppColors.textSecondaryLight),
+                            const SizedBox(width: 4),
+                            Text('All', style: AppTypography.labelSmall),
+                          ],
+                        ),
+                        underline: const SizedBox(),
+                        isDense: true,
+                        icon: Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.textSecondaryLight),
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.textPrimaryLight),
+                        items: [
+                          DropdownMenuItem<Suburb?>(value: null, child: Text('All Suburbs')),
+                          ...suburbs.map((s) => DropdownMenuItem<Suburb?>(
+                            value: s,
+                            child: Text(s.name),
+                          )),
+                        ],
+                        onChanged: (s) => ref.read(selectedSuburbProvider.notifier).state = s,
+                      ),
+                    ),
+                    loading: () => const SizedBox(width: 60),
+                    error: (_, __) => const SizedBox.shrink(),
+                  )
+                else
+                  // Town dropdown for national scope
+                  townsAsync.when(
+                    data: (towns) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<Town?>(
+                        value: selectedTown,
+                        hint: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.location_city, size: 14, color: AppColors.textSecondaryLight),
+                            const SizedBox(width: 4),
+                            Text('All Towns', style: AppTypography.labelSmall),
+                          ],
+                        ),
+                        underline: const SizedBox(),
+                        isDense: true,
+                        icon: Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.textSecondaryLight),
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.textPrimaryLight),
+                        items: [
+                          DropdownMenuItem<Town?>(value: null, child: Text('All Towns')),
+                          ...towns.map((t) => DropdownMenuItem<Town?>(
+                            value: t,
+                            child: Text(t.name),
+                          )),
+                        ],
+                        onChanged: (t) => ref.read(selectedTownFilterProvider.notifier).state = t,
+                      ),
+                    ),
+                    loading: () => const SizedBox(width: 60),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
               ],
             ),
           ],

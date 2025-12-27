@@ -386,3 +386,80 @@ class StoreProductsParams extends Equatable {
   @override
   List<Object?> get props => [slug, page, limit, categoryId, pricingType, sort];
 }
+
+// ============ PRODUCTS STATE MANAGEMENT ============
+
+class ProductsState {
+  final List<Product> products;
+  final bool isLoading;
+  final String? error;
+  final int page;
+  final bool hasMore;
+
+  ProductsState({
+    this.products = const [],
+    this.isLoading = false,
+    this.error,
+    this.page = 1,
+    this.hasMore = true,
+  });
+
+  ProductsState copyWith({
+    List<Product>? products,
+    bool? isLoading,
+    String? error,
+    int? page,
+    bool? hasMore,
+  }) {
+    return ProductsState(
+      products: products ?? this.products,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      page: page ?? this.page,
+      hasMore: hasMore ?? this.hasMore,
+    );
+  }
+}
+
+class ProductsNotifier extends StateNotifier<ProductsState> {
+  final StoreRepository _repository;
+
+  ProductsNotifier(this._repository) : super(ProductsState());
+
+  Future<void> loadProducts({bool refresh = false}) async {
+    if (state.isLoading) return;
+    if (!refresh && !state.hasMore) return;
+
+    try {
+      state = state.copyWith(
+        isLoading: true,
+        error: null,
+        page: refresh ? 1 : state.page,
+      );
+
+      // Get all products via search with empty query
+      final result = await _repository.searchProducts(
+        '',
+        page: refresh ? 1 : state.page,
+      );
+
+      final newProducts = refresh ? result.items : [...state.products, ...result.items];
+
+      state = state.copyWith(
+        products: newProducts,
+        isLoading: false,
+        page: refresh ? 2 : state.page + 1,
+        hasMore: result.items.length >= 20,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> refresh() => loadProducts(refresh: true);
+}
+
+final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
+  return ProductsNotifier(ref.watch(storeRepositoryProvider));
+});
+
