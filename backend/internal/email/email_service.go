@@ -30,8 +30,14 @@ func NewEmailService(cfg *config.Config) *EmailService {
 
 // SendEmail sends an email via Resend API
 func (s *EmailService) SendEmail(to, subject, htmlContent string) error {
-	if s.apiKey == "" {
-		return fmt.Errorf("Resend API key not configured")
+	// MOCK MODE: If API key is missing or "mock", log to console instead of failing
+	if s.apiKey == "" || s.apiKey == "mock" {
+		fmt.Printf("\n========== 📧 MOCK EMAIL ==========\n")
+		fmt.Printf("To: %s\n", to)
+		fmt.Printf("Subject: %s\n", subject)
+		fmt.Printf("Content Preview: %s\n", htmlContent[:min(len(htmlContent), 200)]+"...")
+		fmt.Printf("===================================\n")
+		return nil
 	}
 
 	payload := map[string]interface{}{
@@ -66,6 +72,13 @@ func (s *EmailService) SendEmail(to, subject, htmlContent string) error {
 	}
 
 	return nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // SendPasswordReset sends a password reset email

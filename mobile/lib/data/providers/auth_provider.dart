@@ -51,7 +51,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else {
         state = const AuthState(status: AuthStatus.unauthenticated);
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print('DEBUG: AuthNotifier.initialize failed: $e');
+      print(stack);
       state = const AuthState(status: AuthStatus.unauthenticated);
     }
   }

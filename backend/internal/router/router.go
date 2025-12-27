@@ -237,6 +237,8 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		testHandler := handlers.NewTestHandler(db, hub, fcmService)
 		api.POST("/test/end-auction/:id", testHandler.EndAuctionTest)
 		api.POST("/test/push-notification/:userId", testHandler.TestPushNotification)
+		api.POST("/test/set-ending-soon/:id", testHandler.SetAuctionEndingSoon)
+		api.POST("/test/update-email", testHandler.UpdateUserEmail)
 	}
 
 	// WebSocket

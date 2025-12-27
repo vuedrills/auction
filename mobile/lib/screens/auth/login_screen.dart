@@ -272,7 +272,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 Expanded(
                                   child: OutlinedButton(
                                     onPressed: () {
-                                      _emailController.text = 'alice@example.com';
+                                      _emailController.text = 'alice';
                                       _passwordController.text = 'password123';
                                       _handleLogin();
                                     },
@@ -288,7 +288,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 Expanded(
                                   child: OutlinedButton(
                                     onPressed: () {
-                                      _emailController.text = 'bob@example.com';
+                                      _emailController.text = 'bob';
                                       _passwordController.text = 'password123';
                                       _handleLogin();
                                     },

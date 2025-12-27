@@ -10,8 +10,12 @@ import 'storage_service.dart';
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  debugPrint('🔔 Background message: ${message.messageId}');
+  try {
+    await Firebase.initializeApp();
+    debugPrint('🔔 Background message: ${message.messageId}');
+  } catch (e) {
+    debugPrint('🔔 Background handler error: $e');
+  }
 }
 
 /// Push notification service provider
@@ -22,9 +26,10 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) 
 /// Push Notification Service using Firebase Cloud Messaging
 class PushNotificationService {
   final Ref _ref;
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging? _messaging;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   
+  bool _isFirebaseAvailable = false;
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
   
@@ -32,98 +37,127 @@ class PushNotificationService {
   
   /// Initialize the push notification service
   Future<void> initialize() async {
-    // Request permission
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-    
-    debugPrint('🔔 Notification permission: ${settings.authorizationStatus}');
-    
-    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional) {
-      await _setupFCM();
+    // Check if Firebase is available
+    try {
+      _messaging = FirebaseMessaging.instance;
+      // Test if Firebase is properly initialized
+      await _messaging!.getNotificationSettings();
+      _isFirebaseAvailable = true;
+      debugPrint('✅ Firebase is available for push notifications');
+    } catch (e) {
+      _isFirebaseAvailable = false;
+      debugPrint('⚠️ Firebase not configured - push notifications disabled');
+      debugPrint('   To enable: run "flutterfire configure"');
+      // Still setup local notifications for in-app use
       await _setupLocalNotifications();
+      return;
+    }
+    
+    // Request permission
+    try {
+      final settings = await _messaging!.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+      
+      debugPrint('🔔 Notification permission: ${settings.authorizationStatus}');
+      
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        await _setupFCM();
+        await _setupLocalNotifications();
+      }
+    } catch (e) {
+      debugPrint('🔔 Error requesting notification permission: $e');
     }
   }
   
   /// Setup Firebase Cloud Messaging
   Future<void> _setupFCM() async {
-    // Set up background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    if (!_isFirebaseAvailable || _messaging == null) return;
     
-    // Get FCM token
-    _fcmToken = await _messaging.getToken();
-    debugPrint('🔔 FCM Token obtained: $_fcmToken');
-    
-    // Don't register immediately - wait until user is authenticated
-    // The token will be registered when registerTokenIfNeeded() is called after login
-    
-    // Listen for token refresh
-    _messaging.onTokenRefresh.listen((newToken) async {
-      _fcmToken = newToken;
-      debugPrint('🔔 FCM Token refreshed: $newToken');
-      // Try to register the new token (will only succeed if authenticated)
+    try {
+      // Set up background handler
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      
+      // Get FCM token
+      _fcmToken = await _messaging!.getToken();
+      debugPrint('🔔 FCM Token obtained: $_fcmToken');
+      
+      // Listen for token refresh
+      _messaging!.onTokenRefresh.listen((newToken) async {
+        _fcmToken = newToken;
+        debugPrint('🔔 FCM Token refreshed: $newToken');
+        await registerTokenIfNeeded();
+      });
+      
+      // Handle foreground messages
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      
+      // Handle notification tap when app is in background/terminated
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+      
+      // Check if app was opened from a notification
+      final initialMessage = await _messaging!.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationTap(initialMessage);
+      }
+      
+      // Try to register token if user is already logged in
       await registerTokenIfNeeded();
-    });
-    
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-    
-    // Handle notification tap when app is in background/terminated
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
-    
-    // Check if app was opened from a notification
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationTap(initialMessage);
+    } catch (e) {
+      debugPrint('🔔 Error setting up FCM: $e');
     }
-    
-    // Try to register token if user is already logged in
-    await registerTokenIfNeeded();
   }
   
   /// Setup local notifications for foreground display
   Future<void> _setupLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-    
-    await _localNotifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: (details) {
-        debugPrint('🔔 Local notification tapped: ${details.payload}');
-        // Handle navigation based on payload
-      },
-    );
-    
-    // Create notification channel for Android
-    if (Platform.isAndroid) {
-      const channel = AndroidNotificationChannel(
-        'trabab_notifications',
-        'Trabab Notifications',
-        description: 'Auction updates, bids, and messages',
-        importance: Importance.high,
+    try {
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
       );
       
-      await _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
+      
+      await _localNotifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (details) {
+          debugPrint('🔔 Local notification tapped: ${details.payload}');
+        },
+      );
+      
+      // Create notification channel for Android
+      if (Platform.isAndroid) {
+        const channel = AndroidNotificationChannel(
+          'trabab_notifications',
+          'Trabab Notifications',
+          description: 'Auction updates, bids, and messages',
+          importance: Importance.high,
+        );
+        
+        await _localNotifications
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(channel);
+      }
+    } catch (e) {
+      debugPrint('🔔 Error setting up local notifications: $e');
     }
   }
   
   /// Register FCM token with backend (public method to call after login)
   Future<void> registerTokenIfNeeded() async {
+    if (!_isFirebaseAvailable) {
+      debugPrint('🔔 Skipping FCM registration - Firebase not available');
+      return;
+    }
     if (_fcmToken == null) {
       debugPrint('🔔 No FCM token available to register');
       return;
@@ -134,7 +168,6 @@ class PushNotificationService {
   /// Register FCM token with backend
   Future<void> _registerTokenWithBackend(String token) async {
     try {
-      // Check if we have an auth token before trying to register
       final storageService = _ref.read(storageServiceProvider);
       final authToken = await storageService.getToken();
       if (authToken == null || authToken.isEmpty) {
@@ -159,7 +192,6 @@ class PushNotificationService {
     final notification = message.notification;
     if (notification == null) return;
     
-    // Show local notification
     _localNotifications.show(
       notification.hashCode,
       notification.title,
@@ -179,7 +211,7 @@ class PushNotificationService {
           presentSound: true,
         ),
       ),
-      payload: message.data['route'], // For navigation on tap
+      payload: message.data['route'],
     );
   }
   
@@ -187,25 +219,32 @@ class PushNotificationService {
   void _handleNotificationTap(RemoteMessage message) {
     debugPrint('🔔 Notification tapped: ${message.data}');
     
-    // Handle navigation based on message data
     final route = message.data['route'];
     final auctionId = message.data['auction_id'];
     final chatId = message.data['chat_id'];
     
-    // Navigation would be handled by the app's router
-    // This is typically done via a callback or stream
     debugPrint('🔔 Navigate to: $route, auctionId: $auctionId, chatId: $chatId');
   }
   
   /// Subscribe to a topic
   Future<void> subscribeToTopic(String topic) async {
-    await _messaging.subscribeToTopic(topic);
-    debugPrint('🔔 Subscribed to topic: $topic');
+    if (!_isFirebaseAvailable || _messaging == null) return;
+    try {
+      await _messaging!.subscribeToTopic(topic);
+      debugPrint('🔔 Subscribed to topic: $topic');
+    } catch (e) {
+      debugPrint('🔔 Error subscribing to topic: $e');
+    }
   }
   
   /// Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _messaging.unsubscribeFromTopic(topic);
-    debugPrint('🔔 Unsubscribed from topic: $topic');
+    if (!_isFirebaseAvailable || _messaging == null) return;
+    try {
+      await _messaging!.unsubscribeFromTopic(topic);
+      debugPrint('🔔 Unsubscribed from topic: $topic');
+    } catch (e) {
+      debugPrint('🔔 Error unsubscribing from topic: $e');
+    }
   }
 }
