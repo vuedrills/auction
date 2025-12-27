@@ -30,11 +30,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _onTabSelected(int index) {
     if (index == 2) {
-      // Center FAB - Create auction
-      context.push('/create-auction');
+      // Show "Sell+" selection modal
+      _showSellOptions();
       return;
     }
     setState(() => _currentIndex = index);
+  }
+
+  void _showSellOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('What would you like to do?', style: AppTypography.titleLarge),
+            const SizedBox(height: 8),
+            Text('Choose how you want to list your item', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+            const SizedBox(height: 24),
+            
+            // Option 1: Auction
+            _SellOptionTile(
+              title: 'Create Auction',
+              subtitle: 'Best for unique items and fast sales',
+              icon: Icons.gavel_rounded,
+              color: AppColors.primary,
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/create-auction');
+              },
+            ),
+            const SizedBox(height: 12),
+            
+            // Option 2: Fixed Price Product
+            _SellOptionTile(
+              title: 'Add Shop Product',
+              subtitle: 'Sell at a fixed price in your storefront',
+              icon: Icons.storefront_rounded,
+              color: AppColors.secondary,
+              onTap: () async {
+                Navigator.pop(context);
+                final myStore = await ref.read(myStoreProvider.future);
+                if (myStore == null) {
+                  if (mounted) context.push('/store/create');
+                } else {
+                  if (mounted) context.push('/store/manage/products');
+                }
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -924,4 +979,58 @@ class _ProfileTabPlaceholder extends StatelessWidget {
   const _ProfileTabPlaceholder();
   @override
   Widget build(BuildContext context) => const Center(child: Text('Profile Tab'));
+}
+
+class _SellOptionTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SellOptionTile({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w700)),
+                  Text(subtitle, style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryLight)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+          ],
+        ),
+      ),
+    );
+  }
 }
