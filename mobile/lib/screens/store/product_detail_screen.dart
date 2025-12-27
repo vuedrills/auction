@@ -93,7 +93,27 @@ class ProductDetailScreen extends ConsumerWidget {
                       style: AppTypography.headlineMedium.copyWith(color: AppColors.primary),
                     ),
                     if (product.pricingType == 'negotiable')
-                      Text('Negotiable', style: AppTypography.labelSmall.copyWith(color: Colors.grey)),
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.orange.shade200),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.handshake_outlined, size: 14, color: Colors.orange.shade700),
+                            const SizedBox(width: 4),
+                            Text('Negotiable', style: TextStyle(
+                              color: Colors.orange.shade700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            )),
+                          ],
+                        ),
+                      ),
                     
                     const SizedBox(height: 24),
                     
@@ -120,7 +140,22 @@ class ProductDetailScreen extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(product.store!.storeName, style: AppTypography.titleSmall),
+                                    Row(
+                                      children: [
+                                        Text(product.store!.storeName, style: AppTypography.titleSmall),
+                                        if (product.store!.isVerified) ...[
+                                          const SizedBox(width: 4),
+                                          Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.blue,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.check, color: Colors.white, size: 10),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                     Text('View Store', style: TextStyle(color: AppColors.primary, fontSize: 12)),
                                   ],
                                 ),
@@ -156,20 +191,68 @@ class ProductDetailScreen extends ConsumerWidget {
           ],
         ),
         child: SafeArea(
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
+              // Primary: WhatsApp button (full width, prominent)
+              SizedBox(
+                width: double.infinity,
                 child: AppButton(
                   label: 'WhatsApp Seller',
                   icon: Icons.chat,
                   backgroundColor: const Color(0xFF25D366),
                   onPressed: () {
                     final store = productAsync.value!.store;
-                    if (store?.whatsapp != null) {
+                    if (store?.whatsapp != null && store!.whatsapp!.isNotEmpty) {
                       final message = Uri.encodeComponent('Hi, is ${productAsync.value!.title} still available?');
-                      launchUrl(Uri.parse('https://wa.me/${store!.whatsapp}?text=$message'));
+                      launchUrl(Uri.parse('https://wa.me/${store.whatsapp}?text=$message'));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('WhatsApp not available. Try in-app chat.')),
+                      );
                     }
                   },
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Secondary: In-App Chat (outline style)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final store = productAsync.value!.store;
+                    if (store == null) return;
+                    
+                    // Start shop conversation
+                    try {
+                      final conversationId = await ref.read(shopChatRepositoryProvider).startConversation(
+                        store.id,
+                        productId: productId,
+                        message: 'Hi, I\'m interested in ${productAsync.value!.title}',
+                      );
+                      if (context.mounted) {
+                        context.push('/shop-chats/$conversationId', extra: {
+                          'storeName': store.storeName,
+                          'storeSlug': store.slug,
+                          'productTitle': productAsync.value!.title,
+                        });
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.message_outlined, size: 18),
+                  label: const Text('Chat In App'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
                 ),
               ),
             ],
