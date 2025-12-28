@@ -20,6 +20,7 @@ type Town struct {
 	// Aggregated fields
 	ActiveAuctions int      `json:"active_auctions,omitempty"`
 	TotalSuburbs   int      `json:"total_suburbs,omitempty"`
+	UserCount      int      `json:"user_count,omitempty"`
 	Suburbs        []Suburb `json:"suburbs,omitempty"`
 }
 

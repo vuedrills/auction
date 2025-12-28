@@ -631,6 +631,141 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 	})
 }
 
+// ============ ADMIN PRODUCT CRUD ============
+
+// AdminCreateProduct creates a product for a store (Admin)
+func (h *ProductHandler) AdminCreateProduct(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	var req struct {
+		Title       string  `json:"title" binding:"required"`
+		Description string  `json:"description"`
+		Price       float64 `json:"price" binding:"required"`
+		Condition   string  `json:"condition"`
+		PricingType string  `json:"pricing_type"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Condition == "" {
+		req.Condition = "new"
+	}
+	if req.PricingType == "" {
+		req.PricingType = "fixed"
+	}
+
+	var productID uuid.UUID
+	err = h.db.Pool.QueryRow(context.Background(), `
+		INSERT INTO products (store_id, title, description, price, condition, pricing_type)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id
+	`, storeID, req.Title, req.Description, req.Price, req.Condition, req.PricingType).Scan(&productID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})
+		return
+	}
+
+	// Update store product count
+	h.db.Pool.Exec(context.Background(), `
+		UPDATE stores SET total_products = (
+			SELECT COUNT(*) FROM products WHERE store_id = $1 AND is_available = true
+		), updated_at = NOW() WHERE id = $1
+	`, storeID)
+
+	c.JSON(http.StatusCreated, gin.H{"id": productID, "message": "Product created"})
+}
+
+// AdminUpdateProduct updates a product (Admin)
+func (h *ProductHandler) AdminUpdateProduct(c *gin.Context) {
+	productID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	var req struct {
+		Title       *string  `json:"title"`
+		Description *string  `json:"description"`
+		Price       *float64 `json:"price"`
+		Condition   *string  `json:"condition"`
+		PricingType *string  `json:"pricing_type"`
+		IsAvailable *bool    `json:"is_available"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result, err := h.db.Pool.Exec(context.Background(), `
+		UPDATE products SET 
+			title = COALESCE($1, title),
+			description = COALESCE($2, description),
+			price = COALESCE($3, price),
+			condition = COALESCE($4, condition),
+			pricing_type = COALESCE($5, pricing_type),
+			is_available = COALESCE($6, is_available),
+			updated_at = NOW()
+		WHERE id = $7
+	`, req.Title, req.Description, req.Price, req.Condition, req.PricingType, req.IsAvailable, productID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product"})
+		return
+	}
+
+	if result.RowsAffected() == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product updated"})
+}
+
+// AdminDeleteProduct deletes a product (Admin)
+func (h *ProductHandler) AdminDeleteProduct(c *gin.Context) {
+	productID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	// Get store ID for updating count
+	var storeID uuid.UUID
+	h.db.Pool.QueryRow(context.Background(),
+		"SELECT store_id FROM products WHERE id = $1", productID).Scan(&storeID)
+
+	result, err := h.db.Pool.Exec(context.Background(), "DELETE FROM products WHERE id = $1", productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete product"})
+		return
+	}
+
+	if result.RowsAffected() == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+
+	// Update store product count
+	if storeID != uuid.Nil {
+		h.db.Pool.Exec(context.Background(), `
+			UPDATE stores SET total_products = (
+				SELECT COUNT(*) FROM products WHERE store_id = $1 AND is_available = true
+			), updated_at = NOW() WHERE id = $1
+		`, storeID)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product deleted"})
+}
+
 // ============ HELPERS ============
 
 func (h *ProductHandler) getProductByID(productID uuid.UUID) (*models.Product, error) {

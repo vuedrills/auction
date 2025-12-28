@@ -5,7 +5,10 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/airmass/backend/internal/database"
@@ -740,4 +743,236 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 	h.db.Pool.Exec(context.Background(), "DELETE FROM email_verifications WHERE user_id = $1", userID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully"})
+}
+
+// GetUsers returns a paginated list of users (Admin only likely)
+func (h *AuthHandler) GetUsers(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	search := c.Query("search")
+	townID := c.Query("town_id")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	where := []string{"1=1"}
+	args := []interface{}{}
+	argNum := 1
+
+	if search != "" {
+		where = append(where, fmt.Sprintf("(email ILIKE $%d OR username ILIKE $%d OR full_name ILIKE $%d)", argNum, argNum, argNum))
+		args = append(args, "%"+search+"%")
+		argNum++
+	}
+
+	if townID != "" {
+		where = append(where, fmt.Sprintf("home_town_id = $%d", argNum))
+		args = append(args, townID)
+		argNum++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT id, email, username, full_name, avatar_url, phone,
+		is_verified, is_active, created_at,
+		COUNT(*) OVER() as total_count
+		FROM users
+		WHERE %s
+		ORDER BY created_at DESC
+		LIMIT $%d OFFSET $%d`, strings.Join(where, " AND "), argNum, argNum+1)
+
+	args = append(args, limit, offset)
+
+	rows, err := h.db.Pool.Query(context.Background(), query, args...)
+	if err != nil {
+		log.Printf("Error fetching users: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
+	defer rows.Close()
+
+	users := []models.User{}
+	totalCount := 0
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(
+			&u.ID, &u.Email, &u.Username, &u.FullName, &u.AvatarURL, &u.Phone,
+			&u.IsVerified, &u.IsActive, &u.CreatedAt, &totalCount,
+		)
+		if err != nil {
+			log.Printf("Error scanning user: %v", err)
+			continue
+		}
+		users = append(users, u)
+	}
+
+	totalPages := 0
+	if limit > 0 {
+		totalPages = (totalCount + limit - 1) / limit
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users":       users,
+		"total":       totalCount,
+		"page":        page,
+		"limit":       limit,
+		"total_pages": totalPages,
+	})
+}
+
+// UpdateUserStatus toggles user active status (Admin)
+func (h *AuthHandler) UpdateUserStatus(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req struct {
+		IsActive bool `json:"is_active"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE users SET is_active = $1, updated_at = NOW() WHERE id = $2",
+		req.IsActive, userID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User status updated successfully"})
+}
+
+// VerifyUserByAdmin toggles user verification status (Admin)
+func (h *AuthHandler) VerifyUserByAdmin(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req struct {
+		IsVerified bool `json:"is_verified"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE users SET is_verified = $1, updated_at = NOW() WHERE id = $2",
+		req.IsVerified, userID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user verification"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User verification status updated successfully"})
+}
+
+// SearchUsers searches users by username or email (Admin)
+func (h *AuthHandler) SearchUsers(c *gin.Context) {
+	query := c.Query("q")
+	if query == "" {
+		c.JSON(http.StatusOK, gin.H{"users": []interface{}{}})
+		return
+	}
+
+	rows, err := h.db.Pool.Query(context.Background(), `
+		SELECT id, username, email, full_name, avatar_url
+		FROM users
+		WHERE username ILIKE $1 OR email ILIKE $1 OR full_name ILIKE $1
+		LIMIT 20
+	`, "%"+query+"%")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search users"})
+		return
+	}
+	defer rows.Close()
+
+	var users []gin.H
+	for rows.Next() {
+		var id uuid.UUID
+		var username, email, fullName string
+		var avatarURL *string
+		rows.Scan(&id, &username, &email, &fullName, &avatarURL)
+		users = append(users, gin.H{
+			"id":         id,
+			"username":   username,
+			"email":      email,
+			"full_name":  fullName,
+			"avatar_url": avatarURL,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
+}
+
+// GetAdminUserDetails returns full user details including stats for admin
+func (h *AuthHandler) GetAdminUserDetails(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var id uuid.UUID
+	var username, email, fullName string
+	var avatarURL, phone *string
+	var isVerified, isActive bool
+	var createdAt time.Time
+	var totalAuctions, totalBids, totalWins int
+	var homeTownID *uuid.UUID
+	var homeTownName *string
+
+	err = h.db.Pool.QueryRow(context.Background(), `
+		SELECT u.id, u.username, u.email, u.full_name, u.avatar_url, u.phone, u.is_verified, u.is_active, u.created_at, u.home_town_id,
+		t.name as home_town_name,
+		(SELECT COUNT(*) FROM auctions WHERE seller_id = $1) as total_auctions,
+		(SELECT COUNT(*) FROM bids WHERE user_id = $1) as total_bids,
+		(SELECT COUNT(*) FROM auctions WHERE winner_id = $1 AND status = 'sold') as total_wins
+		FROM users u
+		LEFT JOIN towns t ON u.home_town_id = t.id
+		WHERE u.id = $1
+	`, userID).Scan(
+		&id, &username, &email, &fullName, &avatarURL, &phone, &isVerified, &isActive, &createdAt, &homeTownID,
+		&homeTownName,
+		&totalAuctions, &totalBids, &totalWins,
+	)
+
+	if err != nil {
+		fmt.Printf("GetAdminUserDetails error for user %s: %v\n", userID, err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"id":             id,
+			"username":       username,
+			"email":          email,
+			"full_name":      fullName,
+			"avatar_url":     avatarURL,
+			"phone":          phone,
+			"is_verified":    isVerified,
+			"is_active":      isActive,
+			"created_at":     createdAt,
+			"home_town_id":   homeTownID,
+			"home_town_name": homeTownName,
+		},
+		"total_auctions": totalAuctions,
+		"total_bids":     totalBids,
+		"total_wins":     totalWins,
+	})
 }
