@@ -9,6 +9,7 @@ import (
 	"github.com/airmass/backend/internal/middleware"
 	"github.com/airmass/backend/internal/websocket"
 	"github.com/airmass/backend/pkg/jwt"
+	"github.com/airmass/backend/pkg/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +23,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	// Services
 	emailService := email.NewEmailService(cfg)
 	fcmService, _ := fcm.NewFCMService(cfg) // FCM is optional, continues without it
+	storageService := storage.NewSupabaseStorage(cfg.SupabaseURL, cfg.SupabaseServiceKey, cfg.SupabaseBucket)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(db, jwtService, emailService, fcmService)
@@ -36,6 +38,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	storeHandler := handlers.NewStoreHandler(db)
 	productHandler := handlers.NewProductHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
+	uploadHandler := handlers.NewUploadHandler(storageService)
 	wsHandler := websocket.NewHandler(hub, jwtService)
 
 	// Health check
@@ -51,6 +54,14 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	// API routes
 	api := r.Group("/api")
 	{
+		// File Upload (authenticated)
+		upload := api.Group("/upload")
+		upload.Use(middleware.Auth(jwtService))
+		{
+			upload.POST("/image", uploadHandler.UploadImage)
+			upload.POST("/images", uploadHandler.UploadMultipleImages)
+		}
+
 		// Authentication
 		auth := api.Group("/auth")
 		{

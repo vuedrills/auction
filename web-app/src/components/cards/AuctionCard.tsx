@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Clock, Users, Heart } from 'lucide-react';
@@ -9,29 +10,26 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useCountdown } from '@/hooks/useCountdown';
 
+import { Auction } from '@/services/auctions';
+
 interface AuctionCardProps {
-    auction: {
-        id: string;
-        title: string;
-        current_bid: number;
-        starting_price: number;
-        end_time: string;
-        images: string[];
-        town_name?: string;
-        suburb_name?: string;
-        category_name?: string;
-        bid_count?: number;
-        status?: string;
-        is_watched?: boolean;
-    };
+    auction: Auction;
     onWatchToggle?: (id: string) => void;
+    variant?: 'default' | 'horizontal';
+    showLocation?: boolean;
+    urgent?: boolean;
 }
 
-export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
+export function AuctionCard({ auction, onWatchToggle, variant = 'default', showLocation = true, urgent = false }: AuctionCardProps) {
     const { timeLeft, isExpired, isEndingSoon } = useCountdown(auction.end_time);
 
-    const currentBid = auction.current_bid || auction.starting_price;
-    const imageUrl = auction.images?.[0] || '/placeholder-auction.jpg';
+    const currentPrice = auction.current_price || auction.starting_price;
+    const imageUrl = auction.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image';
+    const [imgSrc, setImgSrc] = useState(imageUrl);
+
+    useEffect(() => {
+        setImgSrc(imageUrl);
+    }, [imageUrl]);
 
     return (
         <Card className="group overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
@@ -39,11 +37,12 @@ export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                     <Image
-                        src={imageUrl}
+                        src={imgSrc}
                         alt={auction.title}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                         sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                        onError={() => setImgSrc('https://via.placeholder.com/400x300?text=Image+Unavailable')}
                     />
 
                     {/* Status Badge */}
@@ -58,9 +57,9 @@ export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
                     ) : null}
 
                     {/* Category Badge */}
-                    {auction.category_name && (
+                    {auction.category?.name && (
                         <Badge variant="secondary" className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm">
-                            {auction.category_name}
+                            {auction.category.name}
                         </Badge>
                     )}
 
@@ -89,8 +88,8 @@ export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                     <MapPin className="size-3" />
                     <span className="truncate">
-                        {auction.town_name || 'Unknown'}
-                        {auction.suburb_name && ` • ${auction.suburb_name}`}
+                        {auction.town?.name || 'Unknown'}
+                        {auction.suburb?.name && ` • ${auction.suburb.name}`}
                     </span>
                 </div>
 
@@ -106,7 +105,7 @@ export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
                     <div>
                         <p className="text-xs text-muted-foreground">Current Bid</p>
                         <p className="text-lg font-bold text-primary">
-                            ${currentBid.toFixed(2)}
+                            ${currentPrice.toFixed(2)}
                         </p>
                     </div>
 
@@ -127,10 +126,10 @@ export function AuctionCard({ auction, onWatchToggle }: AuctionCardProps) {
                 </div>
 
                 {/* Bid Count */}
-                {auction.bid_count !== undefined && auction.bid_count > 0 && (
+                {auction.total_bids !== undefined && auction.total_bids > 0 && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 pt-2 border-t">
                         <Users className="size-3" />
-                        <span>{auction.bid_count} bids</span>
+                        <span>{auction.total_bids} bids</span>
                     </div>
                 )}
             </CardContent>

@@ -15,7 +15,8 @@ import {
     Dumbbell,
     Baby,
     TreePine,
-    Grid3X3
+    Grid3X3,
+    Store
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,26 +50,26 @@ interface SidebarProps {
     categories?: Category[];
 }
 
-export function Sidebar({ categories = [] }: SidebarProps) {
+import { useQuery } from '@tanstack/react-query';
+import { categoriesService } from '@/services/categories';
+
+export function Sidebar() {
     const pathname = usePathname();
     const { selectedTown, selectedSuburb } = useTownStore();
     const { setTownFilterOpen } = useUIStore();
 
-    // Mock categories for now - will be fetched from API
-    const defaultCategories: Category[] = categories.length > 0 ? categories : [
-        { id: '1', name: 'Electronics', slug: 'electronics', count: 45 },
-        { id: '2', name: 'Vehicles', slug: 'vehicles', count: 23 },
-        { id: '3', name: 'Property', slug: 'property', count: 12 },
-        { id: '4', name: 'Fashion', slug: 'fashion', count: 67 },
-        { id: '5', name: 'Jewelry', slug: 'jewelry', count: 8 },
-        { id: '6', name: 'Services', slug: 'services', count: 15 },
-        { id: '7', name: 'Sports', slug: 'sports', count: 19 },
-        { id: '8', name: 'Kids', slug: 'kids', count: 31 },
-    ];
+    const { data: categories, isLoading } = useQuery({
+        queryKey: ['categories'],
+        queryFn: categoriesService.getCategories,
+    });
+
+    const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].some(path => pathname.startsWith(path));
+
+    if (isAuthPage) return null;
 
     return (
-        <aside className="w-64 border-r bg-sidebar h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto hidden lg:block">
-            <div className="p-4 space-y-6">
+        <aside className="fixed left-0 top-16 bottom-0 w-64 border-r bg-card/50 backdrop-blur-xl z-30 hidden lg:block overflow-y-auto">
+            <div className="p-6 space-y-8">
                 {/* Location Filter */}
                 <div>
                     <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -117,12 +118,17 @@ export function Sidebar({ categories = [] }: SidebarProps) {
                             </Button>
                         </Link>
 
-                        {defaultCategories.map((category) => {
-                            const Icon = categoryIcons[category.slug.toLowerCase()] || Grid3X3;
-                            const isActive = pathname === `/category/${category.slug}`;
+                        {isLoading ? (
+                            [...Array(6)].map((_, i) => (
+                                <div key={i} className="h-9 w-full bg-muted animate-pulse rounded-md" />
+                            ))
+                        ) : categories?.map((category: any) => {
+                            const slug = category.slug || category.name.toLowerCase().replace(/\s+/g, '-');
+                            const Icon = categoryIcons[slug] || Grid3X3;
+                            const isActive = pathname === `/category/${slug}`;
 
                             return (
-                                <Link key={category.id} href={`/category/${category.slug}`}>
+                                <Link key={category.id} href={`/category/${slug}`}>
                                     <Button
                                         variant={isActive ? 'secondary' : 'ghost'}
                                         className={cn(
@@ -134,9 +140,9 @@ export function Sidebar({ categories = [] }: SidebarProps) {
                                             <Icon className="size-4" />
                                             {category.name}
                                         </div>
-                                        {category.count && (
+                                        {category.active_auctions > 0 && (
                                             <Badge variant="secondary" className="text-xs">
-                                                {category.count}
+                                                {category.active_auctions}
                                             </Badge>
                                         )}
                                     </Button>
@@ -151,17 +157,41 @@ export function Sidebar({ categories = [] }: SidebarProps) {
                 {/* Quick Links */}
                 <div>
                     <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                        Quick Links
+                        Discover
                     </h3>
                     <nav className="space-y-1">
+                        <Link href="/shops">
+                            <Button
+                                variant={pathname.startsWith('/shops') ? 'secondary' : 'ghost'}
+                                className={cn(
+                                    "w-full justify-start gap-2",
+                                    pathname.startsWith('/shops') && "bg-primary/10 text-primary"
+                                )}
+                            >
+                                <Store className="size-4" />
+                                Browse Shops
+                            </Button>
+                        </Link>
                         <Link href="/national">
-                            <Button variant="ghost" className="w-full justify-start gap-2">
+                            <Button
+                                variant={pathname === '/national' ? 'secondary' : 'ghost'}
+                                className={cn(
+                                    "w-full justify-start gap-2",
+                                    pathname === '/national' && "bg-primary/10 text-primary"
+                                )}
+                            >
                                 <ChevronRight className="size-4" />
                                 National Auctions
                             </Button>
                         </Link>
                         <Link href="/ending-soon">
-                            <Button variant="ghost" className="w-full justify-start gap-2">
+                            <Button
+                                variant={pathname === '/ending-soon' ? 'secondary' : 'ghost'}
+                                className={cn(
+                                    "w-full justify-start gap-2",
+                                    pathname === '/ending-soon' && "bg-primary/10 text-primary"
+                                )}
+                            >
                                 <ChevronRight className="size-4" />
                                 Ending Soon
                             </Button>

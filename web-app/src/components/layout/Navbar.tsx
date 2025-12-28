@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     Gavel,
     Store,
@@ -30,16 +31,45 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { chatService } from '@/services/chat';
+import { useQuery } from '@tanstack/react-query';
 
 export function Navbar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { user, isAuthenticated, logout } = useAuthStore();
     const { mobileMenuOpen, setMobileMenuOpen } = useUIStore();
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const { data: unreadCounts } = useQuery({
+        queryKey: ['unread-counts'],
+        queryFn: chatService.getUnreadCounts,
+        enabled: isAuthenticated,
+        refetchInterval: 30000, // Refresh every 30s
+    });
+
+    const unreadMessages = unreadCounts?.total || 0;
 
     const navItems = [
         { href: '/', label: 'Auctions', icon: Gavel },
-        { href: '/stores', label: 'Shops', icon: Store },
+        { href: '/shops', label: 'Shops', icon: Store },
     ];
+
+    const handleSearch = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && searchQuery.trim()) {
+            // Navigate to search results based on current context
+            if (pathname.startsWith('/shops')) {
+                router.push(`/shops?q=${encodeURIComponent(searchQuery.trim())}`);
+            } else {
+                router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+            }
+        }
+    }, [searchQuery, pathname, router]);
+
+    const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].some(path => pathname.startsWith(path));
+
+    if (isAuthPage) return null;
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -53,29 +83,31 @@ export function Navbar() {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center gap-1 ml-6">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = pathname === item.href ||
-                            (item.href !== '/' && pathname.startsWith(item.href));
+                <div className="hidden md:flex flex-1 justify-center">
+                    <nav className="flex items-center gap-1 bg-muted/50 p-1.5 rounded-full border shadow-inner">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href ||
+                                (item.href !== '/' && pathname.startsWith(item.href));
 
-                        return (
-                            <Link key={item.href} href={item.href}>
-                                <Button
-                                    variant={isActive ? "secondary" : "ghost"}
-                                    size="sm"
-                                    className={cn(
-                                        "gap-2",
-                                        isActive && "bg-primary/10 text-primary hover:bg-primary/20"
-                                    )}
-                                >
-                                    <Icon className="size-4" />
-                                    {item.label}
-                                </Button>
-                            </Link>
-                        );
-                    })}
-                </nav>
+                            return (
+                                <Link key={item.href} href={item.href}>
+                                    <Button
+                                        variant={isActive ? "secondary" : "ghost"}
+                                        size="sm"
+                                        className={cn(
+                                            "rounded-full px-6 gap-2 transition-all",
+                                            isActive && "bg-white dark:bg-slate-800 text-primary shadow-sm hover:bg-white dark:hover:bg-slate-800"
+                                        )}
+                                    >
+                                        <Icon className="size-4" />
+                                        <span className="font-bold">{item.label}</span>
+                                    </Button>
+                                </Link>
+                            );
+                        })}
+                    </nav>
+                </div>
 
                 {/* Search */}
                 <div className="flex-1 max-w-md mx-4 hidden md:block">
@@ -85,6 +117,9 @@ export function Navbar() {
                             type="search"
                             placeholder="Search auctions, shops..."
                             className="pl-10 bg-muted/50"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearch}
                         />
                     </div>
                 </div>
@@ -94,20 +129,19 @@ export function Navbar() {
                     {isAuthenticated ? (
                         <>
                             {/* Notifications */}
-                            <Button variant="ghost" size="icon" className="relative">
-                                <Bell className="size-5" />
-                                <Badge className="absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center text-xs">
-                                    3
-                                </Badge>
-                            </Button>
+                            <NotificationCenter />
 
                             {/* Messages */}
-                            <Button variant="ghost" size="icon" className="relative">
-                                <MessageSquare className="size-5" />
-                                <Badge className="absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center text-xs">
-                                    2
-                                </Badge>
-                            </Button>
+                            <Link href="/messages">
+                                <Button variant="ghost" size="icon" className="relative h-10 w-10 mt-1">
+                                    <MessageSquare className="size-5" />
+                                    {unreadMessages > 0 && (
+                                        <Badge className="absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center text-[10px] font-bold ring-2 ring-background">
+                                            {unreadMessages > 9 ? '9+' : unreadMessages}
+                                        </Badge>
+                                    )}
+                                </Button>
+                            </Link>
 
                             {/* Profile Dropdown */}
                             <DropdownMenu>
@@ -199,6 +233,9 @@ export function Navbar() {
                             type="search"
                             placeholder="Search auctions, shops..."
                             className="pl-10"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearch}
                         />
                     </div>
 

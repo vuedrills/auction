@@ -1,11 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface User {
+export interface User {
     id: string;
     username: string;
     email: string;
+    full_name?: string;
+    avatar_url?: string;
     profile_image_url?: string;
+    home_town_id?: string;
+    home_suburb_id?: string;
     town_id?: string;
     suburb_id?: string;
     town_name?: string;
@@ -13,6 +17,8 @@ interface User {
     is_verified?: boolean;
     is_active?: boolean;
     role?: string;
+    phone?: string;
+    created_at?: string;
 }
 
 interface AuthState {
