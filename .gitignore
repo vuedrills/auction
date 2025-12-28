@@ -44,3 +44,10 @@ mobile/android/app/google-services.json
 
 # Artifacts
 .gemini/
+
+# AI/Planning Documentation (keep private)
+AI_HANDOFF.md
+IMPLEMENTATION_PLAN.md
+**/PHONE_VERIFICATION.md
+**/*_PLAN.md
+**/*_plan.md
