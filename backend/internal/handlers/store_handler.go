@@ -663,6 +663,42 @@ func (h *StoreHandler) TrackEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
+// VerifyStore verifies a store (Admin only)
+func (h *StoreHandler) VerifyStore(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE stores SET is_verified = true WHERE id = $1", storeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify store"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Store verified successfully"})
+}
+
+// DeleteStore deletes a store by ID (Admin only)
+func (h *StoreHandler) DeleteStore(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"DELETE FROM stores WHERE id = $1", storeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete store"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Store deleted successfully"})
+}
+
 // ============ HELPERS ============
 
 func (h *StoreHandler) getStoreByUserID(userID uuid.UUID) (*models.Store, error) {
@@ -772,4 +808,203 @@ func nilIfZero(i int) *int {
 		return nil
 	}
 	return &i
+}
+
+// ============ ADMIN STORE MANAGEMENT ============
+
+// AdminGetStore returns a store by ID (Admin)
+func (h *StoreHandler) AdminGetStore(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	var store models.Store
+	var townName, suburbName, ownerName, categoryName, ownerAvatar *string
+
+	err = h.db.Pool.QueryRow(context.Background(), `
+		SELECT s.id, s.user_id, s.store_name, s.slug, s.tagline, s.about, s.logo_url, s.cover_url,
+		       s.is_verified, s.is_active, s.whatsapp, s.phone, s.created_at, s.updated_at,
+		       t.name as town_name, sb.name as suburb_name, 
+		       u.username as owner_name, u.avatar_url as owner_avatar,
+		       sc.display_name as category_name,
+		       (SELECT COUNT(*) FROM products p WHERE p.store_id = s.id AND p.is_available = true) as total_products
+		FROM stores s
+		LEFT JOIN towns t ON s.town_id = t.id
+		LEFT JOIN suburbs sb ON s.suburb_id = sb.id
+		LEFT JOIN users u ON s.user_id = u.id
+		LEFT JOIN store_categories sc ON s.category_id = sc.id
+		WHERE s.id = $1
+	`, storeID).Scan(
+		&store.ID, &store.UserID, &store.StoreName, &store.Slug, &store.Tagline, &store.About,
+		&store.LogoURL, &store.CoverURL, &store.IsVerified, &store.IsActive, &store.WhatsApp, &store.Phone,
+		&store.CreatedAt, &store.UpdatedAt, &townName, &suburbName, &ownerName, &ownerAvatar, &categoryName, &store.TotalProducts,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch store"})
+		}
+		return
+	}
+
+	if townName != nil {
+		store.Town = &models.Town{Name: *townName}
+	}
+	if suburbName != nil {
+		store.Suburb = &models.Suburb{Name: *suburbName}
+	}
+	if ownerName != nil {
+		store.Owner = &models.User{ID: store.UserID, Username: *ownerName, AvatarURL: ownerAvatar}
+	}
+	if categoryName != nil {
+		store.Category = &models.StoreCategory{DisplayName: *categoryName}
+	}
+
+	c.JSON(http.StatusOK, store)
+}
+
+// AdminUpdateStore updates a store by ID (Admin)
+func (h *StoreHandler) AdminUpdateStore(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	var req struct {
+		StoreName  *string `json:"store_name"`
+		Tagline    *string `json:"tagline"`
+		About      *string `json:"about"`
+		LogoURL    *string `json:"logo_url"`
+		CoverURL   *string `json:"cover_url"`
+		WhatsApp   *string `json:"whatsapp"`
+		Phone      *string `json:"phone"`
+		IsActive   *bool   `json:"is_active"`
+		IsVerified *bool   `json:"is_verified"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Build dynamic update query
+	updates := []string{}
+	args := []interface{}{}
+	argNum := 1
+
+	if req.StoreName != nil {
+		updates = append(updates, "store_name = $"+strconv.Itoa(argNum))
+		args = append(args, *req.StoreName)
+		argNum++
+	}
+	if req.Tagline != nil {
+		updates = append(updates, "tagline = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Tagline)
+		argNum++
+	}
+	if req.About != nil {
+		updates = append(updates, "about = $"+strconv.Itoa(argNum))
+		args = append(args, *req.About)
+		argNum++
+	}
+	if req.LogoURL != nil {
+		updates = append(updates, "logo_url = $"+strconv.Itoa(argNum))
+		args = append(args, *req.LogoURL)
+		argNum++
+	}
+	if req.CoverURL != nil {
+		updates = append(updates, "cover_url = $"+strconv.Itoa(argNum))
+		args = append(args, *req.CoverURL)
+		argNum++
+	}
+	if req.WhatsApp != nil {
+		updates = append(updates, "whatsapp = $"+strconv.Itoa(argNum))
+		args = append(args, *req.WhatsApp)
+		argNum++
+	}
+	if req.Phone != nil {
+		updates = append(updates, "phone = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Phone)
+		argNum++
+	}
+	if req.IsActive != nil {
+		updates = append(updates, "is_active = $"+strconv.Itoa(argNum))
+		args = append(args, *req.IsActive)
+		argNum++
+	}
+	if req.IsVerified != nil {
+		updates = append(updates, "is_verified = $"+strconv.Itoa(argNum))
+		args = append(args, *req.IsVerified)
+		argNum++
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No fields to update"})
+		return
+	}
+
+	updates = append(updates, "updated_at = NOW()")
+	args = append(args, storeID)
+
+	query := fmt.Sprintf("UPDATE stores SET %s WHERE id = $%d", strings.Join(updates, ", "), argNum)
+
+	result, err := h.db.Pool.Exec(context.Background(), query, args...)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update store"})
+		return
+	}
+
+	if result.RowsAffected() == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Store updated successfully"})
+}
+
+// AdminGetStoreProducts returns all products for a store by ID (Admin)
+func (h *StoreHandler) AdminGetStoreProducts(c *gin.Context) {
+	storeID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	rows, err := h.db.Pool.Query(context.Background(), `
+		SELECT p.id, p.store_id, p.title, p.description, p.price,
+			p.compare_at_price, p.pricing_type, p.condition, p.images,
+			p.stock_quantity, p.is_available, p.is_featured, p.views, 
+			p.created_at, p.updated_at, p.last_confirmed_at
+		FROM products p
+		WHERE p.store_id = $1
+		ORDER BY p.created_at DESC
+	`, storeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch products"})
+		return
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var product models.Product
+		err := rows.Scan(
+			&product.ID, &product.StoreID, &product.Title, &product.Description,
+			&product.Price, &product.CompareAtPrice, &product.PricingType,
+			&product.Condition, &product.Images, &product.StockQuantity,
+			&product.IsAvailable, &product.IsFeatured, &product.Views,
+			&product.CreatedAt, &product.UpdatedAt, &product.LastConfirmedAt,
+		)
+		if err != nil {
+			continue
+		}
+		products = append(products, product)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"products": products})
 }

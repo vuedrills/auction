@@ -7,6 +7,8 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/airmass/backend/internal/database"
@@ -217,13 +219,27 @@ func (h *AuctionHandler) GetAuctions(c *gin.Context) {
 		LEFT JOIN categories c ON a.category_id = c.id
 		LEFT JOIN towns t ON a.town_id = t.id
 		LEFT JOIN suburbs s ON a.suburb_id = s.id
-		WHERE a.status IN ('active', 'ending_soon')
+		WHERE 1=1
 	`
-	countQuery := `SELECT COUNT(*) FROM auctions a WHERE a.status IN ('active', 'ending_soon')`
+	countQuery := `SELECT COUNT(*) FROM auctions a WHERE 1=1`
 	args := []interface{}{}
 	argCount := 0
 
-	// Apply filters
+	// Apply Status Filter
+	if filters.Status != nil && *filters.Status != "" {
+		if *filters.Status != "all" {
+			argCount++
+			query += fmt.Sprintf(" AND a.status = $%d", argCount)
+			countQuery += fmt.Sprintf(" AND a.status = $%d", argCount)
+			args = append(args, *filters.Status)
+		}
+	} else {
+		// Default behavior: Active & Ending Soon only
+		query += " AND a.status IN ('active', 'ending_soon')"
+		countQuery += " AND a.status IN ('active', 'ending_soon')"
+	}
+
+	// Apply other filters
 	if filters.TownID != nil {
 		argCount++
 		query += fmt.Sprintf(" AND a.town_id = $%d", argCount)
@@ -897,6 +913,159 @@ func (h *AuctionHandler) scanAuctions(rows pgx.Rows) []models.Auction {
 	return auctions
 }
 
+// AdminApproveAuction allows admin to approve a pending auction
+func (h *AuctionHandler) AdminApproveAuction(c *gin.Context) {
+	auctionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE auctions SET status = 'active', updated_at = NOW() WHERE id = $1",
+		auctionID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to approve auction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Auction approved successfully"})
+}
+
+// AdminCancelAuction allows admin to cancel any auction
+func (h *AuctionHandler) AdminCancelAuction(c *gin.Context) {
+	auctionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE auctions SET status = 'cancelled', updated_at = NOW() WHERE id = $1",
+		auctionID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to cancel auction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Auction cancelled by admin"})
+}
+
+// AdminUpdateAuctionStatus allows admin to change status to anything
+func (h *AuctionHandler) AdminUpdateAuctionStatus(c *gin.Context) {
+	auctionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	var req struct {
+		Status string `json:"status" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(),
+		"UPDATE auctions SET status = $1, updated_at = NOW() WHERE id = $2",
+		req.Status, auctionID,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update auction status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Auction status updated successfully"})
+}
+
+// GetAdminAuctionDetails returns full auction details for admin including bid history
+func (h *AuctionHandler) GetAdminAuctionDetails(c *gin.Context) {
+	auctionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid auction ID"})
+		return
+	}
+
+	// Reuse existing GetAuction logic but wrap it with bids
+	// Actually better to just write a clean function here
+	var a models.Auction
+	var seller models.User
+	var categoryName, townName, suburbName *string
+
+	err = h.db.Pool.QueryRow(context.Background(), `
+		SELECT a.id, a.title, a.description, a.starting_price, a.current_price, a.reserve_price,
+		a.bid_increment, a.seller_id, a.status, a.condition, a.start_time, a.end_time,
+		a.total_bids, a.views, a.images, a.created_at, a.updated_at,
+		u.username, u.email, u.avatar_url,
+		c.name, t.name, s.name
+		FROM auctions a
+		LEFT JOIN users u ON a.seller_id = u.id
+		LEFT JOIN categories c ON a.category_id = c.id
+		LEFT JOIN towns t ON a.town_id = t.id
+		LEFT JOIN suburbs s ON a.suburb_id = s.id
+		WHERE a.id = $1
+	`, auctionID).Scan(
+		&a.ID, &a.Title, &a.Description, &a.StartingPrice, &a.CurrentPrice, &a.ReservePrice,
+		&a.BidIncrement, &a.SellerID, &a.Status, &a.Condition, &a.StartTime, &a.EndTime,
+		&a.TotalBids, &a.Views, &a.Images, &a.CreatedAt, &a.UpdatedAt,
+		&seller.Username, &seller.Email, &seller.AvatarURL,
+		&categoryName, &townName, &suburbName,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Auction not found"})
+		return
+	}
+
+	a.Seller = &seller
+	if categoryName != nil {
+		a.Category = &models.Category{Name: *categoryName}
+	}
+	if townName != nil {
+		a.Town = &models.Town{Name: *townName}
+	}
+	if suburbName != nil {
+		a.Suburb = &models.Suburb{Name: *suburbName}
+	}
+
+	// Get Bid History
+	rows, _ := h.db.Pool.Query(context.Background(), `
+		SELECT b.id, b.amount, b.created_at, b.is_winning, u.username
+		FROM bids b
+		JOIN users u ON b.bidder_id = u.id
+		WHERE b.auction_id = $1
+		ORDER BY b.created_at DESC
+	`, auctionID)
+
+	var bids []gin.H
+	if rows != nil {
+		defer rows.Close()
+		for rows.Next() {
+			var bID uuid.UUID
+			var amount float64
+			var createdAt time.Time
+			var isWinning bool
+			var username string
+			rows.Scan(&bID, &amount, &createdAt, &isWinning, &username)
+			bids = append(bids, gin.H{
+				"id":         bID,
+				"amount":     amount,
+				"created_at": createdAt,
+				"is_winning": isWinning,
+				"username":   username,
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"auction": a,
+		"bids":    bids,
+	})
+}
+
 // GetMyAuctions returns all auctions created by the current user
 func (h *AuctionHandler) GetMyAuctions(c *gin.Context) {
 	userID, _ := middleware.GetUserID(c)
@@ -1206,5 +1375,91 @@ func (h *AuctionHandler) GetWatchlist(c *gin.Context) {
 		Page:       page,
 		Limit:      limit,
 		TotalPages: int(math.Ceil(float64(total) / float64(limit))),
+	})
+}
+
+// GetAllBids returns a paginated list of all bids in the system (Admin)
+func (h *AuctionHandler) GetAllBids(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	townID := c.Query("town_id")
+	suburbID := c.Query("suburb_id")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	where := []string{"1=1"}
+	args := []interface{}{}
+	argNum := 1
+
+	if townID != "" {
+		where = append(where, fmt.Sprintf("a.town_id = $%d", argNum))
+		args = append(args, townID)
+		argNum++
+	}
+
+	if suburbID != "" {
+		where = append(where, fmt.Sprintf("a.suburb_id = $%d", argNum))
+		args = append(args, suburbID)
+		argNum++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT b.id, b.auction_id, b.bidder_id, b.amount, b.is_winning, b.created_at,
+		u.username as bidder_username, a.title as auction_title,
+		COUNT(*) OVER() as total_count
+		FROM bids b
+		JOIN users u ON b.bidder_id = u.id
+		JOIN auctions a ON b.auction_id = a.id
+		WHERE %s
+		ORDER BY b.created_at DESC
+		LIMIT $%d OFFSET $%d`, strings.Join(where, " AND "), argNum, argNum+1)
+
+	args = append(args, limit, offset)
+
+	rows, err := h.db.Pool.Query(context.Background(), query, args...)
+
+	if err != nil {
+		log.Printf("Error fetching all bids: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bids"})
+		return
+	}
+	defer rows.Close()
+
+	var bids []gin.H
+	totalCount := 0
+	for rows.Next() {
+		var id, auctionID, bidderID uuid.UUID
+		var amount float64
+		var isWinning bool
+		var createdAt time.Time
+		var username, title string
+
+		err := rows.Scan(&id, &auctionID, &bidderID, &amount, &isWinning, &createdAt, &username, &title, &totalCount)
+		if err != nil {
+			continue
+		}
+		bids = append(bids, gin.H{
+			"id":              id,
+			"auction_id":      auctionID,
+			"auction_title":   title,
+			"bidder_id":       bidderID,
+			"bidder_username": username,
+			"amount":          amount,
+			"is_winning":      isWinning,
+			"created_at":      createdAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"bids":  bids,
+		"total": totalCount,
+		"page":  page,
+		"limit": limit,
 	})
 }

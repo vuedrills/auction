@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/airmass/backend/internal/database"
 	"github.com/airmass/backend/internal/models"
@@ -145,4 +148,142 @@ func (h *CategoryHandler) GetCategorySlots(c *gin.Context) {
 	slot.HasAvailableSlot = slot.CurrentActive < slot.MaxActiveAuctions
 
 	c.JSON(http.StatusOK, slot)
+}
+
+// CreateCategory creates a new category (Admin)
+func (h *CategoryHandler) CreateCategory(c *gin.Context) {
+	var req struct {
+		Name        string  `json:"name" binding:"required"`
+		Icon        *string `json:"icon"`
+		Description string  `json:"description"`
+		ParentID    *string `json:"parent_id"`
+		SortOrder   int     `json:"sort_order"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var parentID *uuid.UUID
+	if req.ParentID != nil && *req.ParentID != "" {
+		id, err := uuid.Parse(*req.ParentID)
+		if err == nil {
+			parentID = &id
+		}
+	}
+
+	_, err := h.db.Pool.Exec(context.Background(), `
+		INSERT INTO categories (name, icon, description, parent_id, sort_order)
+		VALUES ($1, $2, $3, $4, $5)
+	`, req.Name, req.Icon, req.Description, parentID, req.SortOrder)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create category"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Category created successfully"})
+}
+
+// UpdateCategory updates an existing category (Admin)
+func (h *CategoryHandler) UpdateCategory(c *gin.Context) {
+	categoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category ID"})
+		return
+	}
+
+	var req struct {
+		Name        *string `json:"name"`
+		Icon        *string `json:"icon"`
+		Description *string `json:"description"`
+		ParentID    *string `json:"parent_id"`
+		SortOrder   *int    `json:"sort_order"`
+		IsActive    *bool   `json:"is_active"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Build dynamic update query
+	updates := []string{}
+	args := []interface{}{}
+	argNum := 1
+
+	if req.Name != nil {
+		updates = append(updates, "name = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Name)
+		argNum++
+	}
+	if req.Icon != nil {
+		updates = append(updates, "icon = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Icon)
+		argNum++
+	}
+	if req.Description != nil {
+		updates = append(updates, "description = $"+strconv.Itoa(argNum))
+		args = append(args, *req.Description)
+		argNum++
+	}
+	if req.ParentID != nil && *req.ParentID != "" {
+		parentID, err := uuid.Parse(*req.ParentID)
+		if err == nil {
+			updates = append(updates, "parent_id = $"+strconv.Itoa(argNum))
+			args = append(args, parentID)
+			argNum++
+		}
+	}
+	if req.SortOrder != nil {
+		updates = append(updates, "sort_order = $"+strconv.Itoa(argNum))
+		args = append(args, *req.SortOrder)
+		argNum++
+	}
+	if req.IsActive != nil {
+		updates = append(updates, "is_active = $"+strconv.Itoa(argNum))
+		args = append(args, *req.IsActive)
+		argNum++
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No fields to update"})
+		return
+	}
+
+	updates = append(updates, "updated_at = NOW()")
+	args = append(args, categoryID)
+
+	query := fmt.Sprintf("UPDATE categories SET %s WHERE id = $%d", strings.Join(updates, ", "), argNum)
+
+	result, err := h.db.Pool.Exec(context.Background(), query, args...)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update category"})
+		return
+	}
+
+	if result.RowsAffected() == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Category updated successfully"})
+}
+
+// DeleteCategory deletes a category (Admin)
+func (h *CategoryHandler) DeleteCategory(c *gin.Context) {
+	categoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category ID"})
+		return
+	}
+
+	_, err = h.db.Pool.Exec(context.Background(), "DELETE FROM categories WHERE id = $1", categoryID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete category"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Category deleted successfully"})
 }

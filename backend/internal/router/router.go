@@ -35,6 +35,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	badgeHandler := handlers.NewBadgeHandler(db)
 	storeHandler := handlers.NewStoreHandler(db)
 	productHandler := handlers.NewProductHandler(db)
+	settingsHandler := handlers.NewSettingsHandler(db)
 	wsHandler := websocket.NewHandler(hub, jwtService)
 
 	// Health check
@@ -45,6 +46,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 	// Initialize Analytics & Jobs Handlers
 	analyticsHandler := handlers.NewAnalyticsHandler(db)
 	jobHandler := handlers.NewJobHandler(db)
+	adminHandler := handlers.NewAdminHandler(db)
 
 	// API routes
 	api := r.Group("/api")
@@ -72,6 +74,7 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		// Users
 		users := api.Group("/users")
 		{
+			users.GET("", middleware.Auth(jwtService), authHandler.GetUsers) // Add this line
 			users.GET("/me", middleware.Auth(jwtService), authHandler.GetMe)
 			users.PUT("/me", middleware.Auth(jwtService), authHandler.UpdateProfile)
 			users.PUT("/me/town", middleware.Auth(jwtService), authHandler.UpdateTown)
@@ -191,6 +194,10 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 
 			// Tracking
 			stores.POST("/:id/track", storeHandler.TrackEvent)
+
+			// Admin Management
+			stores.POST("/:id/verify", middleware.Auth(jwtService), storeHandler.VerifyStore)
+			stores.DELETE("/:id", middleware.Auth(jwtService), storeHandler.DeleteStore)
 		}
 
 		// Products
@@ -280,7 +287,63 @@ func SetupRouter(db *database.DB, jwtService *jwt.Service, hub *websocket.Hub, c
 		api.POST("/test/set-ending-soon/:id", testHandler.SetAuctionEndingSoon)
 		api.POST("/test/update-email", testHandler.UpdateUserEmail)
 		api.POST("/test/restale-store/:slug", testHandler.RestaleStore)
+
+		// ADMIN ENDPOINTS (Restricted to dashboard users, though currently using general Auth)
+		admin := api.Group("/admin")
+		admin.Use(middleware.Auth(jwtService))
+		{
+			admin.GET("/stats", adminHandler.GetPlatformStats)
+			admin.GET("/admins", adminHandler.ListAdmins)
+			admin.POST("/admins", adminHandler.AddAdmin)
+			admin.DELETE("/admins/:id", adminHandler.RemoveAdmin)
+			admin.GET("/bids", auctionHandler.GetAllBids)
+			admin.GET("/conversations", chatHandler.GetAllConversations)
+			admin.GET("/conversations/:id/messages", chatHandler.GetConversationMessagesAdmin)
+			admin.GET("/notifications", notificationHandler.GetAllNotifications)
+			admin.POST("/notifications", notificationHandler.SendAdminNotification)
+
+			// Auctions
+			admin.GET("/auctions/:id", auctionHandler.GetAdminAuctionDetails)
+			admin.DELETE("/auctions/:id", auctionHandler.AdminCancelAuction)
+			admin.POST("/auctions/:id/approve", auctionHandler.AdminApproveAuction)
+			admin.PUT("/auctions/:id/status", auctionHandler.AdminUpdateAuctionStatus)
+
+			// Users
+			admin.GET("/users/search", authHandler.SearchUsers)
+			admin.GET("/users/:id", authHandler.GetAdminUserDetails)
+			admin.PUT("/users/:id/status", authHandler.UpdateUserStatus)
+			admin.PUT("/users/:id/verify", authHandler.VerifyUserByAdmin)
+
+			// Categories
+			admin.POST("/categories", categoryHandler.CreateCategory)
+			admin.PUT("/categories/:id", categoryHandler.UpdateCategory)
+			admin.DELETE("/categories/:id", categoryHandler.DeleteCategory)
+
+			// Stores (Admin)
+			admin.GET("/stores/:id", storeHandler.AdminGetStore)
+			admin.PUT("/stores/:id", storeHandler.AdminUpdateStore)
+			admin.GET("/stores/:id/products", storeHandler.AdminGetStoreProducts)
+			admin.POST("/stores/:id/products", productHandler.AdminCreateProduct)
+
+			// Products (Admin)
+			admin.PUT("/products/:id", productHandler.AdminUpdateProduct)
+			admin.DELETE("/products/:id", productHandler.AdminDeleteProduct)
+
+			// Towns (Admin)
+			admin.POST("/towns", townHandler.CreateTown)
+			admin.PUT("/towns/:id", townHandler.UpdateTown)
+			admin.DELETE("/towns/:id", townHandler.DeleteTown)
+			admin.POST("/towns/:id/suburbs", townHandler.CreateSuburb)
+			admin.DELETE("/towns/:id/suburbs/:suburbId", townHandler.DeleteSuburb)
+
+			// Settings (Admin)
+			admin.GET("/settings", settingsHandler.GetAllSettings)
+			admin.PUT("/settings/:key", settingsHandler.UpdateSetting)
+		}
 	}
+
+	// Public Settings
+	api.GET("/settings/:key", settingsHandler.GetSetting)
 
 	// WebSocket
 	r.GET("/ws", wsHandler.HandleConnection)

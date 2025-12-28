@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/airmass/backend/internal/database"
@@ -429,4 +431,141 @@ func (h *ChatHandler) MarkAllAsRead(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// GetAllConversations returns all conversations in the system (Admin)
+func (h *ChatHandler) GetAllConversations(c *gin.Context) {
+	townID := c.Query("town_id")
+	suburbID := c.Query("suburb_id")
+	convType := c.Query("type") // "auction", "shop", "all"
+
+	where := []string{"1=1"}
+	args := []interface{}{}
+	argNum := 1
+
+	if townID != "" {
+		// Filter by town of the auction (if auction-based) or town of the store (if shop-based)
+		where = append(where, fmt.Sprintf("(a.town_id = $%d OR s.town_id = $%d)", argNum, argNum))
+		args = append(args, townID)
+		argNum++
+	}
+
+	if suburbID != "" {
+		where = append(where, fmt.Sprintf("(a.suburb_id = $%d OR s.suburb_id = $%d)", argNum, argNum))
+		args = append(args, suburbID)
+		argNum++
+	}
+
+	if convType == "auction" {
+		where = append(where, "c.auction_id IS NOT NULL")
+	} else if convType == "shop" {
+		where = append(where, "c.store_id IS NOT NULL")
+	}
+
+	query := fmt.Sprintf(`
+		SELECT c.id, c.auction_id, c.store_id, c.participant_1, c.participant_2, 
+			   c.last_message_preview, c.last_message_at,
+			   a.title as auction_title,
+			   s.store_name,
+			   u1.username, u1.avatar_url, u2.username, u2.avatar_url,
+			   COUNT(*) OVER() as total_count
+		FROM conversations c
+		LEFT JOIN auctions a ON c.auction_id = a.id
+		LEFT JOIN stores s ON c.store_id = s.id
+		LEFT JOIN users u1 ON c.participant_1 = u1.id
+		LEFT JOIN users u2 ON c.participant_2 = u2.id
+		WHERE %s
+		ORDER BY c.last_message_at DESC NULLS LAST
+		LIMIT 100`, strings.Join(where, " AND "))
+
+	rows, err := h.db.Pool.Query(context.Background(), query, args...)
+
+	if err != nil {
+		log.Printf("Error fetching all conversations: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch conversations"})
+		return
+	}
+	defer rows.Close()
+
+	var chats []gin.H
+	totalCount := 0
+	for rows.Next() {
+		var id, p1, p2 uuid.UUID
+		var auctionID, storeID *uuid.UUID
+		var lastMsg, lastMsgAt, auctionTitle, storeName, u1Avatar, u2Avatar *string
+		var u1Name, u2Name string
+
+		err := rows.Scan(
+			&id, &auctionID, &storeID, &p1, &p2,
+			&lastMsg, &lastMsgAt,
+			&auctionTitle, &storeName,
+			&u1Name, &u1Avatar, &u2Name, &u2Avatar,
+			&totalCount,
+		)
+		if err != nil {
+			log.Printf("Error scanning conversation: %v", err)
+			continue
+		}
+
+		chats = append(chats, gin.H{
+			"id":                   id,
+			"auction_id":           auctionID,
+			"auction_title":        auctionTitle,
+			"store_id":             storeID,
+			"store_name":           storeName,
+			"participant_1_name":   u1Name,
+			"participant_1_avatar": u1Avatar,
+			"participant_2_name":   u2Name,
+			"participant_2_avatar": u2Avatar,
+			"last_message":         lastMsg,
+			"updated_at":           lastMsgAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"chats": chats,
+		"total": totalCount,
+	})
+}
+
+// GetConversationMessagesAdmin returns all messages in a conversation for Admin
+func (h *ChatHandler) GetConversationMessagesAdmin(c *gin.Context) {
+	chatID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid conversation ID"})
+		return
+	}
+
+	rows, err := h.db.Pool.Query(context.Background(), `
+		SELECT m.id, m.sender_id, m.body, m.is_read, m.created_at, u.username
+		FROM messages m
+		JOIN users u ON m.sender_id = u.id
+		WHERE m.conversation_id = $1
+		ORDER BY m.created_at ASC
+	`, chatID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch messages"})
+		return
+	}
+	defer rows.Close()
+
+	var messages []gin.H
+	for rows.Next() {
+		var id, senderID uuid.UUID
+		var body, username string
+		var isRead bool
+		var createdAt time.Time
+		rows.Scan(&id, &senderID, &body, &isRead, &createdAt, &username)
+		messages = append(messages, gin.H{
+			"id":         id,
+			"sender_id":  senderID,
+			"username":   username,
+			"body":       body,
+			"is_read":    isRead,
+			"created_at": createdAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"messages": messages})
 }
