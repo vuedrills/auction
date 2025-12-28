@@ -18,6 +18,7 @@ Thumbs.db
 backend/bin/
 backend/dist/
 backend/vendor/
+backend/server
 backend/*.exe
 backend/*.test
 backend/*.prof
